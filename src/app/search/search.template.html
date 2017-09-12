@@ -1,0 +1,269 @@
+<div class="alerts-bar">
+  <alert *ngFor="let alert of alerts;let i = index" [type]="alert.type" dismissOnTimeout="3000" (close)="closeAlert(i)">
+    {{ alert?.msg }}
+  </alert>
+</div>
+<div class="search-container">
+  <div style="position: relative;">
+    <div *ngIf="searchResults" class="search-result-count">
+      <b>Trouvés</b> : {{ searchResults.length }}
+    </div>
+  </div>
+  <div>
+    <div class="grey-container">
+      <form (ngSubmit)="searchUnit('search')" [formGroup]="searchForm" (keydown.enter)="$event.preventDefault()">
+        <div class="row">
+          <div class="col-md-4">
+              <label style="font-weight: normal;">
+                  <input type="checkbox" formControlName="only_permanent" /> Seulement les enreg. permanents
+              </label>
+          </div>
+          <div class="col-md-4">
+              <label style="font-weight: normal;">
+                  <input type="checkbox" formControlName="only_valid" /> Seulement les unités valides
+              </label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="input-sigle">Sigle</label>
+              <input type="text" class="form-control" formControlName="sigle" id="input-sigle" placeholder="" />
+            </div>
+          </div>
+          <div class="col-md-8">
+            <div class="form-group">
+              <label for="input-label">Libellé</label>
+              <input type="text" class="form-control" formControlName="label" id="input-label" placeholder="" />
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="input-cf">CF</label>
+              <input type="text" class="form-control" formControlName="cf" id="input-cf" placeholder="" />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="input-type">Type</label>
+              <select class="form-control" formControlName="type" id="input-type">
+                <option value="">-- Choisissez --</option>
+                <option *ngFor="let unitType of unitTypesList" value="{{ unitType.code }}">{{ unitType.label }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="input-level">Niveau</label>
+              <select class="form-control" formControlName="level" id="input-level">
+                <option value="">-</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="form-group" style="position: relative;">
+              <label for="input-responsible">Responsable</label>
+
+                <div *ngIf="selectedResponsible != null" class="search-selected-element-box">
+                  {{ selectedResponsible.displaynameLong }} ({{ selectedResponsible.id }})
+                  <a target="_blank" href="http://people.epfl.ch/{{ selectedResponsible.id }}">
+                    <span class="glyphicon glyphicon-new-window" style="font-size: 65%;" title="Ouvrir sur people"></span>
+                  </a>
+                  <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 8px; right: 10px;">
+                    <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer le responsable" (click)="clearResponsible()"></span>   
+                  </div>
+                </div>
+                <div  style="position: relative;">
+                  <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="responsibleSearchText" placeholder="Rechercher par nom, prénom, sciper..." (keyup.enter)="searchResponsible()" />
+                  <div *ngIf="searchResponsibleIsOngoing" style="position: absolute; top: 6px; right: 30px;">
+                    <img src="/assets/img/spinner.gif" />   
+                  </div>
+                  <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchResponsible()">
+                    <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
+                  </div>
+                </div>
+                <div *ngIf="searchReponsibleShowResults && searchReponsibleResults.length > 0" class="search-result-box">
+                  <div *ngFor="let resultPerson of searchReponsibleResults">
+                    <span class="cursor-pointer" title="Sélectionner cette personne" (click)="responsibleSelected(resultPerson)">{{ resultPerson.displaynameLong }} ({{ resultPerson.id }})</span>
+                    <a target="_blank" href="http://people.epfl.ch/{{ resultPerson.id }}">
+                      <span class="glyphicon glyphicon-new-window" style="font-size: 65%;" title="Ouvrir sur people"></span>
+                    </a>
+                  </div>
+                </div>
+                <div *ngIf="searchReponsibleShowResults && searchReponsibleResults.length == 0" class="search-result-box">
+                  Aucun résultat.
+                </div>
+                <div *ngIf="searchReponsibleErrorMessage != null" class="search-result-box search-result-box-error">
+                  {{ searchReponsibleErrorMessage }}
+                </div>
+
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-3">
+            <div class="form-group">
+              <label for="input-createdAtStart">Créé entre le...</label>
+              <br />
+              <input class="form-control" formControlName="created_at_start" maxlength="10" date-input />
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label for="input-createdAtEnd">...et le</label>
+              <br />
+              <input class="form-control" formControlName="created_at_end" maxlength="10" date-input />
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label for="input-updatedAtStart">Modifié entre le...</label>
+              <br />
+              <input class="form-control" formControlName="updated_at_start" maxlength="10" date-input />
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label for="input-updatedAtEnd">...et le</label>
+              <br />
+              <input class="form-control" formControlName="updated_at_end" maxlength="10" date-input />
+            </div>
+          </div>
+        </div>
+        <div formGroupName="attribute_criterias">
+          <div class="row" *ngFor="let attributeCriteriaForm of searchForm.controls.attribute_criterias.controls; let i = index" class="attribute-criteria-container">
+            <div style="position: absolute; z-index: 999; top: 5px; right: 5px;">
+              <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer ce critère" (click)="removeAttributeCriteria(i)"></span>   
+            </div>
+            <div formGroupName="{{ i }}">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="input-type">Attribut</label>
+                    <select class="form-control" formControlName="search_attribute_code">
+                      <option *ngFor="let attribute of attributesList" value="{{ attribute.code }}">{{ attribute.label }}</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="">Valeur</label>
+                    <input type="text" class="form-control" placeholder="Valeur recherchée..." formControlName="search_value" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 add-attribute-criteria-container">
+            <div class="add-attribute-criteria-block" (click)="addAttributeCriteria()">
+              Ajouter un critère sur attribut&nbsp;<span class="glyphicon glyphicon-plus"></span>
+            </div>
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <img *ngIf="searchIsOngoing" src="/assets/img/spinner.gif" />
+          <button type="submit" class="btn btn-primary" [disabled]="searchIsOngoing || !searchForm.valid">Rechercher les unités</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div>
+    <div *ngIf="!searchResults">
+      <i>Sélectionnez au moins 1 critère de recherche.</i>
+    </div>
+    <div *ngIf="searchResults && searchResults.length > 0" class="results-block">
+      <div style="text-align: right; margin-bottom: 10px;">
+        <button class="btn btn-excel" (click)="searchUnit('export')">Exporter au format CSV&nbsp;&nbsp;<img src="assets/img/excel-icon.png" /></button>
+      </div>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>
+              Sigle
+            </th>
+            <th>
+              Libellé
+            </th>
+            <th>
+              Position
+            </th>
+            <th>
+              CF
+            </th>
+            <th>
+              Type
+            </th>
+            <th *ngIf="authService.hasSuperAdminRole(loggedUserInfo)">
+
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let unit of searchResults">
+            <td>
+              {{ unit.sigle }}&nbsp;
+              <a target="_blank" href="http://search.epfl.ch/browseunit.do?unit={{ unit.id }}">
+                <span class="glyphicon glyphicon-new-window" style="font-size: 65%;" title="Ouvrir sur l'annuaire EPFL"></span>
+              </a>
+            </td>
+            <td (click)="selectUnit(unit)" class="label-cell">
+              <span title="Cliquer pour voir ou modifier">{{ unit.label }}</span>
+            </td>
+            <td>
+              {{ unit.long_sigle }}
+            </td>
+            <td>
+              {{ unit.cf }}
+            </td>
+            <td>
+              {{ unit.type }}
+            </td>
+            <td class="actions-cell" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)">
+              <span *ngIf="unit.level < 4 && unit.hasUnitModel" class="glyphicon glyphicon-duplicate" title="Modifier le modèle" (click)="createOrUpdateUnitModel(unit)"></span>
+              <span *ngIf="unit.level < 4 && !unit.hasUnitModel" class="glyphicon glyphicon-duplicate" style="opacity: 0.33;" title="Créer un modèle" (click)="createOrUpdateUnitModel(unit)"></span>
+              <span *ngIf="unit.hasUnitPlanned" class="glyphicon glyphicon-time" title="Modifier la version planifiée" (click)="createOrUpdateUnitPlanned(unit)"></span>
+              <span *ngIf="!unit.hasUnitPlanned" class="glyphicon glyphicon-time" style="opacity: 0.33;" title="Créer une version planifiée"
+                (click)="createOrUpdateUnitPlanned(unit)"></span>
+              <span class="glyphicon glyphicon-trash" title="Supprimer cette unité" (click)="deleteUnit(unit)"></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<app-updateunit #myUpdateUnitComponent
+  (unitUpdated)="unitUpdated($event)"
+  (unitPlannedDone)="unitPlannedDone($event)"
+  (unitModelDone)="unitModelDone($event)">
+</app-updateunit>
+
+<app-deleteunit #myDeleteUnitComponent
+  (unitDeleted)="unitDeleted($event)">
+</app-deleteunit>
+
+<app-changedoc #myChangeDocComponent
+  (changeDocCreated)="changeDocCreated($event)">
+</app-changedoc>
+
+<!--
+<app-unitplanned #myUnitPlannedComponent (unitPlannedDone)="unitPlannedDone($event)">
+</app-unitplanned>
+-->
+<!--
+<app-unitmodel #myUnitModelComponent
+  (unitModelDone)="unitModelDone($event)">
+</app-unitmodel>
+-->

@@ -1,0 +1,35 @@
+<form (ngSubmit)="createChangeDoc(changeDocForm.value)" [formGroup]="changeDocForm">
+  <div bsModal #changeDocModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="modal-changedoc" (onHide)="onHide()">
+    <div class="modal-dialog modal-lg" *ngIf="showView">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 class="modal-title">Documenter le changement</h4>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="changedoc_description">Description</label>
+            <textarea class="form-control" formControlName="changeDescription" rows="10"></textarea>
+          </div>
+          <div class="form-group">
+            <label for="changedoc_file">Fichier</label>
+            <div class="change-attachment-box" *ngIf="unitPlanned != null && unitPlanned.attachmentFilename != null">
+              {{ unitPlanned.attachmentFilename }}
+              <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer le fichier" (click)="setDeleteAttachementFileFlag()"></span>
+            </div>
+            <div style="clear: both;">
+              <input style="float: left;" #fileUploadInput type="file" (change)="fileChange($event)" placeholder="Upload file" accept=".pdf,.doc,.docx" />
+              <span style="float: left; margin-left: 10px; padding-top: 3px;" class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer" (click)="clearFile()"></span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="btn-close-unit-update" class="btn btn-default" data-dismiss="modal" (click)="closeModal()">Annuler</button>
+          <button type="submit" id="btn-submit-unit-update" class="btn btn-primary" [disabled]="!changeDocForm.valid">Valider</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

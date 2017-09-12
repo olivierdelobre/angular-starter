@@ -1,0 +1,19 @@
+<div bsModal #deleteConfirmationModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true" (onHide)="onHide()">
+  <div class="modal-dialog modal-md" *ngIf="showView">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title">Supprimer l'unité <i>{{ unitToDelete.sigle }} - {{ unitToDelete.label }}</i></h4>
+      </div>
+      <div class="modal-body">
+        Êtes-vous sûr ?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="closeModal()">Annuler</button>
+        <button type="button" class="btn btn-danger" (click)="deleteUnit()">Confirmer</button>
+      </div>
+    </div>
+  </div>
+</div>

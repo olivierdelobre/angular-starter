@@ -1,0 +1,9 @@
+<div class="hierarchy-item">
+  <span *ngIf="!isRoot" class="glyphicon glyphicon-triangle-bottom" style="font-size: 65%; padding-right: 5px;"></span>
+  {{ unit.sigle }}
+  &nbsp;&nbsp;
+  {{ unit.cf }}
+  &nbsp;&nbsp;
+  {{ unit.label }}
+  <app-hierarchy [unit]="unit.child" [isRoot]="false" *ngIf="unit.child != null"></app-hierarchy>
+</div>

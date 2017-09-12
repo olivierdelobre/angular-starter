@@ -1,0 +1,68 @@
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+div.inline {
+  display: inline-block;
+}
+.chevron-cell {
+  display: inline-block;
+  cursor: pointer;
+  width: 17px;
+}
+.chevron-cell > span {
+  font-size: 85%;
+}
+.sigle-cell {
+  width: 140px;
+  display: inline-block;
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+.cf-cell {
+  width: 60px;
+  display: inline-block;
+  text-overflow: ellipsis;
+}
+.label-cell {
+  display: inline-block;
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+.actions-cell {
+  display: inline-block;
+  cursor: pointer;
+  padding-left: 5px;
+  background-color: #fff;
+}
+.invalid-unit {
+  color: red;
+}
+.invalid-unit a {
+  color: red;
+}
+.filtered-unit {
+  font-weight: bold;
+}
+.unit-row {
+  border-top: 1px dotted #e0e0e0;
+  padding: 5px 0;
+}
+
+
+@media screen and (max-width: 1024px) {
+    .sigle-cell {
+      width: 25%;
+      white-space: nowrap;
+    }
+    .cf-cell {
+      width: 10%;
+    }
+    .label-cell {
+      width: 50%;
+      white-space: nowrap;
+    }
+    .actions-cell {
+      width: 100px;
+    }
+}

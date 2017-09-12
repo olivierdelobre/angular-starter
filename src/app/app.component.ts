@@ -1,82 +1,66 @@
-/**
- * Angular 2 decorators and services
- */
-import {
-  Component,
-  OnInit,
-  ViewEncapsulation
-} from '@angular/core';
-import { AppState } from './app.service';
+import { Component, ViewEncapsulation, ViewContainerRef } from '@angular/core';
+import { Subscription } from 'rxjs/Subscription';
 
-/**
- * App Component
- * Top Level Component
- */
+import { AuthService } from './services/auth.service';
+import { AppState } from './app.service';
+import { SharedAppStateService } from './services/sharedappstate.service';
+
+
 @Component({
   selector: 'app',
   encapsulation: ViewEncapsulation.None,
-  styleUrls: [
-    './app.component.css'
-  ],
-  template: `
-    <nav>
-      <a [routerLink]=" ['./'] "
-        routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">
-        Index
-      </a>
-      <a [routerLink]=" ['./home'] "
-        routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">
-        Home
-      </a>
-      <a [routerLink]=" ['./detail'] "
-        routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">
-        Detail
-      </a>
-      <a [routerLink]=" ['./barrel'] "
-        routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">
-        Barrel
-      </a>
-      <a [routerLink]=" ['./about'] "
-        routerLinkActive="active" [routerLinkActiveOptions]= "{exact: true}">
-        About
-      </a>
-    </nav>
-
-    <main>
-      <router-outlet></router-outlet>
-    </main>
-
-    <pre class="app-state">this.appState.state = {{ appState.state | json }}</pre>
-
-    <footer>
-      <span>WebPack Angular 2 Starter by <a [href]="url">@AngularClass</a></span>
-      <div>
-        <a [href]="url">
-          <img [src]="angularclassLogo" width="25%">
-        </a>
-      </div>
-    </footer>
-  `
+  styleUrls: [ './app.style.css' ],
+  templateUrl: './app.template.html'
 })
-export class AppComponent implements OnInit {
-  public angularclassLogo = 'assets/img/angularclass-avatar.png';
-  public name = 'Angular 2 Webpack Starter';
-  public url = 'https://twitter.com/AngularClass';
+export class App {
+  private viewContainerRef: ViewContainerRef;
+
+  treeFilter: string;
+  loggedUserInfo: any;
+  loggedUserInfoSubscription: Subscription;
+
+  oauth2ClientId: string;
+  oauth2ProviderUrl: string;
+  oauth2TokenProxyUrl: string;
 
   constructor(
-    public appState: AppState
-  ) {}
+    viewContainerRef:ViewContainerRef,
+    public appState: AppState,
+    public authService: AuthService,
+    public sharedAppStateService: SharedAppStateService
+  ) {
+    this.viewContainerRef = viewContainerRef;
+  }
 
-  public ngOnInit() {
-    console.log('Initial App State', this.appState.state);
+
+  ngOnInit() {
+    //console.log('Initial App State', this.appState.state);
+    this.oauth2ClientId = process.env.OAUTH2_CLIENT_ID;
+    this.oauth2ProviderUrl = process.env.OAUTH2_PROVIDER_URL;
+    this.oauth2TokenProxyUrl = process.env.OAUTH2_TOKEN_PROXY_URL;
+
+    this.treeFilter = "";
+
+    this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "read" };
+    this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe(info => this.loggedUserInfo = info);
+    
+    if (localStorage.getItem('auth_token') != null) {
+      this.authService.getUserinfo()
+        .subscribe(
+          userinfo => {
+            this.sharedAppStateService.updateLoggedUserInfo(userinfo);
+          },
+          error => console.log('Failed to retrieve user info'),
+          () => {
+            
+          }
+        );
+    }
+  }
+
+
+  ngOnDestroy() {
+    this.loggedUserInfoSubscription.unsubscribe();
   }
 
 }
-
-/**
- * Please review the https://github.com/AngularClass/angular2-examples/ repo for
- * more angular app examples that you may copy/paste
- * (The examples may not be updated as quickly. Please open an issue on github for us to update it)
- * For help or questions please contact us at @AngularClass on twitter
- * or our chat on Slack at https://AngularClass.com/slack-join
- */

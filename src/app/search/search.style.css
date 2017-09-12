@@ -1,0 +1,76 @@
+.grey-container {
+    background: #f2f2f2 none repeat scroll 0 0;
+    border: 1px solid #dddddd;
+    margin: 0 0 15px;
+    padding: 15px 20px;
+}
+.results-block {
+    margin-top: 0;
+}
+.label-cell {
+  cursor: pointer;
+}
+.icon-green {
+  color: #00ff00;
+}
+.icon-red {
+  color: #ff0000;
+}
+.search-result-count {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+}
+.alerts-bar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 33%;
+  padding: 10px;
+  opacity: 0.99;
+  margin: auto;
+}
+.actions-cell {
+  cursor: pointer;
+  padding-left: 5px;
+  text-align: right;
+}
+.btn-excel {
+  background-color: #308757;
+  color: #ffffff;
+}
+.btn-excel:hover {
+  background-color: #429d6b;
+}
+.add-attribute-criteria-container {
+  text-align: right;
+  margin: 0 0 10px;
+}
+.add-attribute-criteria-block {
+  cursor: pointer;
+  display: inline-block;
+}
+.attribute-criteria-container {
+  padding: 10px 13px 0 13px;
+  border: 1px dashed #c0c0c0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0 0 10px 0;
+  position: relative;
+}
+
+/* override primeNG styles */
+.ui-autocomplete {
+  width: 100%;
+}
+.ui-inputtext {
+  width: 100%;
+}
+
+
+
+@media screen and (max-width: 768px) {
+    .search-container {
+        margin-top: 10px;
+    }
+}

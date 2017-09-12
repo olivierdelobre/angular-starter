@@ -20,6 +20,13 @@ const HotModuleReplacementPlugin = require('webpack/lib/HotModuleReplacementPlug
  * Webpack Constants
  */
 const ENV = process.env.ENV = process.env.NODE_ENV = 'development';
+const UNITS_API_URL = process.env.UNITS_API_URL = 'https://infotest.epfl.ch/units-api/v1/';
+const SCIPER_API_URL = process.env.SCIPER_API_URL = 'https://infotest.epfl.ch/sciper-api/v1/';
+const CADI_API_URL = process.env.CADI_API_URL = 'https://infotest.epfl.ch/cadi-api/v1/';
+const ARCHIBUS_API_URL = process.env.ARCHIBUS_API_URL = 'https://infotest.epfl.ch/archibus-api/v1/';
+const OAUTH2_PROVIDER_URL = process.env.OAUTH2_PROVIDER_URL = 'https://test-tequila.epfl.ch/OAUTH2IdP/';
+const OAUTH2_TOKEN_PROXY_URL = process.env.OAUTH2_TOKEN_PROXY_URL = 'https://infotest.epfl.ch/ng-units-oauth2-proxy/v1/oauth2/getTokens';
+const OAUTH2_CLIENT_ID = process.env.OAUTH2_CLIENT_ID = 'd518e10ce2bfdaee8c5484ba@epfl.ch';
 const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || 3000;
 const PUBLIC = process.env.PUBLIC_DEV || HOST + ':' + PORT;
@@ -27,6 +34,13 @@ const AOT = process.env.BUILD_AOT || helpers.hasNpmFlag('aot');
 const HMR = helpers.hasProcessFlag('hot');
 const METADATA = {
   host: HOST,
+  UNITS_API_URL: UNITS_API_URL,
+  SCIPER_API_URL: SCIPER_API_URL,
+  CADI_API_URL: CADI_API_URL,
+  ARCHIBUS_API_URL: ARCHIBUS_API_URL,
+  OAUTH2_PROVIDER_URL: OAUTH2_PROVIDER_URL,
+  OAUTH2_TOKEN_PROXY_URL: OAUTH2_TOKEN_PROXY_URL,
+  OAUTH2_CLIENT_ID: OAUTH2_CLIENT_ID,
   port: PORT,
   public: PUBLIC,
   ENV: ENV,
@@ -139,10 +153,24 @@ module.exports = function (options) {
        */
       new DefinePlugin({
         'ENV': JSON.stringify(METADATA.ENV),
+        'UNITS_API_URL': JSON.stringify(METADATA.UNITS_API_URL),
+        'SCIPER_API_URL': JSON.stringify(METADATA.SCIPER_API_URL),
+        'CADI_API_URL': JSON.stringify(METADATA.CADI_API_URL),
+        'ARCHIBUS_API_URL': JSON.stringify(METADATA.ARCHIBUS_API_URL),
+        'OAUTH2_PROVIDER_URL': JSON.stringify(METADATA.OAUTH2_PROVIDER_URL),
+        'OAUTH2_TOKEN_PROXY_URL': JSON.stringify(METADATA.OAUTH2_TOKEN_PROXY_URL),
+        'OAUTH2_CLIENT_ID': JSON.stringify(METADATA.OAUTH2_CLIENT_ID),
         'HMR': METADATA.HMR,
         'process.env.ENV': JSON.stringify(METADATA.ENV),
         'process.env.NODE_ENV': JSON.stringify(METADATA.ENV),
-        'process.env.HMR': METADATA.HMR
+        'process.env.HMR': METADATA.HMR,
+        'process.env.UNITS_API_URL' : JSON.stringify(METADATA.UNITS_API_URL),
+        'process.env.SCIPER_API_URL' : JSON.stringify(METADATA.SCIPER_API_URL),
+        'process.env.CADI_API_URL' : JSON.stringify(METADATA.CADI_API_URL),
+        'process.env.ARCHIBUS_API_URL' : JSON.stringify(METADATA.ARCHIBUS_API_URL),
+        'process.env.OAUTH2_PROVIDER_URL' : JSON.stringify(METADATA.OAUTH2_PROVIDER_URL),
+        'process.env.OAUTH2_TOKEN_PROXY_URL' : JSON.stringify(METADATA.OAUTH2_TOKEN_PROXY_URL),
+        'process.env.OAUTH2_CLIENT_ID' : JSON.stringify(METADATA.OAUTH2_CLIENT_ID)
       }),
 
       // new DllBundlesPlugin({

@@ -1,0 +1,215 @@
+body {
+    background-color: #fff;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+}
+#main-container {
+  width: 1000px;
+  margin: auto;
+  padding: 10px 0 0;
+}
+span.active {
+  background-color: gray;
+}
+.header-container {
+    height: 50px;
+}
+.navigation-container {
+    margin-top: 10px;
+}
+.header-logo {
+    position: absolute;
+    top: 6px;
+    left: 17px;
+    z-index: 999;
+}
+.header-title {
+    font-family: Impact,"arialblack",Arial,sans-serif;
+    font-size: 27px;
+    font-weight: normal;
+    left: 120px;
+    letter-spacing: 0.04667em;
+    position: absolute;
+    text-transform: uppercase;
+    top: 6px;
+    z-index: 999;
+}
+.header-title .title-red {
+    color: #ad000f;
+}
+#nav-logo {
+    background: rgba(0, 0, 0, 0) url("https://www.epfl.ch/img/epfl.png") no-repeat scroll 0 7px;
+    float: left;
+    height: 73px;
+    margin: 0 4px 0 0;
+    position: relative;
+    width: 160px;
+}
+#nav-menus {
+    float: left;
+    margin-right: 4px;
+    padding: 0;
+}
+#main-menus {
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+}
+#main-content {
+  width: 1000px;
+  margin: auto;
+}
+.clear {
+    clear: both;
+    display: block;
+    height: 0;
+    visibility: hidden;
+    width: 0;
+}
+#breadcrumbs, #languages {
+    font-family: Arial,helvetica,sans-serif;
+    font-size: 80%;
+    font-weight: normal;
+    letter-spacing: 0;
+    margin-top: 4px;
+    padding: 2px 0 0;
+}
+#breadcrumbs li:first-child::before {
+    background: rgba(0, 0, 0, 0) none repeat scroll 0 0;
+    content: "";
+}
+#breadcrumbs li::before {
+    background: rgba(0, 0, 0, 0) url("https://www.epfl.ch/img/separator.png") no-repeat scroll 0 0;
+    bottom: 2px;
+    content: " ";
+    height: 7px;
+    left: -8px;
+    position: absolute;
+    width: 4px;
+}
+#navbar {
+  clear: both;
+}
+.tree-container {
+  padding-left: 20px;
+}
+.icon-green {
+  color: #00ff00;
+}
+.icon-red {
+  color: #ff0000;
+}
+.icon-blue {
+  color: #0000ff;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+.image-link {
+    padding-top: 13px;
+    padding-bottom: 13px;
+}
+.footer-container {
+    padding: 7px 0;
+    margin-top: 10px;
+    border-top: 1px solid #e0e0e0;
+    font-size: 85%;
+}
+.footer-right-container {
+    text-align: right;
+}
+.errors-bar {
+    margin-bottom: 15px;
+    background: #f5dcdf;
+	border: 1px solid #ff5656;
+	border-radius: 2px;
+	padding: 20px;
+	text-align: center;
+}
+.errors-bar > div {
+    text-align: center;
+    color: red;
+    font-weight: bold;
+}
+.attribute-add-cell {
+  text-align: right;
+}
+.attribute-add-cell > a {
+  text-decoration: none;
+}
+
+
+/* override bootstrap properties */
+.modal-footer {
+    padding: 8px;
+}
+.btn {
+    border-radius: 2px;
+}
+.modal-content {
+    border-radius: 3px;
+}
+.form-control {
+    border-radius: 2px;
+}
+.navbar-default {
+    background-image: none;
+    border: 0;
+}
+.container-fluid {
+    padding-left: 0;
+    padding-right: 0;
+}
+.navbar-nav > li.active {
+    border-right: 1px solid #fff;
+    border-left: 1px solid #fff;
+}
+.navbar-nav > li > a {
+    font-weight: bold;
+    font-size: 13px;
+}
+.navbar-nav > li:hover, .navbar-nav > li:focus {
+    background-color: #000;
+    border-right: 1px solid #fff;
+    border-left: 1px solid #fff;
+}
+.navbar {
+    margin-bottom: 0px;
+}
+
+
+@media screen and (max-width: 1024px) {
+    #main-content {
+        width: 100%;
+    }
+    #main-container {
+        width: 100%;
+        padding: 5px;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    #main-content {
+        padding-top: 0;
+        margin-top: -10px;
+    }
+    .navbar-header {
+        background-color: #fff;
+        padding-bottom: 10px;
+    }
+    .navbar-default {
+        box-shadow: none;
+    }
+    .navbar-nav {
+        margin: 0;
+    }
+    .navbar-nav > li:hover, .navbar-nav > li:focus {
+        border: 0;
+    }
+    .navbar-nav > li.active {
+        border: 0;
+    }
+    .navigation-container {
+        margin-top: -45px;
+    }
+}

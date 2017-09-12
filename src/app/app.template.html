@@ -1,0 +1,70 @@
+<div id="main-container">
+    <div class="row header-container">
+        <div class="col-md-12">
+            <a href="https://www.epfl.ch" class="header-logo">
+                <img src="assets/img/epfl_small.png" />
+            </a>
+            <p class="header-title">
+                Gestion des <span class="title-red">unités</span>
+            </p>
+        </div>
+    </div>
+    <div class="row navigation-container">
+        <div class="col-md-12" style="margin-bottom: 10px;">
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+
+                    <!-- Collect the nav links, forms, and other content for toggling -->
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <li [routerLinkActive]="['active']">
+                                <a [routerLink]=" ['./arbre'] ">Arbre des unités</a>
+                            </li>
+                            <li [routerLinkActive]="['active']">
+                                <a [routerLink]=" ['./recherche'] ">Recherche d'unités</a>
+                            </li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li *ngIf="!authService.isLoggedIn()">
+                                <a href="{{oauth2ProviderUrl}}auth?client_id={{oauth2ClientId}}&response_type=code&scope=Units,Tequila.profile&redirect_uri={{oauth2TokenProxyUrl}}">Se connecter</a>
+                            </li>
+                            <li class="dropdown" *ngIf="authService.isLoggedIn()">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="padding-top: 13px; padding-bottom: 13px;">
+                                    <img src="assets/icon/ic_person_white_24dp_1x.png"> 
+                                    <span *ngIf="loggedUserInfo.uniqueid != 0">{{ loggedUserInfo.username }} ({{ loggedUserInfo.uniqueid }})</span> 
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a [routerLink]=" ['./logout'] ">Se déconnecter</a></li>
+                                </ul>
+                            </li>
+                            <li [routerLinkActive]="['active']">
+                                <a [routerLink]=" ['./aide'] " style="padding-top: 13px; padding-bottom: 13px;">
+                                    <img src="assets/icon/ic_help_white_24dp_1x.png"> 
+                                </a>
+                            </li>
+                        </ul>
+                    </div><!-- /.navbar-collapse -->
+                </div><!-- /.container-fluid -->
+            </nav>
+        </div>
+    </div>
+    <div id="main-content">
+        <main>
+            <router-outlet></router-outlet>
+        </main>
+    </div>
+    <footer class="footer-container">
+        <div class="footer-right-container">
+            © EPFL - idevelop, version 1.0.3 (Juillet 2017)
+        </div>
+    </footer>
+</div>

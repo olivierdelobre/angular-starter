@@ -13,6 +13,12 @@
   <%= webpackConfig.htmlElements.headTags %>
   <% } %>
 
+  <link rel="shortcut icon" type="image/x-icon" href="https://static.epfl.ch/v0.22.15/favicon.ico" />
+  <link rel="icon" type="image/png" href="https://static.epfl.ch/v0.22.15/favicon.png" />
+  <link rel="stylesheet" type="text/css" href="<%= htmlWebpackPlugin.options.proxyPrefix %>assets/css/primeng/theme.css" />
+  <link rel="stylesheet" type="text/css" href="<%= htmlWebpackPlugin.options.proxyPrefix %>assets/css/primeng/primeng.min.css" />
+  <link rel="stylesheet" type="text/css" href="<%= htmlWebpackPlugin.options.proxyPrefix %>assets/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="<%= htmlWebpackPlugin.options.proxyPrefix %>assets/css/bootstrap-theme.min.css" />
 
   <%= htmlWebpackPlugin.files.webpackManifest %>
 
@@ -21,15 +27,28 @@
   <script src="/webpack-dev-server.js"></script>
   <% } %>
 
-  <!-- Async Google Analytics: change UA-71073175-1 to be your site's ID -->
-  <script>
-    window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
-    ga('create', 'UA-71073175-1', 'auto');
-    ga('send', 'pageview');
-  </script>
-  <script async src="https://www.google-analytics.com/analytics.js"></script>
-  <!-- End Google Analytics -->
-
+  <style>
+    @keyframes spin {
+      0%  {transform: rotate(0deg);}
+      100% {transform: rotate(360deg);}   
+    }
+    .loader-container {
+      width: 100%;
+      margin-top: 300px;
+      text-align: center;
+    }
+    .loader-container div {
+      margin-top: 10px;
+      /*-webkit-animation: spin 2s infinite linear;*/
+      animation-name: spin;
+      animation-duration: 2s;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+    }
+    .loader-container span {
+      font-size: 150%;
+    }
+  </style>
   <!-- CSS will be injected by webpack here -->
   <!-- Preload link tags will be injected by webpack here -->
 
@@ -38,7 +57,12 @@
 <body>
 
   <app>
-    Loading...
+    <div class="loader-container">
+      <img src="assets/img/epfl.png" />
+      <div>
+        <span class="glyphicon glyphicon-refresh"></span>
+      </div>
+    </div>
   </app>
 
   <!-- Scripts will be injected by webpack here -->

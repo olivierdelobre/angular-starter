@@ -1,0 +1,648 @@
+<form (ngSubmit)="saveUnit(unitForm.value)" [formGroup]="unitForm" (keydown.enter)="$event.preventDefault()">
+  <div bsModal #updateUnitModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="modal-update-unit" (onHide)="onHide()">
+    <div class="modal-dialog modal-lg" *ngIf="showView">
+      <div class="modal-content" id="updateUnitModal">
+        <div class="modal-header">
+          <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <h4 *ngIf="mode == 'UPDATE'" class="modal-title">{{ selectedUnit.sigle }} {{ selectedUnit.label }}</h4>
+          <h4 *ngIf="mode == 'CREATE_CHILD'" class="modal-title">Nouvelle unité rattachée pour <i>{{ parentUnit.label }}</i></h4>
+          <h4 *ngIf="mode == 'CREATE_ROOT'" class="modal-title">Nouvelle unité raçine</h4>
+          <h4 *ngIf="mode == 'CLONE'" class="modal-title">Cloner une unité</h4>
+          <h4 *ngIf="mode == 'EDIT_UNIT_PLANNED'" class="modal-title">Modifications anticipée pour {{ selectedUnitPlanned.sigle }} {{ selectedUnitPlanned.label }}</h4>
+          <h4 *ngIf="mode == 'EDIT_UNIT_MODEL'" class="modal-title">Modèle pour <i>{{ fromUnit.sigle }} - {{ fromUnit.label }}</i></h4>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="errors.length > 0" class="errors-bar">
+            <div *ngFor="let error of errors;let i = index">
+              {{ error?.msg }}
+            </div>
+          </div>
+          <div class="form-horizontal" *ngIf="mode == 'EDIT_UNIT_PLANNED'">
+            <div class="form-group">
+              <label for="" class="col-sm-2 control-label">Appliquer le *</label>
+              <div class="col-sm-10">
+                <input class="form-control" formControlName="applyAt" />
+              </div>
+            </div>
+          </div>
+          <tabset>
+            <tab heading="Données de base">
+              <div class="form-horizontal" style="margin-top: 10px;">
+                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Libellé *</label>
+                  <div class="col-sm-10">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="label" />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ selectedUnit.label }}
+                    </p>
+                  </div>
+                </div>
+                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Sigle *</label>
+                  <div class="col-sm-4">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="sigle" style="text-transform: uppercase;" sigle-input />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ selectedUnit.sigle }}
+                    </p>
+                  </div>
+                  <label for="" class="col-sm-2 control-label">Abrégé *</label>
+                  <div class="col-sm-4">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="labelShort" />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ selectedUnit.labelShort }}
+                    </p>
+                  </div>
+                </div>
+                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Type *</label>
+                  <div class="col-sm-4">
+                    <select *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="form-control" formControlName="type">
+                      <option *ngFor="let unitType of unitTypesList" value="{{ unitType.code }}">{{ unitType.label }}</option>
+                    </select>
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ selectedUnitTypeString }}
+                    </p>
+                  </div>
+                  <label for="" class="col-sm-2 control-label">Langue *</label>
+                  <div class="col-sm-4">
+                    <select *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="form-control" formControlName="lang">
+                      <option *ngFor="let lang of languagesList" value="{{ lang.code }}">{{ lang.label }}</option>
+                    </select>
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ selectedUnitLangString }}
+                    </p>
+                  </div>
+                </div>
+                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Numéro *</label>
+                  <div class="col-sm-4">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && mode != 'UPDATE'" type="text" class="form-control" formControlName="cfNumber" />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) || mode == 'UPDATE'" class="form-text">
+                        {{ selectedUnit.cfNumber }}
+                    </p>
+                  </div>
+                  <label for="" class="col-sm-2 control-label">CF *</label>
+                  <div class="col-sm-4">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && mode != 'UPDATE'" type="text" class="form-control" formControlName="cf" (keyup)="setCfNumber()" number-input />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) || mode == 'UPDATE'" class="form-text">
+                        {{ selectedUnit.cf }}
+                    </p>
+                  </div>
+                </div>
+                <div class="form-group" style="position: relative;" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Existe du *</label>
+                  <div class="col-sm-4">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="form-control" formControlName="from" maxlength="10" date-input />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ selectedUnitFromString }}
+                    </p>
+                  </div>
+                  <label for="" class="col-sm-2 control-label">au</label>
+                  <div class="col-sm-4">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="form-control" formControlName="to" maxlength="10" date-input />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ selectedUnitToString }}
+                    </p>
+                  </div>
+                </div>
+                <div class="form-group" *ngIf="unitHierarchy != null" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Hiérarchie</label>
+                  <div class="col-sm-10 hierarchy-container">
+                    <app-hierarchy [unit]="unitHierarchy" [isRoot]="true"></app-hierarchy>
+                  </div>
+                </div>
+                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Responsable</label>
+                  <div class="col-sm-10">
+                    <div *ngIf="selectedResponsible != null" class="selected-element-box">
+                      {{ selectedResponsible.displaynameLong }} ({{ selectedResponsible.id }})
+                      <a target="_blank" href="http://people.epfl.ch/{{ selectedResponsible.id }}">
+                        <span class="glyphicon glyphicon-new-window" style="font-size: 65%;" title="Ouvrir sur people"></span>
+                      </a>
+                      <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 8px; right: 10px;">
+                        <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer le responsable" (click)="clearResponsible()"></span>   
+                      </div>
+                    </div>
+                    <div  style="position: relative;">
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="responsibleSearchText" placeholder="Rechercher par nom, prénom, sciper..." (keyup.enter)="searchResponsible()" />
+                      <div *ngIf="searchResponsibleIsOngoing" style="position: absolute; top: 6px; right: 30px;">
+                        <img src="/assets/img/spinner.gif" />
+                      </div>
+                      <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchResponsible()">
+                        <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
+                      </div>
+                    </div>
+                    <div *ngIf="searchReponsibleShowResults && searchReponsibleResults.length > 0" class="search-result-box">
+                      <div *ngFor="let resultPerson of searchReponsibleResults">
+                        <span class="cursor-pointer" title="Sélectionner cette personne" (click)="responsibleSelected(resultPerson)">{{ resultPerson.displaynameLong }} ({{ resultPerson.id }})</span>
+                        <a target="_blank" href="http://people.epfl.ch/{{ resultPerson.id }}">
+                          <span class="glyphicon glyphicon-new-window" style="font-size: 65%;" title="Ouvrir sur people"></span>
+                        </a>
+                      </div>
+                    </div>
+                    <div *ngIf="searchReponsibleShowResults && searchReponsibleResults.length == 0" class="search-result-box">
+                      Aucun résultat.
+                    </div>
+                    <div *ngIf="searchReponsibleErrorMessage != null" class="search-result-box search-result-box-error">
+                      {{ searchReponsibleErrorMessage }}
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Bureau</label>
+                  <div class="col-sm-10">
+                    <div *ngIf="selectedRoom != null" class="selected-element-box">
+                      {{ selectedRoom.label }}
+                      <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 8px; right: 10px;">
+                        <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer le bureau" (click)="clearRoom()"></span>   
+                      </div>
+                    </div>
+                    <div  style="position: relative;">
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="roomSearchText" placeholder="Rechercher par libellé" (keyup.enter)="searchRoom()" />
+                      <div *ngIf="searchRoomIsOngoing" style="position: absolute; top: 6px; right: 30px;">
+                        <img src="/assets/img/spinner.gif" />   
+                      </div>
+                      <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchRoom()">
+                        <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
+                      </div>
+                    </div>
+                    <div *ngIf="searchRoomShowResults && searchRoomResults.length > 0" class="search-result-box">
+                      <div *ngFor="let result of searchRoomResults">
+                        <span class="cursor-pointer" title="Sélectionner ce bureau" (click)="roomSelected(result)">{{ result.label }}</span>
+                      </div>
+                    </div>
+                    <div *ngIf="searchRoomShowResults && searchRoomResults.length == 0" class="search-result-box">
+                      Aucun résultat.
+                    </div>
+                    <div *ngIf="searchRoomErrorMessage != null" class="search-result-box search-result-box-error">
+                      {{ searchRoomErrorMessage }}
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="mode != 'EDIT_UNIT_MODEL'" class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Adresse</label>
+                  <div class="col-sm-10 text-cell" style="margin-top: 10px;">
+                    <p [innerHTML]="selectedUnitAddress"></p>
+                  </div>
+                </div>
+                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">N° ordre</label>
+                  <div class="col-sm-2">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="position" number-input />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        
+                    </p>
+                  </div>
+                  <label for="" class="col-sm-2 control-label">Dans EPFL</label>
+                  <div class="col-sm-2 text-cell">
+                    <span *ngIf="selectedUnit.is_epfl == 1" class="glyphicon glyphicon-ok icon-green"></span>
+                    <span *ngIf="selectedUnit.is_epfl == 0" class="glyphicon glyphicon-remove icon-red"></span>
+                  </div>
+                  <label for="" class="col-sm-2 control-label">Temporaire</label>
+                  <div class="col-sm-2 text-cell">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="checkbox" formControlName="isTemporary">
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)">
+                        {{ selectedUnitIsTemporaryString }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </tab>
+            <tab heading="Libellés multilingues">
+              <table class="table table-striped table-unit-labels">
+                <thead>
+                  <tr>
+                    <th style="width: 80px;">Langue</th>
+                    <th>Sigle</th>
+                    <th>Libellé</th>
+                    <th>Abrégé</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><img src="assets/img/flag_FRA.png" style="width: 40px;" alt="Français" title="Français" /></td>
+                    <td>{{ unitForm.get('sigle').value.toUpperCase() }}</td>
+                    <td>{{ unitForm.get('label').value }}</td>
+                    <td>{{ unitForm.get('labelShort').value }}</td>
+                  </tr>
+                  <tr>
+                    <td><img src="assets/img/flag_ENG.png" style="width: 40px;" alt="Anglais" title="Anglais" /></td>
+                    <td>
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="sigleEn" style="text-transform: uppercase;" sigle-input />
+                      <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ labelENG.sigle }}
+                      </p>
+                    </td>
+                    <td>
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="labelEn" />
+                      <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ labelENG.label }}
+                      </p>
+                    </td>
+                    <td>
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="labelShortEn" />
+                      <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ labelENG.labelShort }}
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><img src="assets/img/flag_GER.png" style="width: 40px;" alt="Allemand" title="Allemand" /></td>
+                    <td>
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="sigleGe" style="text-transform: uppercase;" sigle-input />
+                      <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ labelDEU.sigle }}
+                      </p>
+                    </td>
+                    <td>
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="labelGe" />
+                      <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ labelDEU.label }}
+                      </p>
+                    </td>
+                    <td>
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="labelShortGe" />
+                      <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ labelDEU.label }}
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><img src="assets/img/flag_ITA.png" style="width: 40px;" alt="Italien" title="Italien" /></td>
+                    <td>
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="sigleIt" style="text-transform: uppercase;" sigle-input />
+                      <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ labelITA.sigle }}
+                      </p>
+                    </td>
+                    <td>
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="labelIt" />
+                      <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ labelITA.label }}
+                      </p>
+                    </td>
+                    <td>
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="labelShortIt" />
+                      <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
+                        {{ labelITA.label }}
+                      </p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </tab>
+            <tab heading="Compléments">
+              <div class="attributes-panel">
+                <div class="attributes-table-panel">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Libellé</th>
+                        <th>Valeur</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let attributeType of attributesList">
+                        <td>
+                          {{ attributeType.label }}
+                        </td>
+                        <td style="text-align: left;">
+                          <div *ngFor="let attributeValue of (selectedUnitAttributes | attributefilter:attributeType.code)">
+                            {{ attributeValue.text }}
+                            &nbsp;<span *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="glyphicon glyphicon-pencil cursor-pointer" title="Modifier" (click)="showAttributeFormPanel('update', attributeValue, null)"></span>
+                            <span *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer" (click)="deleteAttribute(selectedUnit, attributeValue)"></span>
+                            <div class="attribute-validity-period">
+                              ({{ attributeValue.from | date:"dd.MM.yyyy" }} - {{ attributeValue.to | date:"dd.MM.yyyy" }})
+                            </div>
+                          </div>
+                        </td>
+                        <td class="attribute-add-cell">
+                          <a *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="glyphicon glyphicon-plus icon-green cursor-pointer" title="Créer" (click)="showAttributeFormPanel('add', null, attributeType)"></a>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="attribute-form-panel" *ngIf="selectedUnitAttribute != null">
+                  <form (ngSubmit)="createAttribute(attributeForm.value)" [formGroup]="attributeForm">
+                    <div class="form-group">
+                      <label for="attribute_code">Type</label>
+                      <select class="form-control" formControlName="code" id="attribute_code" (change)="onAttributeTypeChange($event.target.value)">
+                        <option *ngFor="let attributeType of attributesList" value="{{ attributeType.code }}">{{ attributeType.label }}</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label for="attribute_text">Valeur</label>
+                      <input *ngIf="attributeEnumsList.length == 0" type="text" class="form-control" id="attribute_text" placeholder="" formControlName="text" />
+                      <select *ngIf="attributeEnumsList?.length > 0" class="form-control"  formControlName="textSelect" id="attribute_textSelect" (change)="onAttributeValueChange($event.target.value)">
+                        <option *ngFor="let attributeEnum of attributeEnumsList" value="{{ attributeEnum.value }}">
+                          {{ attributeEnum.value }}<span *ngIf="attributeEnum.comment != null"> - {{ attributeEnum.comment }}</span>
+                        </option>
+                      </select>
+                    </div>
+                    <!--
+                    <div class="form-group">
+                      <label for="attribute_url">URL (document externe)</label>
+                      <input type="text" class="form-control" id="attribute_url" placeholder="" formControlName="url" />
+                    </div>
+                    -->
+                    <div class="form-group">
+                      <label for="attribute_valid_from">Valide du...</label>
+                      <br />
+                      <input class="form-control" formControlName="from" maxlength="10" date-input />
+                    </div>
+                    <div class="form-group" style="position: relative;">
+                      <label for="attribute_valid_from">...au</label>
+                      <br />
+                      <input class="form-control" formControlName="to" maxlength="10" date-input />
+                      <!--div style="position: absolute; top: 33px; right: 93px;">
+                        <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer la date de fin" (click)="clearAttributeToDate()"></span>   
+                      </div-->
+                    </div>
+                    <div style="text-align: right;">
+                      <button type="button" class="btn btn-default" (click)="hideAttributeFormPanel()">Annuler</button>
+                      <button type="button" class="btn btn-primary" (click)="saveAttribute()" [disabled]="!attributeForm.valid">Valider</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </tab>
+            <tab *ngIf="showAddressTab" heading="Adresse">
+              <div class="form-horizontal" style="margin-top: 10px;">
+                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Adresse 1</label>
+                  <div class="col-sm-10">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="address1" />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) && selectedUnit.address" class="form-text">
+                      {{ selectedUnit.address.address1 }}
+                    </p>
+                  </div>
+                </div>
+                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Adresse 2</label>
+                  <div class="col-sm-10">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="address2" />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) && selectedUnit.address" class="form-text">
+                      {{ selectedUnit.address.address2 }}
+                    </p>
+                  </div>
+                </div>
+                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Adresse 3</label>
+                  <div class="col-sm-10">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="address3" />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) && selectedUnit.address" class="form-text">
+                      {{ selectedUnit.address.address3 }}
+                    </p>
+                  </div>
+                </div>
+                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Adresse 4</label>
+                  <div class="col-sm-10">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="address4" />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) && selectedUnit.address" class="form-text">
+                      {{ selectedUnit.address.address4 }}
+                    </p>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="" class="col-sm-2 control-label">Adresse 5</label>
+                  <div class="col-sm-10 form-text" *ngIf="selectedUnit.address && selectedUnit.address.address5 != null">
+                    {{ selectedUnit.address.address5 }}
+                  </div>
+                  <!--div class="col-sm-10 form-text" *ngIf="selectedUnit.address && selectedLocation.zipcode != null">
+                    {{ selectedCountry.codeISO }}-{{ selectedLocation.zipcode }} {{ selectedLocation.labelFrench }}
+                  </div>
+                  <div class="col-sm-10 form-text" *ngIf="selectedUnit.address && selectedLocation.zipcode == null">
+                    {{ selectedCountry.codeISO }}
+                  </div-->
+                </div>
+                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Localité</label>
+                  <div class="col-sm-10">
+                    <div *ngIf="selectedLocation != null && selectedLocation.zipcode != null" class="selected-element-box">
+                      {{ selectedLocation.zipcode }} {{ selectedLocation.labelFrench }}
+                      <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 8px; right: 10px;">
+                        <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer la localité" (click)="clearLocation()"></span>   
+                      </div>
+                    </div>
+                    <div  style="position: relative;">
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="addressLocationText" placeholder="NPA et/ou nom de localité" (keyup.enter)="searchLocation()" />
+                      <div *ngIf="searchLocationIsOngoing" style="position: absolute; top: 6px; right: 30px;">
+                        <img src="/assets/img/spinner.gif" />   
+                      </div>
+                      <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchLocation()">
+                        <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
+                      </div>
+                    </div>
+                    <div *ngIf="searchLocationShowResults && searchLocationResults.length > 0" class="search-result-box">
+                      <div *ngFor="let resultLocation of searchLocationResults">
+                        <span class="cursor-pointer" title="Sélectionner cette localité" (click)="locationSelected(resultLocation)">
+                          {{ resultLocation.zipcode }} {{ resultLocation.labelFrench }}
+                        </span>
+                      </div>
+                    </div>
+                    <div *ngIf="searchLocationShowResults && searchLocationResults.length == 0" class="search-result-box">
+                      Aucun résultat.
+                    </div>
+                    <div *ngIf="searchLocationErrorMessage != null" class="search-result-box search-result-box-error">
+                      {{ searchLocationErrorMessage }}
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Pays</label>
+                  <div class="col-sm-10">
+                    <div *ngIf="selectedCountry != null && selectedCountry.codeISO != null" class="selected-element-box">
+                      {{ selectedCountry.zipcode }} {{ selectedCountry.labelFrench }}
+                      <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 8px; right: 10px;">
+                        <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer le pays" (click)="clearCountry()"></span>   
+                      </div>
+                    </div>
+                    <div  style="position: relative;">
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="addressCountryText" placeholder="code ISO ou nom de pays" (keyup.enter)="searchCountry()" />
+                      <div *ngIf="searchCountrIsOngoing" style="position: absolute; top: 6px; right: 30px;">
+                        <img src="/assets/img/spinner.gif" />   
+                      </div>
+                      <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchCountry()">
+                        <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
+                      </div>
+                    </div>
+                    <div *ngIf="searchCountryShowResults && searchCountryResults.length > 0" class="search-result-box">
+                      <div *ngFor="let resultCountry of searchCountryResults">
+                        <span class="cursor-pointer" title="Sélectionner ce pays" (click)="countrySelected(resultCountry)">
+                          {{ resultCountry.zipcode }} {{ resultCountry.labelFrench }}
+                        </span>
+                      </div>
+                    </div>
+                    <div *ngIf="searchCountryShowResults && searchCountryResults.length == 0" class="search-result-box">
+                      Aucun résultat.
+                    </div>
+                    <div *ngIf="searchCountryErrorMessage != null" class="search-result-box search-result-box-error">
+                      {{ searchCountryErrorMessage }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </tab>
+            <tab heading="Historique" *ngIf="mode == 'UPDATE'">
+              <form>
+                <table class="table table-striped" style="font-size: 85%;">
+                  <thead>
+                    <tr>
+                      <th>Modifié le</th>
+                      <th>Par</th>
+                      <th>Opération</th>
+                      <th>Type de champ</th>
+                      <th>Nom de champ</th>
+                      <th>Ancienne valeur</th>
+                      <th>Nouvelle valeur</th>
+                      <th>Documentation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let changeLog of changeLogs">
+                      <td>
+                        {{ changeLog.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}
+                      </td>
+                      <td>
+                        {{ changeLog.createdBy }}
+                      </td>
+                      <td>
+                        <template [ngIf]="changeLog.operationType == 'INIT'">
+                          Initialisation
+                        </template>
+                        <template [ngIf]="changeLog.operationType == 'CREATE'">
+                          Création
+                        </template>
+                        <template [ngIf]="changeLog.operationType == 'UPDATE'">
+                          Modification
+                        </template>
+                        <template [ngIf]="changeLog.operationType == 'DELETE'">
+                          Suppression
+                        </template>
+                      </td>
+                      <td>
+                        <template [ngIf]="changeLog.fieldType == 'BASE'">
+                          Base
+                        </template>
+                        <template [ngIf]="changeLog.fieldType == 'ATTRIBUTE'">
+                          Attribut
+                        </template>
+                        <template [ngIf]="changeLog.fieldType == 'MULTILINGUAL_LABEL'">
+                          Libellé
+                        </template>
+                      </td>
+                      <td>
+                        <template [ngIf]="changeLog.fieldName == 'SIGLE'">
+                          Sigle
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'LABEL'">
+                          Libellé
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'LABEL_SHORT'">
+                          Abrégé
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'TYPE'">
+                          Type
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'LANG'">
+                          Langue
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'CF_NUMBER'">
+                          Numéro de CF
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'CF'">
+                          CF
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'POSITION'">
+                          Numéro d'ordre
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'RESPONSIBLE_ID'">
+                          ID Responsable
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'ROOM_ID'">
+                          ID Bureau
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'PARENT_ID'">
+                          ID Unité mère
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'VALID_FROM'">
+                          Existe du
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'VALID_TO'">
+                          Existe jusqu'au
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'SIGLE_ENG'">
+                          Sigle anglais
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'LABEL_ENG'">
+                          Libellé anglais
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'LABEL_SHORT_ENG'">
+                          Abrégé anglais
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'SIGLE_DEU'">
+                          Sigle allemand
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'LABEL_DEU'">
+                          Libellé allemand
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'LABEL_SHORT_DEU'">
+                          Abrégé allemand
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'SIGLE_ITA'">
+                          Sigle italien
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'LABEL_ITA'">
+                          Libellé italien
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'LABEL_SHORT_ITA'">
+                          Abrégé italien
+                        </template>
+                        <template [ngIf]="changeLog.fieldType == 'ATTRIBUTE'">
+                          <span *ngFor="let changeLogCurrentAttribute of (attributesList | attributefilter:changeLog.fieldName)">
+                            {{ changeLogCurrentAttribute.label }}
+                          </span>
+                        </template>
+                      </td>
+                      <td>
+                        {{ changeLog.fromValue }}
+                      </td>
+                      <td>
+                        {{ changeLog.toValue }}
+                      </td>
+                      <td *ngIf="changeLog.attachment != null && changeLog.attachment.filename != null" (click)="getAttachment(changeLog.attachment.id, changeLog.attachment.filename)" class="changelogattachment-cell" title="{{ changeLog.attachment.description }}">
+                        {{ changeLog.attachment.filename }}
+                      </td>
+                      <td *ngIf="changeLog.attachment != null && changeLog.attachment.filename == null">
+                        {{ changeLog.attachment.description }}
+                      </td>
+                      <td *ngIf="changeLog.attachment == null">
+                        -
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </form>
+            </tab>
+          </tabset>
+        </div>
+        <div class="modal-footer">
+          <div *ngIf="accumulatedChangeLogs.length > 0" class="accumulated-changes-box">
+            {{ accumulatedChangeLogs.length }} changement(s) enregistré(s)
+          </div>
+          <img *ngIf="saveIsOngoing" src="/assets/img/spinner.gif" />&nbsp;&nbsp;
+          <button type="button" id="btn-close-unit-update" class="btn btn-default" data-dismiss="modal" (click)="closeModal()" [disabled]="saveIsOngoing">Fermer</button>
+          <button type="button" id="btn-close-unit-update" class="btn btn-danger" *ngIf="mode == 'EDIT_UNIT_PLANNED' && unitPlannedExists" data-dismiss="modal" (click)="deleteUnitPlanned()">Supprimer</button>
+          <button type="button" id="btn-close-unit-update" class="btn btn-danger" *ngIf="mode == 'EDIT_UNIT_MODEL' && unitModelExists" data-dismiss="modal" (click)="deleteUnitModel()">Supprimer le modèle</button>
+          <button type="submit" id="btn-submit-unit-update" class="btn btn-primary" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" [disabled]="saveIsOngoing || !unitForm.valid">Enregistrer</button>
+          <button type="submit" id="btn-submit-unit-update" class="btn btn-primary" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" [disabled]="saveIsOngoing || !unitForm.valid" (click)="setCloseFlag()">Enregistrer puis fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
