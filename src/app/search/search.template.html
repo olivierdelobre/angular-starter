@@ -91,17 +91,6 @@
                     <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                   </div>
                 </div>
-                <div *ngIf="searchReponsibleShowResults && searchReponsibleResults.length > 0" class="search-result-box">
-                  <div *ngFor="let resultPerson of searchReponsibleResults">
-                    <span class="cursor-pointer" title="Sélectionner cette personne" (click)="responsibleSelected(resultPerson)">{{ resultPerson.displaynameLong }} ({{ resultPerson.id }})</span>
-                    <a target="_blank" href="http://people.epfl.ch/{{ resultPerson.id }}">
-                      <span class="glyphicon glyphicon-new-window" style="font-size: 65%;" title="Ouvrir sur people"></span>
-                    </a>
-                  </div>
-                </div>
-                <div *ngIf="searchReponsibleShowResults && searchReponsibleResults.length == 0" class="search-result-box">
-                  Aucun résultat.
-                </div>
                 <div *ngIf="searchReponsibleErrorMessage != null" class="search-result-box search-result-box-error">
                   {{ searchReponsibleErrorMessage }}
                 </div>
@@ -258,12 +247,29 @@
   (changeDocCreated)="changeDocCreated($event)">
 </app-changedoc>
 
-<!--
-<app-unitplanned #myUnitPlannedComponent (unitPlannedDone)="unitPlannedDone($event)">
-</app-unitplanned>
--->
-<!--
-<app-unitmodel #myUnitModelComponent
-  (unitModelDone)="unitModelDone($event)">
-</app-unitmodel>
--->
+<div class="modal fade" bsModal #selectSearchResponsibleModal="bs-modal"
+     tabindex="-1" role="dialog" aria-labelledby="selectSearchResponsibleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-second">
+    <div class="modal-content modal-content-second">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Sélectionner le responsable</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="selectResponsibleModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="searchReponsibleShowResults && searchReponsibleResults.length > 0" class="search-result-box">
+          <div *ngFor="let resultPerson of searchReponsibleResults">
+            <span class="cursor-pointer" title="Sélectionner cette personne" (click)="responsibleSelected(resultPerson)">{{ resultPerson.displaynameLong }} ({{ resultPerson.id }})</span>
+            <a target="_blank" href="http://people.epfl.ch/{{ resultPerson.id }}">
+              <span class="glyphicon glyphicon-new-window" style="font-size: 65%;" title="Ouvrir sur people"></span>
+            </a>
+          </div>
+        </div>
+        <div *ngIf="searchReponsibleShowResults && searchReponsibleResults.length == 0" class="search-result-box">
+          Aucun résultat.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

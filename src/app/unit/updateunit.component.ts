@@ -7,6 +7,9 @@ import { ModalModule } from 'ngx-bootstrap';
 import * as moment from 'moment';
 import { Subscription } from 'rxjs/Subscription';
 
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/add/observable/forkJoin';
+
 import { TreeService } from '../services/units.service';
 import { AuthService } from '../services/auth.service';
 import { SciperService } from '../services/sciper.service';
@@ -34,6 +37,11 @@ import { Address } from '../model/address.model';
 })
 export class UpdateUnitComponent implements OnInit, OnDestroy {
   @ViewChild('updateUnitModal') modal: ModalDirective;
+  @ViewChild('selectRoomModal') selectRoomModal: ModalDirective;
+  @ViewChild('selectResponsibleModal') selectResponsibleModal: ModalDirective;
+  @ViewChild('selectCountryModal') selectCountryModal: ModalDirective;
+  @ViewChild('selectLocationModal') selectLocationModal: ModalDirective;
+  @ViewChild('alertsModal') alertsModal: ModalDirective;
   @ViewChild('fileUploadInput') fileUploadInput: any;
 
   @Output() unitUpdated: EventEmitter<any> = new EventEmitter<any>();
@@ -41,6 +49,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   @Output() unitModelDone: EventEmitter<UnitModel> = new EventEmitter<UnitModel>();
   @Output() messageTriggered: EventEmitter<any> = new EventEmitter<any>();
   
+  public alerts: Array<string> = [];
   public showView: boolean = false;
   public root: Unit;
   public selectedUnit: Unit;
@@ -415,6 +424,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   autocomplete result for location search
   ******************************************************/
   private searchLocation() {
+    if (this.unitForm.get('addressLocationText').value.length < 2) {
+      this.searchLocationErrorMessage = 'Vous devez saisir au moins 2 caractères';
+      return;
+    }
+
     this.searchLocationIsOngoing = true;
     this.placeService.searchLocation(this.unitForm.get('addressLocationText').value)
       .subscribe(
@@ -424,6 +438,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             this.searchLocationShowResults = false;
           }
           else {
+            this.selectLocationModal.show();
             this.searchLocationResults = locations;
             this.searchLocationShowResults = true;
           }
@@ -450,12 +465,18 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.unitForm.get('addressLocationText').setValue('');
     this.unitForm.get('addressLocationId').setValue(location.pttOrder);
     console.log("location selected " + location.pttOrder);
+    this.selectLocationModal.hide();
   }
 
   /******************************************************
   *   autocomplete result for country search
   ******************************************************/
   private searchCountry() {
+    if (this.unitForm.get('addressCountryText').value.length < 2) {
+      this.searchCountryErrorMessage = 'Vous devez saisir au moins 2 caractères';
+      return;
+    }
+
     this.searchCountrIsOngoing = true;
     this.placeService.searchCountry(this.unitForm.get('addressCountryText').value)
       .subscribe(
@@ -465,6 +486,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             this.searchCountryShowResults = false;
           }
           else {
+            this.selectCountryModal.show();
             this.searchCountryResults = countries;
             this.searchCountryShowResults = true;
           }
@@ -491,6 +513,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.searchCountryShowResults = false;
     this.unitForm.get('addressCountryText').setValue('');
     this.unitForm.get('addressCountryId').setValue(country.id);
+    this.selectCountryModal.hide();
     /*
     // Blank location is selected country is CH
     if (country.codeISO != 'CH') {
@@ -535,6 +558,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   autocomplete result for unit responsible search
   ******************************************************/
   private searchResponsible() {
+    if (this.unitForm.get('responsibleSearchText').value.length < 3) {
+      this.searchReponsibleErrorMessage = 'Vous devez saisir au moins 3 caractères';
+      return;
+    }
+
     this.searchResponsibleIsOngoing = true;
     this.sciperService.searchByName(this.unitForm.get('responsibleSearchText').value)
       .subscribe(
@@ -544,6 +572,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             this.searchReponsibleShowResults = false;
           }
           else {
+            this.selectResponsibleModal.show();
             this.searchReponsibleResults = people;
             this.searchReponsibleShowResults = true;
           }
@@ -553,7 +582,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           this.searchReponsibleResults = [];
           this.searchReponsibleShowResults = false;
           this.searchResponsibleIsOngoing = false;
-          this.searchReponsibleErrorMessage = 'Invalid search (length must be at least 3 characters)';
+          this.searchReponsibleErrorMessage = 'Invalid search';
         },
         () => {
           this.searchResponsibleIsOngoing = false;
@@ -581,11 +610,12 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   }
 
   private responsibleSelected(responsible) {
+    console.log("responsible selected " + responsible.id);
     this.selectedResponsible = responsible;
     this.searchReponsibleResults = [];
     this.unitForm.get('responsibleSearchText').setValue('');
     this.unitForm.get('responsibleId').setValue(responsible.id);
-    console.log("responsible selected " + responsible.id);
+    this.selectResponsibleModal.hide();
   }
 
   /******************************************************
@@ -620,6 +650,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   autocomplete result for room search
   ******************************************************/
   private searchRoom() {
+    if (this.unitForm.get('roomSearchText').value.length < 2) {
+      this.searchRoomErrorMessage = 'Vous devez saisir au moins 2 caractères';
+      return;
+    }
+
     this.searchRoomIsOngoing = true;
     this.infrastructureService.searchRoomsByLabel(this.unitForm.get('roomSearchText').value)
       .subscribe(
@@ -628,6 +663,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             this.roomSelected(rooms[0]);
           }
           else {
+            this.selectRoomModal.show();
             this.searchRoomResults = rooms;
             this.searchRoomShowResults = true;
           }
@@ -667,6 +703,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.unitForm.get('roomId').setValue(room.id);
     console.log("room selected " + room.id);
     this.showAddressTab = false;
+    this.selectRoomModal.hide();
   }
 
   /******************************************************
@@ -1039,6 +1076,24 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       this.selectedUnitAttributes = [];
     }
 
+    // If no model existed, then init the address form with address from level 1 unit
+    this.treeService.getUnitHierarchy(this.parentUnit.id)
+      .subscribe(
+        (hierarchy) => {
+          // get Unit data for the level 1 unit in hierarchy
+          this.treeService.getUnitById(hierarchy.id)
+            .subscribe(
+              (unit) => {
+                this.refreshAddressForm(unit);
+              },
+              (error) => { },
+              () => { }
+            );
+        },
+        (error) => { },
+        () => { }
+      );
+
     // Retrieve location from cadi service
     if (unitModel != null && unitModel.address != null && unitModel.address.pttOrder != null) {
       this.placeService.getLocationsByPttOrder(unitModel.address.pttOrder)
@@ -1383,7 +1438,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     // Retrieve unit on which is based the model
     this.treeService.getUnitById(unit.id)
       .subscribe(
-        unit => {
+        (unit) => {
           this.fromUnit = unit;
         },
         (error) => {
@@ -1423,11 +1478,149 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.selectedUnitAttributes = unit.attributes;
   }
 
+
+  /******************************************************
+  *   check submitted unit consistency before saving it
+  ******************************************************/
+  private checkUnit(unit: Unit) {
+    this.alerts = [];
+    let observables: Observable<any>[] = [];
+    let observableRoomIsSet: boolean = false;
+    let observableResponsibleIsSet: boolean = false;
+
+    if (unit.roomId == 0 && this.unitForm.get('roomSearchText').value != '') {
+      observableRoomIsSet = true;
+      observables.push(this.infrastructureService.searchRoomsByLabel(this.unitForm.get('roomSearchText').value));
+    }
+    if (unit.responsibleId == 0 && this.unitForm.get('responsibleSearchText').value != '') {
+      observableResponsibleIsSet = true;
+      observables.push(this.sciperService.searchByName(this.unitForm.get('responsibleSearchText').value));
+    }
+    observables.push(this.treeService.searchUnits(unit.sigle, '', '', '', '', 0, '', '', '', '', 'N', 'N', []));
+    observables.push(this.treeService.searchUnits('', '', unit.cf, '', '', 0, '', '', '', '', 'N', 'N', []));
+
+    Observable.forkJoin(observables)
+      .subscribe((dataArray) => {
+        let roomIsOk: boolean = true;
+        let responsibleIsOk: boolean = true;
+        let unitSigleIsOk: boolean = true;
+        let unitCFIsOk: boolean = true;
+        let unitFromIsOk: boolean = true;
+        let unitToIsOk: boolean = true;
+        let unitFromToConsistencyIsOk: boolean = true;
+        
+        let idx = 0;
+
+        // Room
+        if (observableRoomIsSet) {
+          // If search returned a unique result, then fix it in the unit
+          if (dataArray[idx].length == 1) {
+            unit.roomId = dataArray[idx][0].id;
+          }
+          else {
+            roomIsOk = false;
+            this.unitForm.get('roomSearchText').setErrors({ "error": true });
+            this.unitForm.get('roomSearchText').markAsDirty();
+            this.alerts.push("Aucun bureau trouvé pour " + this.unitForm.get('roomSearchText').value);
+          }
+          idx++;
+        }
+
+        // Responsible
+        if (observableResponsibleIsSet) {
+          // If search returned a unique result, then fix it in the unit
+          if (dataArray[idx].length == 1) {
+            unit.responsibleId = dataArray[idx][0].id;
+          }
+          else {
+            responsibleIsOk = false;
+            this.unitForm.get('responsibleSearchText').setErrors({ "error": true });
+            this.unitForm.get('responsibleSearchText').markAsDirty();
+            this.alerts.push("Aucun responsable trouvé pour " + this.unitForm.get('responsibleSearchText').value);
+          }
+          idx++;
+        }
+
+        // Unit sigle
+        // Error if an other unit has the same sigle
+        for (let unitLoop of dataArray[idx]) {
+          if (unitLoop.sigle == unit.sigle.toUpperCase()) {
+            // If create mode
+            if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
+              unitSigleIsOk = false;
+            }
+            // If not creating
+            else if (unitLoop.id != this.selectedUnit.id) {
+              unitSigleIsOk = false;
+            }
+
+            if (!unitSigleIsOk) {
+              this.unitForm.get('sigle').setErrors({ "error": true });
+              this.unitForm.get('sigle').markAsDirty();
+              this.alerts.push("Le sigle " + unit.sigle.toUpperCase() + " est déjà utilisé");
+            }
+          }
+        }
+        idx++;
+
+        // Unit CF
+        // Error if an other unit has the same CF
+        for (let unitLoop of dataArray[idx]) {
+          if (unitLoop.cf == unit.cf) {
+            // If create mode
+            if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
+              unitCFIsOk = false;
+            }
+            // If not creating
+            else if (unitLoop.id != this.selectedUnit.id) {
+              unitCFIsOk = false;
+            }
+
+            if (!unitCFIsOk) {
+              this.unitForm.get('cf').setErrors({ "error": true });
+              this.unitForm.get('cf').markAsDirty();
+              this.alerts.push("Le CF " + unit.cf + " est déjà utilisé");
+            }
+          }
+        }
+        idx++;
+
+        // Check dates validity
+        if (!moment(unit.from, "DD.MM.YYYY").isValid()) {
+          unitFromIsOk = false;
+          this.unitForm.get('from').setErrors({ "error": true });
+          this.unitForm.get('from').markAsDirty();
+          this.alerts.push("La date de début est invalide");
+        }
+        if (unit.to != '' && !moment(unit.to, "DD.MM.YYYY").isValid()) {
+          unitToIsOk = false;
+          this.unitForm.get('to').setErrors({ "error": true });
+          this.unitForm.get('to').markAsDirty();
+          this.alerts.push("La date de fin est invalide");
+        }
+        if (unit.from != '' && unit.to != '' && moment(unit.to, "DD.MM.YYYY").isBefore(moment(unit.from, "DD.MM.YYYY"))) {
+          unitFromToConsistencyIsOk = false;
+          this.unitForm.get('to').setErrors({ "error": true });
+          this.unitForm.get('to').markAsDirty();
+          this.alerts.push("La date de fin est avant la date de début");
+        }
+
+        // If everything is ok, then save unit
+        if (roomIsOk && responsibleIsOk && unitSigleIsOk && unitCFIsOk && unitFromIsOk && unitToIsOk && unitFromToConsistencyIsOk) {
+          //this.saveUnit(unit);
+        }
+        else {
+          this.alertsModal.show();
+        }
+    });
+  }
+
   /******************************************************
   *   save a unit
   ******************************************************/
   private saveUnit(unit: Unit) {
     // console.log("saving unit...");
+
     this.saveIsOngoing = true;
 
     // If no location selected, then take the string that is in the search input

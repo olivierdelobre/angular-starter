@@ -1,5 +1,5 @@
-<form (ngSubmit)="saveUnit(unitForm.value)" [formGroup]="unitForm" (keydown.enter)="$event.preventDefault()">
-  <div bsModal #updateUnitModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="modal-update-unit" (onHide)="onHide()">
+<form (ngSubmit)="checkUnit(unitForm.value)" [formGroup]="unitForm" (keydown.enter)="$event.preventDefault()">
+  <div bsModal #updateUnitModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="modal-update-unit" (onHide)="onHide()" [config]="{backdrop: 'static'}">
     <div class="modal-dialog modal-lg" *ngIf="showView">
       <div class="modal-content" id="updateUnitModal">
         <div class="modal-header">
@@ -134,17 +134,6 @@
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
                     </div>
-                    <div *ngIf="searchReponsibleShowResults && searchReponsibleResults.length > 0" class="search-result-box">
-                      <div *ngFor="let resultPerson of searchReponsibleResults">
-                        <span class="cursor-pointer" title="Sélectionner cette personne" (click)="responsibleSelected(resultPerson)">{{ resultPerson.displaynameLong }} ({{ resultPerson.id }})</span>
-                        <a target="_blank" href="http://people.epfl.ch/{{ resultPerson.id }}">
-                          <span class="glyphicon glyphicon-new-window" style="font-size: 65%;" title="Ouvrir sur people"></span>
-                        </a>
-                      </div>
-                    </div>
-                    <div *ngIf="searchReponsibleShowResults && searchReponsibleResults.length == 0" class="search-result-box">
-                      Aucun résultat.
-                    </div>
                     <div *ngIf="searchReponsibleErrorMessage != null" class="search-result-box search-result-box-error">
                       {{ searchReponsibleErrorMessage }}
                     </div>
@@ -167,17 +156,9 @@
                       <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchRoom()">
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
-                    </div>
-                    <div *ngIf="searchRoomShowResults && searchRoomResults.length > 0" class="search-result-box">
-                      <div *ngFor="let result of searchRoomResults">
-                        <span class="cursor-pointer" title="Sélectionner ce bureau" (click)="roomSelected(result)">{{ result.label }}</span>
+                      <div *ngIf="searchRoomErrorMessage != null" class="search-result-box search-result-box-error">
+                        {{ searchRoomErrorMessage }}
                       </div>
-                    </div>
-                    <div *ngIf="searchRoomShowResults && searchRoomResults.length == 0" class="search-result-box">
-                      Aucun résultat.
-                    </div>
-                    <div *ngIf="searchRoomErrorMessage != null" class="search-result-box search-result-box-error">
-                      {{ searchRoomErrorMessage }}
                     </div>
                   </div>
                 </div>
@@ -438,16 +419,6 @@
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
                     </div>
-                    <div *ngIf="searchLocationShowResults && searchLocationResults.length > 0" class="search-result-box">
-                      <div *ngFor="let resultLocation of searchLocationResults">
-                        <span class="cursor-pointer" title="Sélectionner cette localité" (click)="locationSelected(resultLocation)">
-                          {{ resultLocation.zipcode }} {{ resultLocation.labelFrench }}
-                        </span>
-                      </div>
-                    </div>
-                    <div *ngIf="searchLocationShowResults && searchLocationResults.length == 0" class="search-result-box">
-                      Aucun résultat.
-                    </div>
                     <div *ngIf="searchLocationErrorMessage != null" class="search-result-box search-result-box-error">
                       {{ searchLocationErrorMessage }}
                     </div>
@@ -470,16 +441,6 @@
                       <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchCountry()">
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
-                    </div>
-                    <div *ngIf="searchCountryShowResults && searchCountryResults.length > 0" class="search-result-box">
-                      <div *ngFor="let resultCountry of searchCountryResults">
-                        <span class="cursor-pointer" title="Sélectionner ce pays" (click)="countrySelected(resultCountry)">
-                          {{ resultCountry.zipcode }} {{ resultCountry.labelFrench }}
-                        </span>
-                      </div>
-                    </div>
-                    <div *ngIf="searchCountryShowResults && searchCountryResults.length == 0" class="search-result-box">
-                      Aucun résultat.
                     </div>
                     <div *ngIf="searchCountryErrorMessage != null" class="search-result-box search-result-box-error">
                       {{ searchCountryErrorMessage }}
@@ -646,3 +607,128 @@
     </div>
   </div>
 </form>
+
+<div class="modal fade" bsModal #selectRoomModal="bs-modal"
+     tabindex="-1" role="dialog" aria-labelledby="selectRoomModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-second">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Sélectionner le bureau</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="selectRoomModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="searchRoomShowResults && searchRoomResults.length > 0" class="search-result-box">
+          <div *ngFor="let result of searchRoomResults">
+            <span class="cursor-pointer" title="Sélectionner ce bureau" (click)="roomSelected(result)">{{ result.label }}</span>
+          </div>
+        </div>
+        <div *ngIf="searchRoomShowResults && searchRoomResults.length == 0" class="search-result-box">
+          Aucun résultat.
+        </div>
+        <div *ngIf="searchRoomErrorMessage != null" class="search-result-box search-result-box-error">
+          {{ searchRoomErrorMessage }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" bsModal #selectResponsibleModal="bs-modal"
+     tabindex="-1" role="dialog" aria-labelledby="selectResponsibleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-second">
+    <div class="modal-content modal-content-second">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Sélectionner le responsable</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="selectResponsibleModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="searchReponsibleShowResults && searchReponsibleResults.length > 0" class="search-result-box">
+          <div *ngFor="let resultPerson of searchReponsibleResults">
+            <span class="cursor-pointer" title="Sélectionner cette personne" (click)="responsibleSelected(resultPerson)">{{ resultPerson.displaynameLong }} ({{ resultPerson.id }})</span>
+            <a target="_blank" href="http://people.epfl.ch/{{ resultPerson.id }}">
+              <span class="glyphicon glyphicon-new-window" style="font-size: 65%;" title="Ouvrir sur people"></span>
+            </a>
+          </div>
+        </div>
+        <div *ngIf="searchReponsibleShowResults && searchReponsibleResults.length == 0" class="search-result-box">
+          Aucun résultat.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" bsModal #selectCountryModal="bs-modal"
+     tabindex="-1" role="dialog" aria-labelledby="selectCountryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-second">
+    <div class="modal-content modal-content-second">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Sélectionner le pays</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="selectCountryModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="searchCountryShowResults && searchCountryResults.length > 0" class="search-result-box">
+          <div *ngFor="let resultCountry of searchCountryResults">
+            <span class="cursor-pointer" title="Sélectionner ce pays" (click)="countrySelected(resultCountry)">
+              {{ resultCountry.zipcode }} {{ resultCountry.labelFrench }}
+            </span>
+          </div>
+        </div>
+        <div *ngIf="searchCountryShowResults && searchCountryResults.length == 0" class="search-result-box">
+          Aucun résultat.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" bsModal #selectLocationModal="bs-modal"
+     tabindex="-1" role="dialog" aria-labelledby="selectLocationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-second">
+    <div class="modal-content modal-content-second">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Sélectionner la localité</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="selectLocationModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="searchLocationShowResults && searchLocationResults.length > 0" class="search-result-box">
+          <div *ngFor="let resultLocation of searchLocationResults">
+            <span class="cursor-pointer" title="Sélectionner cette localité" (click)="locationSelected(resultLocation)">
+              {{ resultLocation.zipcode }} {{ resultLocation.labelFrench }}
+            </span>
+          </div>
+        </div>
+        <div *ngIf="searchLocationShowResults && searchLocationResults.length == 0" class="search-result-box">
+          Aucun résultat.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" bsModal #alertsModal="bs-modal"
+     tabindex="-1" role="dialog" aria-labelledby="alertsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-second">
+    <div class="modal-content modal-content-second">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Merci de vérifier les éléments suivants</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="alertsModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngFor="let alert of alerts" class="search-result-box-error">
+          {{ alert }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

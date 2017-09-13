@@ -110,7 +110,7 @@ div.hierarchy-container {
   position: relative;
 }
 .search-result-box {
-  max-height: 140px;
+  height: 400px;
   overflow-y: auto;
   margin: 5px 0 0;
 }
@@ -124,6 +124,12 @@ div.hierarchy-container {
 /* form styles */
 input.ng-invalid.ng-dirty {
   border: 2px red solid;
+}
+.modal-second {
+  margin-top: 200px;
+}
+.modal-content-second {
+  height: 500px;
 }
 
 

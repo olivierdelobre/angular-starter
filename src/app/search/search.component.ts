@@ -34,6 +34,8 @@ export class SearchComponent implements OnInit, OnDestroy {
   @ViewChild('myUpdateUnitComponent') myUpdateUnitComponent: UpdateUnitComponent;
   @ViewChild('myDeleteUnitComponent') myDeleteUnitComponent: DeleteUnitComponent;
   @ViewChild('myChangeDocComponent') myChangeDocComponent: ChangeDocComponent;
+
+  @ViewChild('selectSearchResponsibleModal') selectSearchResponsibleModal: ModalDirective;
   
   public searchForm: FormGroup;
   public searchResults: any[];
@@ -368,6 +370,11 @@ export class SearchComponent implements OnInit, OnDestroy {
   *   autocomplete result for unit responsible search
   ******************************************************/
   private searchResponsible() {
+    if (this.searchForm.get('responsibleSearchText').value.length < 3) {
+      this.searchReponsibleErrorMessage = 'Vous devez saisir au moins 3 caractères';
+      return;
+    }
+
     this.searchResponsibleIsOngoing = true;
     this.sciperService.searchByName(this.searchForm.get('responsibleSearchText').value)
       .subscribe(
@@ -377,6 +384,7 @@ export class SearchComponent implements OnInit, OnDestroy {
             this.searchReponsibleShowResults = false;
           }
           else {
+            this.selectSearchResponsibleModal.show();
             this.searchReponsibleResults = people;
             this.searchReponsibleShowResults = true;
           }
@@ -409,11 +417,12 @@ export class SearchComponent implements OnInit, OnDestroy {
   *   a person is selected in the autocomplete select
   ******************************************************/
   private responsibleSelected(responsible) {
+    console.log("responsible selected " + responsible.id);
     this.selectedResponsible = responsible;
     this.searchReponsibleResults = [];
     this.searchForm.get('responsibleSearchText').setValue('');
     this.searchForm.get('responsibleId').setValue(responsible.id);
-    console.log("responsible selected " + responsible.id);
+    this.selectSearchResponsibleModal.hide();
   }
 
   /******************************************************
