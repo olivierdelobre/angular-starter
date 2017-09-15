@@ -95,6 +95,23 @@ export class TreeService {
     }
 
     /******************************************************
+    *   get a all UnitPlanneds for a given unit
+    ******************************************************/
+    public getUnitPlannedsForUnitId(unitId: number) {
+        let headers = new Headers();
+        headers.append('Accept', 'application/json');
+        headers.append('Cache-Control', 'no-cache');
+
+        let url: string;
+        url = TreeService.SERVICE_PREFIX + 'units/' + unitId + '/unitplanneds?withlabels&withattributes';
+
+        // console.log("calling " + url);
+        return this.http.get(url, { headers: headers })
+            .map((res) => UnitPlanned.fromJSONArray(res.json()));
+            // .map((res: Response) => res.json());
+    }
+
+    /******************************************************
     *   get a specific unit model
     ******************************************************/
     public getUnitModelById(id: number) {
@@ -422,7 +439,7 @@ export class TreeService {
         headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url = TreeService.SERVICE_PREFIX + 'unitschangelogattachments/' + id;
-        console.log('Calling ' + url);
+        // console.log('Calling ' + url);
 
         return this.http.get(url, { responseType: ResponseContentType.Blob, headers: headers })
             .subscribe(

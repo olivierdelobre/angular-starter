@@ -18,6 +18,8 @@ import { PlaceService } from '../services/place.service';
 import { InfrastructureService } from '../services/infrastructure.service';
 import { SharedAppStateService } from '../services/sharedappstate.service';
 
+import { ChangeDocComponent } from '../changedoc/changedoc.component';
+
 import { Unit } from '../model/unit.model';
 import { Label } from '../model/label.model';
 import { Attribute } from '../model/attribute.model';
@@ -43,6 +45,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   @ViewChild('selectLocationModal') selectLocationModal: ModalDirective;
   @ViewChild('alertsModal') alertsModal: ModalDirective;
   @ViewChild('fileUploadInput') fileUploadInput: any;
+  @ViewChild('myChangeDocComponent') myChangeDocComponent: ChangeDocComponent;
 
   @Output() unitUpdated: EventEmitter<any> = new EventEmitter<any>();
   @Output() unitPlannedDone: EventEmitter<any> = new EventEmitter<any>();
@@ -234,6 +237,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.unitPlannedExists = exists;
     this.closeModalFlag = false;
     this.selectedResponsible = null;
+    this.selectedRoom = null;
     this.selectedLocation = {};
     this.selectedCountry = {};
     this.showAddressTab = false;
@@ -256,6 +260,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.unitModelExists = exists;
     this.closeModalFlag = false;
     this.selectedResponsible = null;
+    this.selectedRoom = null;
     this.selectedLocation = {};
     this.selectedCountry = {};
     this.unitHierarchy = null;
@@ -1212,7 +1217,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       roomId: this.fb.control(unit.roomId),
       roomSearchText: this.fb.control(''),
       isTemporary: this.fb.control(unit.isTemporary),
-      applyAt: this.fb.control(unit.applyAt == null ? '':moment(unit.applyAt).format('DD.MM.YYYY'), Validators.required),
+      applyAt: this.fb.control(unit.applyAt == null ? '':moment(unit.applyAt).format('DD.MM.YYYY'), [Validators.required, Validators.pattern(this.dateValidationPattern)]),
       sigleEn: this.fb.control(this.labelENG.sigle),
       sigleGe: this.fb.control(this.labelDEU.sigle),
       sigleIt: this.fb.control(this.labelITA.sigle),
@@ -1482,17 +1487,19 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   /******************************************************
   *   check submitted unit consistency before saving it
   ******************************************************/
-  private checkUnit(unit: Unit) {
+  private checkUnit(unit: any) {
     this.alerts = [];
     let observables: Observable<any>[] = [];
     let observableRoomIsSet: boolean = false;
     let observableResponsibleIsSet: boolean = false;
 
-    if (unit.roomId == 0 && this.unitForm.get('roomSearchText').value != '') {
+    // console.log('Checking unit: ', JSON.stringify(unit));
+
+    if ((unit.roomId == null || unit.roomId == 0) && this.unitForm.get('roomSearchText').value != '') {
       observableRoomIsSet = true;
       observables.push(this.infrastructureService.searchRoomsByLabel(this.unitForm.get('roomSearchText').value));
     }
-    if (unit.responsibleId == 0 && this.unitForm.get('responsibleSearchText').value != '') {
+    if ((unit.responsibleId == null || unit.responsibleId == 0) && this.unitForm.get('responsibleSearchText').value != '') {
       observableResponsibleIsSet = true;
       observables.push(this.sciperService.searchByName(this.unitForm.get('responsibleSearchText').value));
     }
@@ -1508,6 +1515,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         let unitFromIsOk: boolean = true;
         let unitToIsOk: boolean = true;
         let unitFromToConsistencyIsOk: boolean = true;
+        let unitApplyAtIsOk: boolean = true;
         
         let idx = 0;
 
@@ -1549,8 +1557,12 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
               unitSigleIsOk = false;
             }
-            // If not creating
-            else if (unitLoop.id != this.selectedUnit.id) {
+            // If updating Unit
+            else if (this.mode == 'UPDATE' && unitLoop.id != this.selectedUnit.id) {
+              unitSigleIsOk = false;
+            }
+            // If updating UnitPlanned
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.id) {
               unitSigleIsOk = false;
             }
 
@@ -1571,8 +1583,12 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
               unitCFIsOk = false;
             }
-            // If not creating
-            else if (unitLoop.id != this.selectedUnit.id) {
+            // If updating Unit
+            else if (this.mode == 'UPDATE' && unitLoop.id != this.selectedUnit.id) {
+              unitCFIsOk = false;
+            }
+            // If updating UnitPlanned
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.id) {
               unitCFIsOk = false;
             }
 
@@ -1605,9 +1621,23 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           this.alerts.push("La date de fin est avant la date de début");
         }
 
+        // Check ApplyAt for UnitPlanned
+        if (unit.applyAt != null && !moment(unit.applyAt, "DD.MM.YYYY").isValid()) {
+          unitApplyAtIsOk = false;
+          this.unitForm.get('applyAt').setErrors({ "error": true });
+          this.unitForm.get('applyAt').markAsDirty();
+          this.alerts.push("La date d'application est invalide");
+        }
+        if (unit.applyAt != null && moment(unit.applyAt, "DD.MM.YYYY").isBefore(moment())) {
+          unitApplyAtIsOk = false;
+          this.unitForm.get('applyAt').setErrors({ "error": true });
+          this.unitForm.get('applyAt').markAsDirty();
+          this.alerts.push("La date d'application est dans le passé");
+        }
+
         // If everything is ok, then save unit
-        if (roomIsOk && responsibleIsOk && unitSigleIsOk && unitCFIsOk && unitFromIsOk && unitToIsOk && unitFromToConsistencyIsOk) {
-          //this.saveUnit(unit);
+        if (roomIsOk && responsibleIsOk && unitSigleIsOk && unitCFIsOk && unitFromIsOk && unitToIsOk && unitFromToConsistencyIsOk && unitApplyAtIsOk) {
+          this.saveUnit(unit);
         }
         else {
           this.alertsModal.show();
@@ -1619,7 +1649,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   save a unit
   ******************************************************/
   private saveUnit(unit: Unit) {
-    // console.log("saving unit...");
+    // console.log('saving unit: ', JSON.stringify(unit));
 
     this.saveIsOngoing = true;
 
@@ -2535,6 +2565,50 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           () => { }
         );
     }
+  }
+
+  /******************************************************
+  *   to check the checkbox for selected changelog
+  ******************************************************/
+  private selectChangeLog(id: string) {
+    (<HTMLInputElement>document.getElementById('changeLogSelect_' + id)).checked = !(<HTMLInputElement>document.getElementById('changeLogSelect_' + id)).checked;
+  }
+
+  /******************************************************
+  *   trigger changedoc component to associate document to selected changes
+  ******************************************************/
+  private documentSelectedChangeLogs() {
+    console.log("getSelectedChangeLogs");
+    let JsonArrayOuput : string = '[ ';
+    let selectedChangeLogsCpt : number = 0;
+    for (let changeLog of this.changeLogs) {
+      // If element is checked, then add it to the changeLogs list to pass to the changedoc component
+      if ((<HTMLInputElement>document.getElementById('changeLogSelect_' + changeLog.id)).checked) {
+        JsonArrayOuput += JSON.stringify(changeLog) + ',';
+        selectedChangeLogsCpt++;
+      }
+    }
+    JsonArrayOuput = JsonArrayOuput.substring(0, JsonArrayOuput.length - 1);
+    JsonArrayOuput += ']';
+    //console.log("JsonArrayOuput = " + JsonArrayOuput);
+    if (selectedChangeLogsCpt > 0) {
+      this.myChangeDocComponent.triggerCreateChangeDoc(JsonArrayOuput);
+    }
+  }
+
+  /******************************************************
+  *   changedoc has been created
+  ******************************************************/
+  private changeDocCreated() {
+    // Retrieve unit change logs to refresh them
+    this.treeService.getUnitChangeLogs(this.selectedUnit.id)
+      .subscribe(
+        (logs) => {
+          this.changeLogs = logs;
+        },
+        (error) => console.log('error retrieving unit change logs'),
+        () => { }
+      );
   }
 
   /******************************************************

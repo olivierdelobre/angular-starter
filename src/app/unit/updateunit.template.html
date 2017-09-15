@@ -22,8 +22,8 @@
           <div class="form-horizontal" *ngIf="mode == 'EDIT_UNIT_PLANNED'">
             <div class="form-group">
               <label for="" class="col-sm-2 control-label">Appliquer le *</label>
-              <div class="col-sm-10">
-                <input class="form-control" formControlName="applyAt" />
+              <div class="col-sm-3">
+                <input class="form-control" formControlName="applyAt" maxlength="10" date-input />
               </div>
             </div>
           </div>
@@ -454,6 +454,7 @@
                 <table class="table table-striped" style="font-size: 85%;">
                   <thead>
                     <tr>
+                      <th></th>
                       <th>Modifié le</th>
                       <th>Par</th>
                       <th>Opération</th>
@@ -465,14 +466,18 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let changeLog of changeLogs">
+                    <ng-container *ngFor="let changeLog of changeLogs">
+                    <tr>
                       <td>
+                        <input type="checkbox" value="1" id="changeLogSelect_{{ changeLog.id }}" />
+                      </td>
+                      <td (click)="selectChangeLog(changeLog.id)">
                         {{ changeLog.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}
                       </td>
-                      <td>
+                      <td (click)="selectChangeLog(changeLog.id)">
                         {{ changeLog.createdBy }}
                       </td>
-                      <td>
+                      <td (click)="selectChangeLog(changeLog.id)">
                         <template [ngIf]="changeLog.operationType == 'INIT'">
                           Initialisation
                         </template>
@@ -486,7 +491,7 @@
                           Suppression
                         </template>
                       </td>
-                      <td>
+                      <td (click)="selectChangeLog(changeLog.id)">
                         <template [ngIf]="changeLog.fieldType == 'BASE'">
                           Base
                         </template>
@@ -497,7 +502,7 @@
                           Libellé
                         </template>
                       </td>
-                      <td>
+                      <td (click)="selectChangeLog(changeLog.id)">
                         <template [ngIf]="changeLog.fieldName == 'SIGLE'">
                           Sigle
                         </template>
@@ -570,10 +575,10 @@
                           </span>
                         </template>
                       </td>
-                      <td>
+                      <td (click)="selectChangeLog(changeLog.id)">
                         {{ changeLog.fromValue }}
                       </td>
-                      <td>
+                      <td (click)="selectChangeLog(changeLog.id)">
                         {{ changeLog.toValue }}
                       </td>
                       <td *ngIf="changeLog.attachment != null && changeLog.attachment.filename != null" (click)="getAttachment(changeLog.attachment.id, changeLog.attachment.filename)" class="changelogattachment-cell" title="{{ changeLog.attachment.description }}">
@@ -586,9 +591,13 @@
                         -
                       </td>
                     </tr>
+                    </ng-container>
                   </tbody>
                 </table>
               </form>
+              <div style="text-align: right;">
+                <button type="button" id="btn-set-changeLogAttachment" class="btn btn-primary" (click)="documentSelectedChangeLogs()">Documenter les changements sélectionnés</button>
+              </div>
             </tab>
           </tabset>
         </div>
@@ -732,3 +741,8 @@
     </div>
   </div>
 </div>
+
+<app-changedoc #myChangeDocComponent
+  (changeDocCreated)="changeDocCreated($event)"
+  (messageTriggered)="messageTriggered($event)">
+</app-changedoc>

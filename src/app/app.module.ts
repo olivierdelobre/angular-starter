@@ -26,6 +26,7 @@ import { OAuth2Component } from './oauth2';
 import { SearchComponent } from './search';
 import { UpdateUnitComponent } from './unit';
 import { DeleteUnitComponent } from './unit';
+import { ListUnitPlannedComponent } from './unit';
 import { ChangeDocComponent } from './changedoc';
 import { TreeViewComponent } from './tree';
 import { HierarchyComponent } from './unit';
@@ -76,6 +77,7 @@ type StoreType = {
     SearchComponent,
     UpdateUnitComponent,
     DeleteUnitComponent,
+    ListUnitPlannedComponent,
 //    UnitModelComponent,
     ChangeDocComponent,
     TreeViewComponent,

@@ -24,6 +24,7 @@ import { UpdateUnitComponent } from '../unit/updateunit.component';
 import { CreateUnitComponent } from '../unit/createunit.component';
 import { DeleteUnitComponent } from '../unit/deleteunit.component';
 import { ChangeDocComponent } from '../changedoc/changedoc.component';
+import { ListUnitPlannedComponent } from '../unit/listunitplanned.component';
 
 @Component({
   selector: 'app-tree',
@@ -39,7 +40,8 @@ export class TreeComponent implements OnInit, OnDestroy {
   @ViewChild('stackedModal') stackedModal: ModalDirective;
   @ViewChild('myUpdateUnitComponent') myUpdateUnitComponent: UpdateUnitComponent;
   @ViewChild('myDeleteUnitComponent') myDeleteUnitComponent: DeleteUnitComponent;
-  @ViewChild('myChangeDocComponent') myChangeDocComponent: ChangeDocComponent;
+  @ViewChild('myListUnitPlannedComponent') myListUnitPlannedComponent: ListUnitPlannedComponent;
+  //@ViewChild('myChangeDocComponent') myChangeDocComponent: ChangeDocComponent;
 
   private root: Unit;
   private selectedUnit: Unit;
@@ -137,7 +139,7 @@ export class TreeComponent implements OnInit, OnDestroy {
     this.rootTreeView.retrieveUnitsForce(this.onlyPermanent, this.onlyValid, this.stateDate, unitUpdated.parentId);
 
     if (mode == 'SAVE_AND_CLOSE' && changeLogs.length > 0) {
-      this.myChangeDocComponent.triggerCreateChangeDoc(JSON.stringify(changeLogs));
+      //this.myChangeDocComponent.triggerCreateChangeDoc(JSON.stringify(changeLogs));
     }
   }
 
@@ -158,7 +160,7 @@ export class TreeComponent implements OnInit, OnDestroy {
     this.rootTreeView.retrieveUnitsForce(this.onlyPermanent, this.onlyValid, this.stateDate, unitPlanned.parentId);
     
     if (mode == 'SAVE_AND_CLOSE' && unitPlanned != null) {
-      this.myChangeDocComponent.triggerCreateChangeDocForUnitPlanned(unitPlanned);
+      //this.myChangeDocComponent.triggerCreateChangeDocForUnitPlanned(unitPlanned);
     }
   }
 
@@ -209,7 +211,14 @@ export class TreeComponent implements OnInit, OnDestroy {
   /******************************************************
   *   create or update a unit planned
   ******************************************************/
-  private createOrUpdateUnitPlanned(unit: Unit) {
+  private listUnitPlanned(unit: Unit) {
+    this.myListUnitPlannedComponent.triggerListUnitPlanned(unit);
+  }
+
+  /******************************************************
+  *   create or update a unit planned
+  ******************************************************/
+  private createUnitPlannedTriggered(unit: Unit) {
     this.treeService.getUnitPlannedById(unit.id)
       .subscribe(
         unitPlanned => {

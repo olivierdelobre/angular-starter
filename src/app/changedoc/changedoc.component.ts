@@ -117,7 +117,7 @@ export class ChangeDocComponent implements OnInit, OnDestroy {
         () => {
           this.closeModal();
           this.changeDocCreated.emit(unit);
-          this.messageTriggered.emit({ message: 'Documentation créée avec succès', level: 'success' });
+          //this.messageTriggered.emit({ message: 'Documentation créée avec succès', level: 'success' });
         }
       );
     }

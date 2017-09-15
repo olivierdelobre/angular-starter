@@ -41,7 +41,7 @@
             (unitToClone)="cloneUnit($event)"
             (unitOpenedOrClosed)="unitOpenedOrClosed($event)"
             (createOrUpdateUnitModelTriggered)="createOrUpdateUnitModel($event)"
-            (createOrUpdateUnitPlannedTriggered)="createOrUpdateUnitPlanned($event)"
+            (createOrUpdateUnitPlannedTriggered)="listUnitPlanned($event)"
             (errorTriggered)="errorTriggered($event)"
             >
     </app-tree-view>
@@ -59,10 +59,14 @@
   (messageTriggered)="messageTriggered($event)">
 </app-deleteunit>
 
-<app-changedoc #myChangeDocComponent
+<app-listunitplanned #myListUnitPlannedComponent
+  (createUnitPlannedTriggered)="createUnitPlannedTriggered($event)">
+</app-listunitplanned>
+
+<!--app-changedoc #myChangeDocComponent
   (changeDocCreated)="changeDocCreated($event)"
   (messageTriggered)="messageTriggered($event)">
-</app-changedoc>
+</app-changedoc-->
 
 <form (ngSubmit)="changeStateDate()" [formGroup]="stateDateForm">
   <div bsModal #changeStateDateModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
