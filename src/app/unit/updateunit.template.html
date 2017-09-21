@@ -1,7 +1,7 @@
 <form (ngSubmit)="checkUnit(unitForm.value)" [formGroup]="unitForm" (keydown.enter)="$event.preventDefault()">
   <div bsModal #updateUnitModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="modal-update-unit" (onHide)="onHide()" [config]="{backdrop: 'static'}">
     <div class="modal-dialog modal-lg" *ngIf="showView">
-      <div class="modal-content" id="updateUnitModal">
+      <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" (click)="closeModal()" aria-label="Close">
             <span aria-hidden="true">&times;</span>
@@ -56,7 +56,7 @@
                   </div>
                 </div>
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
-                  <label for="" class="col-sm-2 control-label">Type *</label>
+                  <label for="" class="col-sm-2 control-label">Type</label>
                   <div class="col-sm-4">
                     <select *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="form-control" formControlName="type">
                       <option *ngFor="let unitType of unitTypesList" value="{{ unitType.code }}">{{ unitType.label }}</option>
@@ -65,7 +65,7 @@
                         {{ selectedUnitTypeString }}
                     </p>
                   </div>
-                  <label for="" class="col-sm-2 control-label">Langue *</label>
+                  <label for="" class="col-sm-2 control-label">Langue</label>
                   <div class="col-sm-4">
                     <select *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="form-control" formControlName="lang">
                       <option *ngFor="let lang of languagesList" value="{{ lang.code }}">{{ lang.label }}</option>
@@ -76,17 +76,17 @@
                   </div>
                 </div>
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
-                  <label for="" class="col-sm-2 control-label">Numéro *</label>
+                  <label for="" class="col-sm-2 control-label">Numéro</label>
                   <div class="col-sm-4">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && mode != 'UPDATE'" type="text" class="form-control" formControlName="cfNumber" />
-                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) || mode == 'UPDATE'" class="form-text">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && mode != 'UPDATE' && mode != 'EDIT_UNIT_PLANNED'" type="text" class="form-control" formControlName="cfNumber" />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) || mode == 'UPDATE' || mode == 'EDIT_UNIT_PLANNED'" class="form-text">
                         {{ selectedUnit.cfNumber }}
                     </p>
                   </div>
-                  <label for="" class="col-sm-2 control-label">CF *</label>
+                  <label for="" class="col-sm-2 control-label">CF</label>
                   <div class="col-sm-4">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && mode != 'UPDATE'" type="text" class="form-control" formControlName="cf" (keyup)="setCfNumber()" number-input />
-                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) || mode == 'UPDATE'" class="form-text">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && mode != 'UPDATE' && mode != 'EDIT_UNIT_PLANNED'" type="text" class="form-control" formControlName="cf" (keyup)="setCfNumber()" number-input />
+                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) || mode == 'UPDATE' || mode == 'EDIT_UNIT_PLANNED'" class="form-text">
                         {{ selectedUnit.cf }}
                     </p>
                   </div>
@@ -306,48 +306,6 @@
                       </tr>
                     </tbody>
                   </table>
-                </div>
-                <div class="attribute-form-panel" *ngIf="selectedUnitAttribute != null">
-                  <form (ngSubmit)="createAttribute(attributeForm.value)" [formGroup]="attributeForm">
-                    <div class="form-group">
-                      <label for="attribute_code">Type</label>
-                      <select class="form-control" formControlName="code" id="attribute_code" (change)="onAttributeTypeChange($event.target.value)">
-                        <option *ngFor="let attributeType of attributesList" value="{{ attributeType.code }}">{{ attributeType.label }}</option>
-                      </select>
-                    </div>
-                    <div class="form-group">
-                      <label for="attribute_text">Valeur</label>
-                      <input *ngIf="attributeEnumsList.length == 0" type="text" class="form-control" id="attribute_text" placeholder="" formControlName="text" />
-                      <select *ngIf="attributeEnumsList?.length > 0" class="form-control"  formControlName="textSelect" id="attribute_textSelect" (change)="onAttributeValueChange($event.target.value)">
-                        <option *ngFor="let attributeEnum of attributeEnumsList" value="{{ attributeEnum.value }}">
-                          {{ attributeEnum.value }}<span *ngIf="attributeEnum.comment != null"> - {{ attributeEnum.comment }}</span>
-                        </option>
-                      </select>
-                    </div>
-                    <!--
-                    <div class="form-group">
-                      <label for="attribute_url">URL (document externe)</label>
-                      <input type="text" class="form-control" id="attribute_url" placeholder="" formControlName="url" />
-                    </div>
-                    -->
-                    <div class="form-group">
-                      <label for="attribute_valid_from">Valide du...</label>
-                      <br />
-                      <input class="form-control" formControlName="from" maxlength="10" date-input />
-                    </div>
-                    <div class="form-group" style="position: relative;">
-                      <label for="attribute_valid_from">...au</label>
-                      <br />
-                      <input class="form-control" formControlName="to" maxlength="10" date-input />
-                      <!--div style="position: absolute; top: 33px; right: 93px;">
-                        <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer la date de fin" (click)="clearAttributeToDate()"></span>   
-                      </div-->
-                    </div>
-                    <div style="text-align: right;">
-                      <button type="button" class="btn btn-default" (click)="hideAttributeFormPanel()">Annuler</button>
-                      <button type="button" class="btn btn-primary" (click)="saveAttribute()" [disabled]="!attributeForm.valid">Valider</button>
-                    </div>
-                  </form>
                 </div>
               </div>
             </tab>
@@ -595,8 +553,9 @@
                   </tbody>
                 </table>
               </form>
-              <div style="text-align: right;">
-                <button type="button" id="btn-set-changeLogAttachment" class="btn btn-primary" (click)="documentSelectedChangeLogs()">Documenter les changements sélectionnés</button>
+              <div style="text-align: right; margin-top: 10px;">
+                <button type="button" id="btn-set-changeLogAttachment" class="btn btn-danger" (click)="undocumentSelectedChangeLogs()">Supprimer le document</button>
+                <button type="button" id="btn-set-changeLogAttachment" class="btn btn-primary" (click)="documentSelectedChangeLogs()">Associer un document</button>
               </div>
             </tab>
           </tabset>
@@ -737,6 +696,59 @@
         <div *ngFor="let alert of alerts" class="search-result-box-error">
           {{ alert }}
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" bsModal #attributeModal="bs-modal"
+  tabindex="-1" role="dialog" aria-labelledby="alertsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-second">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Complément</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="attributeModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="selectedUnitAttribute != null">
+          <form (ngSubmit)="createAttribute(attributeForm.value)" [formGroup]="attributeForm">
+            <div class="form-group">
+              <label for="attribute_code">Type</label>
+              <select class="form-control" formControlName="code" id="attribute_code" (change)="onAttributeTypeChange($event.target.value)">
+                <option *ngFor="let attributeType of attributesList" value="{{ attributeType.code }}">{{ attributeType.label }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="attribute_text">Valeur</label>
+              <input *ngIf="attributeEnumsList.length == 0" type="text" class="form-control" id="attribute_text" placeholder="" formControlName="text" />
+              <select *ngIf="attributeEnumsList?.length > 0" class="form-control"  formControlName="textSelect" id="attribute_textSelect" (change)="onAttributeValueChange($event.target.value)">
+                <option *ngFor="let attributeEnum of attributeEnumsList" value="{{ attributeEnum.value }}">
+                  {{ attributeEnum.value }}<span *ngIf="attributeEnum.comment != null"> - {{ attributeEnum.comment }}</span>
+                </option>
+              </select>
+            </div>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="attribute_valid_from">Valide du...</label>
+                  <input class="form-control" formControlName="from" maxlength="10" date-input />
+                </div>
+              </div>
+              <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="attribute_valid_from">...au</label>
+                    <input class="form-control" formControlName="to" maxlength="10" date-input />
+                  </div>
+                </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" (click)="hideAttributeFormPanel()">Annuler</button>
+        <button type="button" class="btn btn-primary" (click)="saveAttribute()" [disabled]="!attributeForm.valid">Valider</button>
       </div>
     </div>
   </div>

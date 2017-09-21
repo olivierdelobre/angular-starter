@@ -1,4 +1,4 @@
-import { Component, ViewChild, ViewEncapsulation, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
+import { Component, ViewChild, ViewEncapsulation, Output, EventEmitter, OnInit, OnDestroy, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
@@ -44,6 +44,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   @ViewChild('selectCountryModal') selectCountryModal: ModalDirective;
   @ViewChild('selectLocationModal') selectLocationModal: ModalDirective;
   @ViewChild('alertsModal') alertsModal: ModalDirective;
+  @ViewChild('attributeModal') attributeModal: ModalDirective;
   @ViewChild('fileUploadInput') fileUploadInput: any;
   @ViewChild('myChangeDocComponent') myChangeDocComponent: ChangeDocComponent;
 
@@ -51,6 +52,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   @Output() unitPlannedDone: EventEmitter<any> = new EventEmitter<any>();
   @Output() unitModelDone: EventEmitter<UnitModel> = new EventEmitter<UnitModel>();
   @Output() messageTriggered: EventEmitter<any> = new EventEmitter<any>();
+  @Output() listUnitPlanned: EventEmitter<Unit> = new EventEmitter<Unit>();
   
   public alerts: Array<string> = [];
   public showView: boolean = false;
@@ -133,6 +135,9 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   public fromUnit: Unit;
   public showAddressTab: boolean = false;
   public unitAddress: Address;
+  public labelValidationPattern: string = '^[a-zA-Zà-öù-ÿÀ-ÖØ-ß,\'\\+\\-=\\s\\d]{0,80}$';
+  public sigleValidationPattern: string = '^[A-Z\\-\\d]{0,12}$';
+  public cfValidationPattern: string = '^[0-9]{4,5}$';
   public dateValidationPattern: string = '^(0[1-9]|[12][0-9]|3[01])[\\.](0[1-9]|1[012])[\\.]\\d{4}$';
 
   constructor(public router: Router,
@@ -230,10 +235,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   /******************************************************
   *   entry point for other components
   ******************************************************/
-  public triggerUnitPlanned(unit: UnitPlanned, exists: boolean) {
-    // console.log('handling unit planned form unit: ', JSON.stringify(unit));
+  public triggerUnitPlanned(unit: Unit, unitPlanned: UnitPlanned, exists: boolean) {
+    // console.log('Handling unit planned form unit: ', JSON.stringify(unitPlanned));
     this.mode = 'EDIT_UNIT_PLANNED';
-    this.selectedUnitPlanned = unit;
+    this.selectedUnit = unit;
+    this.selectedUnitPlanned = unitPlanned;
     this.unitPlannedExists = exists;
     this.closeModalFlag = false;
     this.selectedResponsible = null;
@@ -279,6 +285,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   show the attribute form panel
   ******************************************************/
   private showAttributeFormPanel(operation: string, attribute: Attribute, attributeType: any) {
+    this.attributeModal.show();
     if (operation == 'update' && attribute != null) {
       // console.log('update attribute ' + attribute.id);
       this.selectedUnitAttribute = attribute;
@@ -346,6 +353,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   cancel changed made to an attribute and close the attribute form panel
   ******************************************************/
   private hideAttributeFormPanel() {
+    this.attributeModal.hide();
     this.selectedUnitAttribute = null;
   }
 
@@ -409,6 +417,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       this.selectedUnitAttributes = this.selectedUnitAttributes.slice();
     }
 
+    this.attributeModal.hide();
     this.selectedUnitAttribute = null;
     //this.selectedUnitAttributes = this.selectedUnit.attributes;
   }
@@ -564,6 +573,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   ******************************************************/
   private searchResponsible() {
     if (this.unitForm.get('responsibleSearchText').value.length < 3) {
+      this.unitForm.get('responsibleSearchText').setErrors({ "error": true });
+      this.unitForm.get('responsibleSearchText').markAsDirty();
       this.searchReponsibleErrorMessage = 'Vous devez saisir au moins 3 caractères';
       return;
     }
@@ -656,6 +667,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   ******************************************************/
   private searchRoom() {
     if (this.unitForm.get('roomSearchText').value.length < 2) {
+      this.unitForm.get('roomSearchText').setErrors({ "error": true });
+      this.unitForm.get('roomSearchText').markAsDirty();
       this.searchRoomErrorMessage = 'Vous devez saisir au moins 2 caractères';
       return;
     }
@@ -745,13 +758,13 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
     // Build form
     this.unitForm = this.fb.group({
-      label: this.fb.control(unit.label, [Validators.required, Validators.maxLength(80)]),
-      sigle: this.fb.control(unit.sigle, [Validators.required, Validators.maxLength(12)]),
+      label: this.fb.control(unit.label, [Validators.required, Validators.maxLength(80), Validators.pattern(this.labelValidationPattern)]),
+      sigle: this.fb.control(unit.sigle, [Validators.required, Validators.pattern(this.sigleValidationPattern)]),
       labelShort: this.fb.control(unit.labelShort, [Validators.required, Validators.maxLength(40)]),
-      type: this.fb.control(unit.type, Validators.required),
-      lang: this.fb.control(unit.lang, Validators.required),
+      type: this.fb.control(unit.type),
+      lang: this.fb.control(unit.lang),
       cfNumber: this.fb.control({ value: unit.cfNumber, disabled: true }, Validators.required),
-      cf: this.fb.control(unit.cf, [Validators.required, Validators.minLength(4), Validators.maxLength(5)]),
+      cf: this.fb.control(unit.cf, [Validators.pattern(this.cfValidationPattern)]),
       from: this.fb.control(unit.from == null ? '':moment(unit.from).format('DD.MM.YYYY'), [Validators.required, Validators.pattern(this.dateValidationPattern)]),
       to: this.fb.control(unit.to == null ? '':moment(unit.to).format('DD.MM.YYYY'), [Validators.pattern(this.dateValidationPattern)]),
       responsible: this.fb.control(''),
@@ -964,13 +977,13 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       }
 
       this.unitForm = this.fb.group({
-        label: this.fb.control(unitModel.label, [Validators.required, Validators.maxLength(80)]),
-        sigle: this.fb.control(unitModel.sigle, [Validators.required, Validators.maxLength(12)]),
+        label: this.fb.control(unitModel.label, [Validators.required, Validators.maxLength(80), Validators.pattern(this.labelValidationPattern)]),
+        sigle: this.fb.control(unitModel.sigle, [Validators.required, Validators.pattern(this.sigleValidationPattern)]),
         labelShort: this.fb.control(unitModel.labelShort, [Validators.required, Validators.maxLength(40)]),
-        type: this.fb.control(unitModel.type, Validators.required),
-        lang: this.fb.control(unitModel.lang, Validators.required),
+        type: this.fb.control(unitModel.type),
+        lang: this.fb.control(unitModel.lang),
         cfNumber: this.fb.control({ value: unitModel.cfNumber, disabled: true }, Validators.required),
-        cf: this.fb.control(unitModel.cf, [Validators.required, Validators.minLength(4), Validators.maxLength(5)]),
+        cf: this.fb.control(unitModel.cf, [Validators.pattern(this.cfValidationPattern)]),
         from: this.fb.control(unitModel.from == null ? '':moment(unitModel.from).format('DD.MM.YYYY'), [Validators.required, Validators.pattern(this.dateValidationPattern)]),
         to: this.fb.control(unitModel.to == null ? '':moment(unitModel.to).format('DD.MM.YYYY'), [Validators.pattern(this.dateValidationPattern)]),
         responsible: this.fb.control(''),
@@ -1041,13 +1054,13 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     }
     else {
       this.unitForm = this.fb.group({
-        label: this.fb.control('', [Validators.required, Validators.maxLength(80)]),
-        sigle: this.fb.control('', [Validators.required, Validators.maxLength(12)]),
+        label: this.fb.control('', [Validators.required, Validators.maxLength(80), Validators.pattern(this.labelValidationPattern)]),
+        sigle: this.fb.control('', [Validators.required, Validators.pattern(this.sigleValidationPattern)]),
         labelShort: this.fb.control('', [Validators.required, Validators.maxLength(40)]),
-        type: this.fb.control('', Validators.required),
-        lang: this.fb.control('FRA', Validators.required),
+        type: this.fb.control(''),
+        lang: this.fb.control('FRA'),
         cfNumber: this.fb.control({ value: '', disabled: true }, Validators.required),
-        cf: this.fb.control('', [Validators.required, Validators.minLength(4), Validators.maxLength(5)]),
+        cf: this.fb.control('', [Validators.pattern(this.cfValidationPattern)]),
         from: this.fb.control('', [Validators.required, Validators.pattern(this.dateValidationPattern)]),
         to: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
         responsible: this.fb.control(''),
@@ -1200,13 +1213,13 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
     // build form
     this.unitForm = this.fb.group({
-      label: this.fb.control(unit.label, [Validators.required, Validators.maxLength(80)]),
-      sigle: this.fb.control(unit.sigle, [Validators.required, Validators.maxLength(12)]),
+      label: this.fb.control(unit.label, [Validators.required, Validators.maxLength(80), Validators.pattern(this.labelValidationPattern)]),
+      sigle: this.fb.control(unit.sigle, [Validators.required, Validators.pattern(this.sigleValidationPattern)]),
       labelShort: this.fb.control(unit.labelShort, [Validators.required, Validators.maxLength(40)]),
-      type: this.fb.control(unit.type, Validators.required),
-      lang: this.fb.control(unit.lang, Validators.required),
+      type: this.fb.control(unit.type),
+      lang: this.fb.control(unit.lang),
       cfNumber: this.fb.control({ value: unit.cfNumber, disabled: true }, Validators.required),
-      cf: this.fb.control(unit.cf, [Validators.required, Validators.minLength(4), Validators.maxLength(5)]),
+      cf: this.fb.control(unit.cf, [Validators.pattern(this.cfValidationPattern)]),
       from: this.fb.control(unit.from == null ? '':moment(unit.from).format('DD.MM.YYYY'), [Validators.required, Validators.pattern(this.dateValidationPattern)]),
       to: this.fb.control(unit.to == null ? '':moment(unit.to).format('DD.MM.YYYY'), [Validators.pattern(this.dateValidationPattern)]),
       responsible: this.fb.control(''),
@@ -1310,7 +1323,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     }
 
     // Retrieve unit hierarchy
-    this.treeService.getUnitHierarchy(unit.id)
+    this.treeService.getUnitHierarchy(unit.unitId)
       .subscribe(
         (hierarchy) => {
           this.unitHierarchy = hierarchy;
@@ -1369,13 +1382,13 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
     // build form
     this.unitForm = this.fb.group({
-      label: this.fb.control(unit.label, [Validators.maxLength(80)]),
-      sigle: this.fb.control(unit.sigle, [Validators.maxLength(12)]),
+      label: this.fb.control(unit.label, [Validators.maxLength(80), Validators.pattern(this.labelValidationPattern)]),
+      sigle: this.fb.control(unit.sigle, [Validators.pattern(this.sigleValidationPattern)]),
       labelShort: this.fb.control(unit.labelShort, [Validators.maxLength(40)]),
       type: this.fb.control(unit.type),
       lang: this.fb.control(unit.lang),
       cfNumber: this.fb.control({ value: unit.cfNumber, disabled: true }),
-      cf: this.fb.control(unit.cf, [Validators.maxLength(5)]),
+      cf: this.fb.control(unit.cf, [Validators.pattern(this.cfValidationPattern)]),
       from: this.fb.control(unit.from == null ? '':moment(unit.from).format('DD.MM.YYYY'), [Validators.pattern(this.dateValidationPattern)]),
       to: this.fb.control(unit.to == null ? '':moment(unit.to).format('DD.MM.YYYY'), [Validators.pattern(this.dateValidationPattern)]),
       responsible: this.fb.control(''),
@@ -1492,6 +1505,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     let observables: Observable<any>[] = [];
     let observableRoomIsSet: boolean = false;
     let observableResponsibleIsSet: boolean = false;
+    let observableUnitPlannedIsSet: boolean = false;
 
     // console.log('Checking unit: ', JSON.stringify(unit));
 
@@ -1502,6 +1516,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     if ((unit.responsibleId == null || unit.responsibleId == 0) && this.unitForm.get('responsibleSearchText').value != '') {
       observableResponsibleIsSet = true;
       observables.push(this.sciperService.searchByName(this.unitForm.get('responsibleSearchText').value));
+    }
+    if (this.mode == 'EDIT_UNIT_PLANNED') {
+      observableUnitPlannedIsSet = true;
+      observables.push(this.treeService.getUnitPlannedsForUnitId(this.selectedUnit.id));
     }
     observables.push(this.treeService.searchUnits(unit.sigle, '', '', '', '', 0, '', '', '', '', 'N', 'N', []));
     observables.push(this.treeService.searchUnits('', '', unit.cf, '', '', 0, '', '', '', '', 'N', 'N', []));
@@ -1516,6 +1534,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         let unitToIsOk: boolean = true;
         let unitFromToConsistencyIsOk: boolean = true;
         let unitApplyAtIsOk: boolean = true;
+        let unitPlannedApplyAtIsOk: boolean = true;
         
         let idx = 0;
 
@@ -1549,8 +1568,22 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           idx++;
         }
 
+        // Check that no UnitPlanned already exists for this applyAt date
+        if (observableUnitPlannedIsSet) {
+          for (let unitPlannedLoop of dataArray[idx]) {
+            if (moment(unitPlannedLoop.applyAt).format('DD.MM.YYYY') == unit.applyAt && (this.selectedUnitPlanned.id == null || (unitPlannedLoop.id != this.selectedUnitPlanned.id))) {
+              unitPlannedApplyAtIsOk = false;
+              this.unitForm.get('applyAt').setErrors({ "error": true });
+              this.unitForm.get('applyAt').markAsDirty();
+              this.alerts.push("Une version planifiée avec cette date d'application existe déjà");
+            }
+          }
+          idx++;
+        }
+
         // Unit sigle
         // Error if an other unit has the same sigle
+        // console.log("this.selectedUnitPlanned.unitId = " + this.selectedUnitPlanned.unitId);
         for (let unitLoop of dataArray[idx]) {
           if (unitLoop.sigle == unit.sigle.toUpperCase()) {
             // If create mode
@@ -1562,7 +1595,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               unitSigleIsOk = false;
             }
             // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.id) {
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.unitId) {
               unitSigleIsOk = false;
             }
 
@@ -1588,7 +1621,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               unitCFIsOk = false;
             }
             // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.id) {
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.unitId) {
               unitCFIsOk = false;
             }
 
@@ -1636,7 +1669,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         }
 
         // If everything is ok, then save unit
-        if (roomIsOk && responsibleIsOk && unitSigleIsOk && unitCFIsOk && unitFromIsOk && unitToIsOk && unitFromToConsistencyIsOk && unitApplyAtIsOk) {
+        if (roomIsOk && responsibleIsOk && unitSigleIsOk && unitCFIsOk && unitFromIsOk && unitToIsOk && unitFromToConsistencyIsOk && unitApplyAtIsOk && unitPlannedApplyAtIsOk) {
           this.saveUnit(unit);
         }
         else {
@@ -1860,7 +1893,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
      * UnitPlanned
      ***********************************************************************************************/
     else if (this.mode == 'EDIT_UNIT_PLANNED') {
-      unit.id = this.selectedUnitPlanned.id;
+      // unit.id = this.selectedUnitPlanned.id;
 
       // handle "from" date
       let formValue: string = this.unitForm.get('from').value;
@@ -1886,7 +1919,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
       // handle "applyAt" date
       formValue = this.unitForm.get('applyAt').value;
-        if (formValue != null && formValue != '') {
+      if (formValue != null && formValue != '') {
         this.selectedUnitPlanned.applyAt = formValue.substring(6, 10) + "-"
           + formValue.substring(3, 5) + "-"
           + formValue.substring(0, 2) + "T00:00:00.000Z";
@@ -1896,6 +1929,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       }
 
       // handle other base form values
+      //this.selectedUnitPlanned.unitId = unit.id;
       this.selectedUnitPlanned.isTemporary = unit.isTemporary;
       this.selectedUnitPlanned.sigle = unit.sigle;
       this.selectedUnitPlanned.label = unit.label;
@@ -2026,6 +2060,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
                   if (this.closeModalFlag) {
                     mode = "SAVE_AND_CLOSE";
                     this.closeModal();
+                    this.listUnitPlanned.emit(this.selectedUnit);
                   }
                   
                   this.unitPlannedDone.emit({mode: mode, unitPlanned: this.selectedUnitPlanned});
@@ -2053,6 +2088,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
                   if (this.closeModalFlag) {
                     mode = "SAVE_AND_CLOSE";
                     this.closeModal();
+                    this.listUnitPlanned.emit(this.selectedUnit);
                   }
 
                   this.unitPlannedDone.emit({mode: mode, unitPlanned: this.selectedUnitPlanned});
@@ -2392,6 +2428,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           this.unitPlannedDone.emit({mode: '', unitPlanned: this.selectedUnitPlanned});
           this.messageTriggered
             .emit({ message: "Unité planifiée supprimée avec succès", level: "success" });
+          this.listUnitPlanned.emit(this.selectedUnit);
         }
       );
   }
@@ -2578,22 +2615,56 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   trigger changedoc component to associate document to selected changes
   ******************************************************/
   private documentSelectedChangeLogs() {
-    console.log("getSelectedChangeLogs");
-    let JsonArrayOuput : string = '[ ';
+    let jsonArrayOuput : string = '[ ';
     let selectedChangeLogsCpt : number = 0;
     for (let changeLog of this.changeLogs) {
       // If element is checked, then add it to the changeLogs list to pass to the changedoc component
       if ((<HTMLInputElement>document.getElementById('changeLogSelect_' + changeLog.id)).checked) {
-        JsonArrayOuput += JSON.stringify(changeLog) + ',';
+        jsonArrayOuput += JSON.stringify(changeLog) + ',';
         selectedChangeLogsCpt++;
       }
     }
-    JsonArrayOuput = JsonArrayOuput.substring(0, JsonArrayOuput.length - 1);
-    JsonArrayOuput += ']';
-    //console.log("JsonArrayOuput = " + JsonArrayOuput);
+    jsonArrayOuput = jsonArrayOuput.substring(0, jsonArrayOuput.length - 1);
+    jsonArrayOuput += ']';
+    //console.log("jsonArrayOuput = " + jsonArrayOuput);
     if (selectedChangeLogsCpt > 0) {
-      this.myChangeDocComponent.triggerCreateChangeDoc(JsonArrayOuput);
+      this.myChangeDocComponent.triggerCreateChangeDoc(this.selectedUnit, jsonArrayOuput);
     }
+  }
+
+  /******************************************************
+  *   Undocument selected changes
+  ******************************************************/
+  private undocumentSelectedChangeLogs() {
+    let jsonArrayOuput : string = '[ ';
+    let selectedChangeLogsCpt : number = 0;
+    for (let changeLog of this.changeLogs) {
+      // If element is checked, then add it to the changeLogs list to pass to the changedoc component
+      if ((<HTMLInputElement>document.getElementById('changeLogSelect_' + changeLog.id)).checked) {
+        jsonArrayOuput += JSON.stringify(changeLog) + ',';
+        selectedChangeLogsCpt++;
+      }
+    }
+    jsonArrayOuput = jsonArrayOuput.substring(0, jsonArrayOuput.length - 1);
+    jsonArrayOuput += ']';
+
+    this.changeAttachmentData = new FormData();
+    this.changeAttachmentData.append('changes', jsonArrayOuput);
+    this.changeAttachmentData.append('doDeleteFile', 'Y');
+
+    // console.log("jsonArrayOuput = " + jsonArrayOuput);
+    this.treeService.patchChangeLogs(this.selectedUnit, this.changeAttachmentData).subscribe(
+      (res) => {
+        console.log("ChangeLogs updated successfully");
+        this.changeDocCreated();
+      },
+      (error) => {
+        console.log("Error updating ChangeLogs");
+      },
+      () => {
+        //this.messageTriggered.emit({ message: 'Documentation créée avec succès', level: 'success' });
+      }
+    );
   }
 
   /******************************************************

@@ -51,7 +51,8 @@
   (unitUpdated)="unitUpdated($event)"
   (unitPlannedDone)="unitPlannedDone($event)"
   (unitModelDone)="unitModelDone($event)"
-  (messageTriggered)="messageTriggered($event)">
+  (messageTriggered)="messageTriggered($event)"
+  (listUnitPlanned)="listUnitPlanned($event)">
 </app-updateunit>
 
 <app-deleteunit #myDeleteUnitComponent
@@ -60,7 +61,8 @@
 </app-deleteunit>
 
 <app-listunitplanned #myListUnitPlannedComponent
-  (createUnitPlannedTriggered)="createUnitPlannedTriggered($event)">
+  (createUnitPlannedTriggered)="createUnitPlannedTriggered($event)"
+  (updateUnitPlannedTriggered)="updateUnitPlannedTriggered($event)">
 </app-listunitplanned>
 
 <!--app-changedoc #myChangeDocComponent

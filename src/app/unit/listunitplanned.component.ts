@@ -30,17 +30,14 @@ export class ListUnitPlannedComponent implements OnInit, OnDestroy {
   @ViewChild('mainModal') mainModal: ModalDirective;
 
   @Output() createUnitPlannedTriggered: EventEmitter<Unit> = new EventEmitter<Unit>();
+  @Output() updateUnitPlannedTriggered: EventEmitter<UnitPlanned> = new EventEmitter<UnitPlanned>();
   
   public showView: boolean = false;
-  public changeLogs: ChangeLog[];
   public selectedUnit: Unit;
   public unitPlanneds: UnitPlanned[];
   public updateResponseContent: any;
-  public changeDocForm: FormGroup;
   public loggedUserInfo: any;
   public loggedUserInfoSubscription: Subscription;  
-  public changeAttachmentData: FormData;
-  public deleteAttachementFileFlag: boolean = false;
 
   constructor(public router: Router,
     public activatedRoute: ActivatedRoute,
@@ -64,6 +61,7 @@ export class ListUnitPlannedComponent implements OnInit, OnDestroy {
         },
         (error) => {
           console.log("Error retrieving UnitPlanneds for unit " + unit.id);
+          this.unitPlanneds = [];
         },
         () => { }
       );
@@ -80,6 +78,16 @@ export class ListUnitPlannedComponent implements OnInit, OnDestroy {
     this.showView = false;
     this.mainModal.hide();
     this.createUnitPlannedTriggered.emit(this.selectedUnit);
+  }
+
+  /******************************************************
+  *   update a unit planned
+  ******************************************************/
+  private updateUnitPlanned(unitPlanned: UnitPlanned) {
+    // console.log('Update existing UnitPlanned with ' + JSON.stringify(unitPlanned));
+    this.showView = false;
+    this.mainModal.hide();
+    this.updateUnitPlannedTriggered.emit(unitPlanned);
   }
 
   /******************************************************
@@ -110,10 +118,6 @@ export class ListUnitPlannedComponent implements OnInit, OnDestroy {
     this.loggedUserInfoSubscription =
     this.sharedAppStateService.loggedUserInfo.subscribe((info) => this.loggedUserInfo = info);
 
-    this.changeAttachmentData = new FormData();
-
-    this.changeDocForm = this.fb.group({
-      changeDescription: this.fb.control('')
-    });
+    this.unitPlanneds = [];
   }
 }

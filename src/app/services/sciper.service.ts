@@ -21,7 +21,7 @@ export class SciperService {
         headers.append('Accept', 'application/json');
 
         let url: string;
-        url = SciperService.SERVICE_PREFIX + 'people?query=' + query;
+        url = SciperService.SERVICE_PREFIX + 'people?query=' + query + "&hasAccreds";
         
         // console.log("calling " + url);
 

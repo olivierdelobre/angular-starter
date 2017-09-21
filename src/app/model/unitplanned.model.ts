@@ -12,7 +12,7 @@ export class UnitPlanned {
         let unitPlanned = new UnitPlanned({});
         unitPlanned.cf = unit.cf;
         unitPlanned.cfNumber = unit.cfNumber;
-        unitPlanned.id = unit.id;
+        unitPlanned.unitId = unit.id;
         unitPlanned.isEpfl = unit.isEpfl;
         unitPlanned.isTemporary = unit.isTemporary;
         unitPlanned.isValid = unit.isValid;
@@ -39,6 +39,7 @@ export class UnitPlanned {
     }
 
     public id: number;
+    public unitId: number;
     public isTemporary: boolean;
     public from: string;
     public to: string;
@@ -72,6 +73,7 @@ export class UnitPlanned {
 
     constructor(obj: Object) {
         this.id = obj['id'];
+        this.unitId = obj['unitId'];
         this.isTemporary = obj['isTemporary'];
         this.from = obj['from'];
         this.to = obj['to'];

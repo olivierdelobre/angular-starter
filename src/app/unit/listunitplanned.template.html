@@ -5,29 +5,34 @@
           <button type="button" class="close" (click)="closeModal()" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
-          <h4 class="modal-title">Liste des versions plannifiées pour "{{ selectedUnit.sigle }}"</h4>
+          <h4 class="modal-title">Liste des versions plannifiées pour {{ selectedUnit.sigle }}</h4>
         </div>
         <div class="modal-body">
-          <table class="table table-striped" style="font-size: 85%;">
-            <tr>
-              <th>Date d'application</th>
-              <th>Créé par</th>
-              <th>Modifié par</th>
-            </tr>
-            <ng-container *ngFor="let unitPlanned of unitPlanneds">
+          <ng-template [ngIf]="unitPlanneds.length > 0">
+            <table class="table table-striped" style="font-size: 85%;">
               <tr>
-                <td>
-                  {{ unitPlanned.applyAt }}
-                </td>
-                <td>
-                  {{ unitPlanned.createdBy }}
-                </td>
-                <td>
-                  {{ unitPlanned.updatedBy }}
-                </td>
+                <th>Date d'application</th>
+                <th>Créé par</th>
+                <th>Modifié par</th>
               </tr>
-            </ng-container>
-          </table>
+              <ng-container *ngFor="let unitPlanned of unitPlanneds">
+                <tr class="cursor-pointer" title="Modifier l'unité planifiée" (click)="updateUnitPlanned(unitPlanned)">
+                  <td>
+                    {{ unitPlanned.applyAt | date: 'dd/MM/yyyy' }}
+                  </td>
+                  <td>
+                    {{ unitPlanned.createdBy }}
+                  </td>
+                  <td>
+                    {{ unitPlanned.updatedBy }}
+                  </td>
+                </tr>
+              </ng-container>
+            </table>
+          </ng-template>
+          <ng-template [ngIf]="unitPlanneds.length == 0">
+            Aucune version planifiée.
+          </ng-template>
         </div>
         <div class="modal-footer">
           <button type="button" id="btn-close-unit-update" class="btn btn-default" data-dismiss="modal" (click)="closeModal()">Annuler</button>

@@ -20,9 +20,8 @@ import { Label } from '../model/label.model';
 
 import { UpdateUnitComponent } from '../unit/updateunit.component';
 import { DeleteUnitComponent } from '../unit/deleteunit.component';
-//import { UnitPlannedComponent } from '../unitplanned/unitplanned.component';
 import { UnitModelComponent } from '../unitmodel/unitmodel.component';
-import { ChangeDocComponent } from '../changedoc/changedoc.component';
+import { ListUnitPlannedComponent } from '../unit/listunitplanned.component';
 
 @Component({
   selector: 'app-search',
@@ -33,7 +32,7 @@ import { ChangeDocComponent } from '../changedoc/changedoc.component';
 export class SearchComponent implements OnInit, OnDestroy {
   @ViewChild('myUpdateUnitComponent') myUpdateUnitComponent: UpdateUnitComponent;
   @ViewChild('myDeleteUnitComponent') myDeleteUnitComponent: DeleteUnitComponent;
-  @ViewChild('myChangeDocComponent') myChangeDocComponent: ChangeDocComponent;
+  @ViewChild('myListUnitPlannedComponent') myListUnitPlannedComponent: ListUnitPlannedComponent;
 
   @ViewChild('selectSearchResponsibleModal') selectSearchResponsibleModal: ModalDirective;
   
@@ -60,6 +59,8 @@ export class SearchComponent implements OnInit, OnDestroy {
   private loggedUserInfoSubscription: Subscription;
   private dateValidationPattern: string = '^(0[1-9]|[12][0-9]|3[01])[\\.](0[1-9]|1[012])[\\.]\\d{4}$';
 
+  public searchIsTriggered: boolean = false;
+  public searchMode: string = '';
   public searchIsOngoing: boolean = false;
   public searchReponsibleResults: any[];
   public searchReponsibleShowResults: boolean = false;
@@ -82,6 +83,12 @@ export class SearchComponent implements OnInit, OnDestroy {
   *   search for a unit
   ******************************************************/
   private searchUnit(mode: string, showAlerts: boolean = true) {
+    this.searchMode = mode;
+    this.searchIsTriggered = true;
+    if (this.searchForm.get('responsibleSearchText').value != '') {
+      this.searchResponsible();
+      return;
+    }
     /*
     if (this.searchForm.get('sigle').value == ''
         && this.searchForm.get('label').value == ''
@@ -141,7 +148,10 @@ export class SearchComponent implements OnInit, OnDestroy {
         attributesCriterias)
         .subscribe(
           (res) => this.searchResults = res,
-          (error) => console.log("Error retrieving search results"),
+          (error) => {
+            console.log("Error retrieving search results");
+            this.searchResults = [];
+          },
           () => {
             if (showAlerts) {
               this.alerts.push({msg: this.searchResults.length + " résultat(s) trouvé(s)", type: 'success', closable: true});
@@ -151,6 +161,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         );
     }
     else if (mode == "export") {
+      this.searchIsOngoing = false;
       let url: string;
       url = this.treeService.getExportUrl();
       if (this.searchForm.get('sigle').value != null) {
@@ -258,33 +269,49 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   /******************************************************
-  *   create or update a unit planned
+  *   create a unit planned
   ******************************************************/
-  private createOrUpdateUnitPlanned(unit: Unit) {
-    this.treeService.getUnitPlannedById(unit.id)
+  private createUnitPlannedTriggered(unit: Unit) {
+    this.treeService.getUnitById(unit.id)
       .subscribe(
-        unitPlanned => {
-          this.selectedUnitPlanned = unitPlanned;
+        (unitToBuildFrom) => {
+          // initiate a new unit planned from selected unit
+          this.selectedUnitPlanned = UnitPlanned.fromUnit(unitToBuildFrom);
         },
-        (error) => {
-          // console.log('error getting unit planned, getting unit details to build unit planned');
-          this.treeService.getUnitById(unit.id)
-          .subscribe(
-            unitToBuildFrom => {
-              //initiate a new unit planned from selected unit
-              this.selectedUnitPlanned = UnitPlanned.fromUnit(unitToBuildFrom);
-            },
-            (error) => console.log('error getting unit'),
-            () => {
-              // console.log('unit planned created from unit ' + JSON.stringify(this.selectedUnitPlanned));
-              this.myUpdateUnitComponent.triggerUnitPlanned(this.selectedUnitPlanned, false);
-            }
-          );
-        },
+        (error) => console.log('Error getting Unitw with id ' + unit.id),
         () => {
-          this.myUpdateUnitComponent.triggerUnitPlanned(this.selectedUnitPlanned, true);
+          // console.log('unit planned created from unit ' + JSON.stringify(this.selectedUnitPlanned));
+          this.myUpdateUnitComponent.triggerUnitPlanned(unit, this.selectedUnitPlanned, false);
         }
       );
+  }
+
+  /******************************************************
+  *   update a unit planned
+  ******************************************************/
+  private updateUnitPlannedTriggered(unitPlanned: UnitPlanned) {
+    // console.log('Update UnitPlanned ' + JSON.stringify(unitPlanned));
+    this.treeService.getUnitById(unitPlanned.unitId)
+      .subscribe(
+        (unit) => {
+          this.selectedUnit = unit;
+        },
+        (error) => console.log('Error getting Unit with id ' + unitPlanned.unitId),
+        () => {
+          this.treeService.getUnitPlannedById(unitPlanned.id)
+            .subscribe(
+              (unitPlanned) => {
+                // initiate a new unit planned from selected unit
+                this.selectedUnitPlanned = unitPlanned;
+              },
+              (error) => console.log('Error getting UnitPlanned with id ' + unitPlanned.id),
+              () => {
+                this.myUpdateUnitComponent.triggerUnitPlanned(this.selectedUnit, this.selectedUnitPlanned, true);
+              }
+            );
+        }
+      );
+    
   }
 
   /******************************************************
@@ -318,6 +345,13 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   /******************************************************
+  *   create or update a unit planned
+  ******************************************************/
+  private listUnitPlanned(unit: Unit) {
+    this.myListUnitPlannedComponent.triggerListUnitPlanned(unit);
+  }
+
+  /******************************************************
   *   unit has been deleted in DeleteUnitComponent
   ******************************************************/
   private unitUpdated(data: any) {
@@ -325,10 +359,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     let changeLogs = data.changelogs;
 
     this.searchUnit("search", false);
-
-    if (mode == 'SAVE_AND_CLOSE' && changeLogs.length > 0) {
-      this.myChangeDocComponent.triggerCreateChangeDoc(JSON.stringify(changeLogs));
-    }
   }
 
   /******************************************************
@@ -346,10 +376,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     let unitPlanned = data.unitPlanned;
 
     this.searchUnit("search", false);
-
-    if (mode == 'SAVE_AND_CLOSE' && unitPlanned != null) {
-      this.myChangeDocComponent.triggerCreateChangeDocForUnitPlanned(unitPlanned);
-    }
   }
 
   /******************************************************
@@ -371,6 +397,8 @@ export class SearchComponent implements OnInit, OnDestroy {
   ******************************************************/
   private searchResponsible() {
     if (this.searchForm.get('responsibleSearchText').value.length < 3) {
+      this.searchForm.get('responsibleSearchText').setErrors({ "error": true });
+      this.searchForm.get('responsibleSearchText').markAsDirty();
       this.searchReponsibleErrorMessage = 'Vous devez saisir au moins 3 caractères';
       return;
     }
@@ -382,6 +410,10 @@ export class SearchComponent implements OnInit, OnDestroy {
           if (people.length == 1) {
             this.responsibleSelected(people[0]);
             this.searchReponsibleShowResults = false;
+            if (this.searchIsTriggered) {
+              this.searchUnit(this.searchMode);
+              this.searchIsTriggered = false;
+            }
           }
           else {
             this.selectSearchResponsibleModal.show();
@@ -423,6 +455,11 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.searchForm.get('responsibleSearchText').setValue('');
     this.searchForm.get('responsibleId').setValue(responsible.id);
     this.selectSearchResponsibleModal.hide();
+
+    if (this.searchIsTriggered) {
+      this.searchUnit(this.searchMode);
+      this.searchIsTriggered = false;
+    }
   }
 
   /******************************************************

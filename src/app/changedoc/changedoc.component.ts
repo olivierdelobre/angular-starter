@@ -42,6 +42,7 @@ export class ChangeDocComponent implements OnInit, OnDestroy {
   public loggedUserInfoSubscription: Subscription;  
   public changeAttachmentData: FormData;
   public deleteAttachementFileFlag: boolean = false;
+  private selectedUnit: Unit;
 
   constructor(public router: Router,
     public activatedRoute: ActivatedRoute,
@@ -54,10 +55,11 @@ export class ChangeDocComponent implements OnInit, OnDestroy {
   /******************************************************
   *   entry point for other components
   ******************************************************/
-  public triggerCreateChangeDoc(changeLogs: string) {
+  public triggerCreateChangeDoc(unit: Unit, changeLogs: string) {
     // console.log('changeLogs in ChangeDocComponent = ' + changeLogs);
     this.changeLogs = JSON.parse(changeLogs);
     this.unitPlanned = null;
+    this.selectedUnit = unit;
     // console.log('this.changeLogs.length = ', this.changeLogs.length);
     this.changeAttachmentData = new FormData();
     this.deleteAttachementFileFlag = false;
@@ -96,18 +98,18 @@ export class ChangeDocComponent implements OnInit, OnDestroy {
   }
 
   /******************************************************
-  *   create a changedoc
+  *   Handle changes documentation
   ******************************************************/
-  private createChangeDoc(unit: Unit) {
+  private handleChangeDoc(formData: any) {
     // For a Unit
-    if (this.unitPlanned == null) {
-      console.log("Creating changedoc for Unit...");
+    // if (this.unitPlanned == null) {
+      // console.log("Creating changedoc for Unit...");
 
       // Create the change attachment
       this.changeAttachmentData.append('changes', JSON.stringify(this.changeLogs));
       this.changeAttachmentData.append('description', this.changeDocForm.get("changeDescription").value);
-
-      this.treeService.createChangeLogAttachment(this.changeAttachmentData).subscribe(
+      
+      this.treeService.patchChangeLogs(this.selectedUnit, this.changeAttachmentData).subscribe(
         (res) => {
           console.log("change attachment created successfully");
         },
@@ -116,11 +118,12 @@ export class ChangeDocComponent implements OnInit, OnDestroy {
         },
         () => {
           this.closeModal();
-          this.changeDocCreated.emit(unit);
+          this.changeDocCreated.emit(formData);
           //this.messageTriggered.emit({ message: 'Documentation créée avec succès', level: 'success' });
         }
       );
-    }
+    // }
+    /*
     // For a UnitPlanned
     else {
       console.log("Creating changedoc for UnitPlanned...");
@@ -143,6 +146,7 @@ export class ChangeDocComponent implements OnInit, OnDestroy {
         }
       );
     }
+    */
   }
 
   /******************************************************
@@ -202,7 +206,7 @@ export class ChangeDocComponent implements OnInit, OnDestroy {
   private createChangeAttachment() {
     this.changeAttachmentData.append('description', 'the awesome description');
 
-    this.treeService.createChangeLogAttachment(this.changeAttachmentData).subscribe(
+    this.treeService.documentChangeLogs(this.changeAttachmentData).subscribe(
       (res) => console.log("upload successful")
     );
   }

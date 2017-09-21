@@ -28,13 +28,13 @@
           <div class="col-md-4">
             <div class="form-group">
               <label for="input-sigle">Sigle</label>
-              <input type="text" class="form-control" formControlName="sigle" id="input-sigle" placeholder="" />
+              <input type="text" class="form-control" formControlName="sigle" id="input-sigle" placeholder="" (keydown.enter)="searchUnit('search')" style="text-transform: uppercase;" sigle-input />
             </div>
           </div>
           <div class="col-md-8">
             <div class="form-group">
               <label for="input-label">Libellé</label>
-              <input type="text" class="form-control" formControlName="label" id="input-label" placeholder="" />
+              <input type="text" class="form-control" formControlName="label" id="input-label" placeholder="" (keydown.enter)="searchUnit('search')" />
             </div>
           </div>
         </div>
@@ -42,7 +42,7 @@
           <div class="col-md-4">
             <div class="form-group">
               <label for="input-cf">CF</label>
-              <input type="text" class="form-control" formControlName="cf" id="input-cf" placeholder="" />
+              <input type="text" class="form-control" formControlName="cf" id="input-cf" placeholder="" (keydown.enter)="searchUnit('search')" number-input />
             </div>
           </div>
           <div class="col-md-4">
@@ -91,7 +91,7 @@
                     <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                   </div>
                 </div>
-                <div *ngIf="searchReponsibleErrorMessage != null" class="search-result-box search-result-box-error">
+                <div *ngIf="searchReponsibleErrorMessage != null" class="search-result-box-error">
                   {{ searchReponsibleErrorMessage }}
                 </div>
 
@@ -103,28 +103,28 @@
             <div class="form-group">
               <label for="input-createdAtStart">Créé entre le...</label>
               <br />
-              <input class="form-control" formControlName="created_at_start" maxlength="10" date-input />
+              <input class="form-control" formControlName="created_at_start" maxlength="10" (keydown.enter)="searchUnit('search')" date-input />
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-group">
               <label for="input-createdAtEnd">...et le</label>
               <br />
-              <input class="form-control" formControlName="created_at_end" maxlength="10" date-input />
+              <input class="form-control" formControlName="created_at_end" maxlength="10" (keydown.enter)="searchUnit('search')" date-input />
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-group">
               <label for="input-updatedAtStart">Modifié entre le...</label>
               <br />
-              <input class="form-control" formControlName="updated_at_start" maxlength="10" date-input />
+              <input class="form-control" formControlName="updated_at_start" maxlength="10" (keydown.enter)="searchUnit('search')" date-input />
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-group">
               <label for="input-updatedAtEnd">...et le</label>
               <br />
-              <input class="form-control" formControlName="updated_at_end" maxlength="10" date-input />
+              <input class="form-control" formControlName="updated_at_end" maxlength="10" (keydown.enter)="searchUnit('search')" date-input />
             </div>
           </div>
         </div>
@@ -221,9 +221,9 @@
             <td class="actions-cell" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)">
               <span *ngIf="unit.level < 4 && unit.hasUnitModel" class="glyphicon glyphicon-duplicate" title="Modifier le modèle" (click)="createOrUpdateUnitModel(unit)"></span>
               <span *ngIf="unit.level < 4 && !unit.hasUnitModel" class="glyphicon glyphicon-duplicate" style="opacity: 0.33;" title="Créer un modèle" (click)="createOrUpdateUnitModel(unit)"></span>
-              <span *ngIf="unit.hasUnitPlanned" class="glyphicon glyphicon-time" title="Modifier la version planifiée" (click)="createOrUpdateUnitPlanned(unit)"></span>
+              <span *ngIf="unit.hasUnitPlanned" class="glyphicon glyphicon-time" title="Modifier la version planifiée" (click)="listUnitPlanned(unit)"></span>
               <span *ngIf="!unit.hasUnitPlanned" class="glyphicon glyphicon-time" style="opacity: 0.33;" title="Créer une version planifiée"
-                (click)="createOrUpdateUnitPlanned(unit)"></span>
+                (click)="listUnitPlanned(unit)"></span>
               <span class="glyphicon glyphicon-trash" title="Supprimer cette unité" (click)="deleteUnit(unit)"></span>
             </td>
           </tr>
@@ -236,7 +236,8 @@
 <app-updateunit #myUpdateUnitComponent
   (unitUpdated)="unitUpdated($event)"
   (unitPlannedDone)="unitPlannedDone($event)"
-  (unitModelDone)="unitModelDone($event)">
+  (unitModelDone)="unitModelDone($event)"
+  (listUnitPlanned)="listUnitPlanned($event)">
 </app-updateunit>
 
 <app-deleteunit #myDeleteUnitComponent
@@ -247,13 +248,18 @@
   (changeDocCreated)="changeDocCreated($event)">
 </app-changedoc>
 
+<app-listunitplanned #myListUnitPlannedComponent
+  (createUnitPlannedTriggered)="createUnitPlannedTriggered($event)"
+  (updateUnitPlannedTriggered)="updateUnitPlannedTriggered($event)">
+</app-listunitplanned>
+
 <div class="modal fade" bsModal #selectSearchResponsibleModal="bs-modal"
      tabindex="-1" role="dialog" aria-labelledby="selectSearchResponsibleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-second">
     <div class="modal-content modal-content-second">
       <div class="modal-header">
         <h4 class="modal-title pull-left">Sélectionner le responsable</h4>
-        <button type="button" class="close pull-right" aria-label="Close" (click)="selectResponsibleModal.hide()">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="selectSearchResponsibleModal.hide()">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>

@@ -19,9 +19,9 @@ import * as FileSaver from 'file-saver';
 @Injectable()
 export class TreeService {
 
-    private static readonly SERVICE_PREFIX = process.env.UNITS_API_URL;
+    // private static readonly SERVICE_PREFIX = process.env.UNITS_API_URL;
     // private static readonly SERVICE_PREFIX = 'http://idevelopsrv1.epfl.ch:6081/idm/v1/';
-    // private static readonly SERVICE_PREFIX = 'http://localhost:8080/units-api/v1/';
+     private static readonly SERVICE_PREFIX = 'http://localhost:8080/units-api/v1/';
     // private static readonly SERVICE_PREFIX = 'http://idevelopsrv1.epfl.ch:8081/units-api/v1/';
     // private static readonly SERVICE_PREFIX = 'http://uatesb5.epfl.ch:9092/units-api/v1/';
 
@@ -86,7 +86,7 @@ export class TreeService {
         headers.append('Cache-Control', 'no-cache');
 
         let url: string;
-        url = TreeService.SERVICE_PREFIX + 'unitsplanned/' + id + '?withlabels&withattributes';
+        url = TreeService.SERVICE_PREFIX + 'unitplanneds/' + id + '?withlabels&withattributes';
 
         // console.log("calling " + url);
         return this.http.get(url, { headers: headers })
@@ -180,7 +180,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
-        return this.http.put(TreeService.SERVICE_PREFIX + 'unitsplanned/' + unit.id,
+        return this.http.put(TreeService.SERVICE_PREFIX + 'unitplanneds/' + unit.id,
             unit,
             { headers: headers })
             .map((res) => res);
@@ -221,7 +221,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
-        return this.http.post(TreeService.SERVICE_PREFIX + 'unitsplanned/',
+        return this.http.post(TreeService.SERVICE_PREFIX + 'unitplanneds/',
             unit,
             { headers: headers })
             .map((res) => res);
@@ -243,13 +243,28 @@ export class TreeService {
     /******************************************************
     *   create a changelog attachment
     ******************************************************/
-    public createChangeLogAttachment(data: any) {
+    public documentChangeLogs(data: any) {
         let headers = new Headers();
         headers.append('Content-Type', 'multipart/form-data');
         headers.append('Accept', 'application/json');
         headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         return this.http.post(TreeService.SERVICE_PREFIX+ 'unitschangelogattachments',
+            data,
+            { headers: headers })
+            .map((res) => res);
+    }
+
+    /******************************************************
+    *   Patch a set of ChangeLogs
+    ******************************************************/
+    public patchChangeLogs(unit: Unit, data: any) {
+        let headers = new Headers();
+        headers.append('Content-Type', 'multipart/form-data');
+        headers.append('Accept', 'application/json');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+
+        return this.http.patch(TreeService.SERVICE_PREFIX+ 'units/' + unit.id + '/changelogs',
             data,
             { headers: headers })
             .map((res) => res);
@@ -264,7 +279,7 @@ export class TreeService {
         headers.append('Accept', 'application/json');
         headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
-        return this.http.post(TreeService.SERVICE_PREFIX + 'unitsplanned/' + id + '/unitschangelogattachments',
+        return this.http.post(TreeService.SERVICE_PREFIX + 'unitplanneds/' + id + '/unitschangelogattachments',
             data,
             { headers: headers })
             .map((res) => res);
@@ -294,7 +309,7 @@ export class TreeService {
         headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
-        url = TreeService.SERVICE_PREFIX + 'unitsplanned/' + unit.id;
+        url = TreeService.SERVICE_PREFIX + 'unitplanneds/' + unit.id;
 
         // console.log("calling " + url);
 

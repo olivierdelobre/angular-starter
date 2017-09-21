@@ -219,32 +219,46 @@ export class TreeComponent implements OnInit, OnDestroy {
   *   create or update a unit planned
   ******************************************************/
   private createUnitPlannedTriggered(unit: Unit) {
-    this.treeService.getUnitPlannedById(unit.id)
+    this.treeService.getUnitById(unit.id)
       .subscribe(
-        unitPlanned => {
-          this.selectedUnitPlanned = unitPlanned;
+        (unitToBuildFrom) => {
+          // initiate a new unit planned from selected unit
+          this.selectedUnitPlanned = UnitPlanned.fromUnit(unitToBuildFrom);
         },
-        (error) => {
-          // console.log('error getting unit planned, getting unit details to build unit planned');
-          this.treeService.getUnitById(unit.id)
-          .subscribe(
-            unitToBuildFrom => {
-              // initiate a new unit planned from selected unit
-              this.selectedUnitPlanned = UnitPlanned.fromUnit(unitToBuildFrom);
-            },
-            (error) => console.log('error getting unit'),
-            () => {
-              // console.log('unit planned created from unit ' + JSON.stringify(this.selectedUnitPlanned));
-              //this.myUnitPlannedComponent.triggerUnitPlanned(this.selectedUnitPlanned, false);
-              this.myUpdateUnitComponent.triggerUnitPlanned(this.selectedUnitPlanned, false);
-            }
-          );
-        },
+        (error) => console.log('Error getting Unitw with id ' + unit.id),
         () => {
-          //this.myUnitPlannedComponent.triggerUnitPlanned(this.selectedUnitPlanned, true);
-          this.myUpdateUnitComponent.triggerUnitPlanned(this.selectedUnitPlanned, true);
+          // console.log('unit planned created from unit ' + JSON.stringify(this.selectedUnitPlanned));
+          this.myUpdateUnitComponent.triggerUnitPlanned(unit, this.selectedUnitPlanned, false);
         }
       );
+  }
+
+  /******************************************************
+  *   create or update a unit planned
+  ******************************************************/
+  private updateUnitPlannedTriggered(unitPlanned: UnitPlanned) {
+    // console.log('Update UnitPlanned ' + JSON.stringify(unitPlanned));
+    this.treeService.getUnitById(unitPlanned.unitId)
+      .subscribe(
+        (unit) => {
+          this.selectedUnit = unit;
+        },
+        (error) => console.log('Error getting Unit with id ' + unitPlanned.unitId),
+        () => {
+          this.treeService.getUnitPlannedById(unitPlanned.id)
+            .subscribe(
+              (unitPlanned) => {
+                // initiate a new unit planned from selected unit
+                this.selectedUnitPlanned = unitPlanned;
+              },
+              (error) => console.log('Error getting UnitPlanned with id ' + unitPlanned.id),
+              () => {
+                this.myUpdateUnitComponent.triggerUnitPlanned(this.selectedUnit, this.selectedUnitPlanned, true);
+              }
+            );
+        }
+      );
+    
   }
 
   /******************************************************

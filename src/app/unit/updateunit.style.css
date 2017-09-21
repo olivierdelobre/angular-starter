@@ -44,10 +44,7 @@
   display: table-cell;
 }
 .attribute-form-panel {
-  display: table-cell;
-  width: 300px;
   padding: 15px;
-  border-left: 1px solid #e5e5e5;
 }
 .alerts-bar {
   position: fixed;
