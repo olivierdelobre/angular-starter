@@ -107,7 +107,27 @@
                     </p>
                   </div>
                 </div>
-                <div class="form-group" *ngIf="unitHierarchy != null" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                <div *ngIf="mode != 'EDIT_UNIT_MODEL'" class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Unité mère</label>
+                  <div class="col-sm-10">
+                    <div *ngIf="selectedParentUnit != null && selectedParentUnit.sigle != ''" class="selected-element-box">
+                      {{ selectedParentUnit.sigle }} ({{ selectedParentUnit.label }})
+                    </div>
+                    <div  style="position: relative;">
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="parentUnitSearchText" placeholder="Rechercher par sigle, libellé, CF..." (keyup.enter)="searchParentUnit()" />
+                      <div *ngIf="searchParentUnitIsOngoing" style="position: absolute; top: 6px; right: 30px;">
+                        <img src="/assets/img/spinner.gif" />
+                      </div>
+                      <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchParentUnit()">
+                        <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
+                      </div>
+                    </div>
+                    <div *ngIf="searchParentUnitErrorMessage != null" class="search-result-box-error">
+                      {{ searchParentUnitErrorMessage }}
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group" *ngIf="mode != 'EDIT_UNIT_MODEL' && mode != 'EDIT_UNIT_PLANNED' && unitHierarchy != null" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Hiérarchie</label>
                   <div class="col-sm-10 hierarchy-container">
                     <app-hierarchy [unit]="unitHierarchy" [isRoot]="true"></app-hierarchy>
@@ -134,7 +154,7 @@
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
                     </div>
-                    <div *ngIf="searchReponsibleErrorMessage != null" class="search-result-box search-result-box-error">
+                    <div *ngIf="searchReponsibleErrorMessage != null" class="search-result-box-error">
                       {{ searchReponsibleErrorMessage }}
                     </div>
                   </div>
@@ -156,13 +176,13 @@
                       <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchRoom()">
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
-                      <div *ngIf="searchRoomErrorMessage != null" class="search-result-box search-result-box-error">
+                      <div *ngIf="searchRoomErrorMessage != null" class="search-result-box-error">
                         {{ searchRoomErrorMessage }}
                       </div>
                     </div>
                   </div>
                 </div>
-                <div *ngIf="mode != 'EDIT_UNIT_MODEL'" class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                <div *ngIf="mode != 'EDIT_UNIT_MODEL' && mode != 'EDIT_UNIT_PLANNED'" class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Adresse</label>
                   <div class="col-sm-10 text-cell" style="margin-top: 10px;">
                     <p [innerHTML]="selectedUnitAddress"></p>
@@ -377,7 +397,7 @@
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
                     </div>
-                    <div *ngIf="searchLocationErrorMessage != null" class="search-result-box search-result-box-error">
+                    <div *ngIf="searchLocationErrorMessage != null" class="search-result-box-error">
                       {{ searchLocationErrorMessage }}
                     </div>
                   </div>
@@ -400,7 +420,7 @@
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
                     </div>
-                    <div *ngIf="searchCountryErrorMessage != null" class="search-result-box search-result-box-error">
+                    <div *ngIf="searchCountryErrorMessage != null" class="search-result-box-error">
                       {{ searchCountryErrorMessage }}
                     </div>
                   </div>
@@ -459,6 +479,9 @@
                         <template [ngIf]="changeLog.fieldType == 'MULTILINGUAL_LABEL'">
                           Libellé
                         </template>
+                        <template [ngIf]="changeLog.fieldType == 'ADDRESS'">
+                          Adresse
+                        </template>
                       </td>
                       <td (click)="selectChangeLog(changeLog.id)">
                         <template [ngIf]="changeLog.fieldName == 'SIGLE'">
@@ -486,13 +509,13 @@
                           Numéro d'ordre
                         </template>
                         <template [ngIf]="changeLog.fieldName == 'RESPONSIBLE_ID'">
-                          ID Responsable
+                          Responsable
                         </template>
                         <template [ngIf]="changeLog.fieldName == 'ROOM_ID'">
-                          ID Bureau
+                          Bureau
                         </template>
                         <template [ngIf]="changeLog.fieldName == 'PARENT_ID'">
-                          ID Unité mère
+                          Unité mère
                         </template>
                         <template [ngIf]="changeLog.fieldName == 'VALID_FROM'">
                           Existe du
@@ -531,6 +554,21 @@
                           <span *ngFor="let changeLogCurrentAttribute of (attributesList | attributefilter:changeLog.fieldName)">
                             {{ changeLogCurrentAttribute.label }}
                           </span>
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'ADDRESS_1'">
+                          Adresse 1
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'ADDRESS_2'">
+                          Adresse 2
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'ADDRESS_3'">
+                          Adresse 3
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'ADDRESS_4'">
+                          Adresse 4
+                        </template>
+                        <template [ngIf]="changeLog.fieldName == 'ADDRESS_5'">
+                          Adresse 5
                         </template>
                       </td>
                       <td (click)="selectChangeLog(changeLog.id)">
@@ -595,7 +633,7 @@
         <div *ngIf="searchRoomShowResults && searchRoomResults.length == 0" class="search-result-box">
           Aucun résultat.
         </div>
-        <div *ngIf="searchRoomErrorMessage != null" class="search-result-box search-result-box-error">
+        <div *ngIf="searchRoomErrorMessage != null" class="search-result-box-error">
           {{ searchRoomErrorMessage }}
         </div>
       </div>
@@ -749,6 +787,45 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-default" (click)="hideAttributeFormPanel()">Annuler</button>
         <button type="button" class="btn btn-primary" (click)="saveAttribute()" [disabled]="!attributeForm.valid">Valider</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" bsModal #selectParentUnitModal="bs-modal"
+  tabindex="-1" role="dialog" aria-labelledby="selectParentUnitModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-second">
+    <div class="modal-content modal-content-second">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Sélectionner l'unité mère</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="selectParentUnitModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="searchParentUnitShowResults && searchParentUnitResults.length > 0" class="search-result-box">
+            <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Sigle</th>
+                <th>CF</th>
+                <th>Libellé</th>
+                <th>Niveau</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let result of searchParentUnitResults" class="cursor-pointer" title="Sélectionner cette unité" (click)="parentUnitSelected(result)">
+                <td>{{ result.sigle }}</td>
+                <td>{{ result.cf }}</td>
+                <td>{{ result.label }}</td>
+                <td>{{ result.level }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div *ngIf="searchParentUnitShowResults && searchParentUnitResults.length == 0" class="search-result-box">
+          Aucun résultat dans le sigle, le CF, le libellé, pour les <b>unités de niveau {{ selectedUnit.level - 1 }}</b>.
+        </div>
       </div>
     </div>
   </div>

@@ -201,17 +201,6 @@ export class ChangeDocComponent implements OnInit, OnDestroy {
   }
 
   /******************************************************
-  *   upload the file to the backend
-  ******************************************************/
-  private createChangeAttachment() {
-    this.changeAttachmentData.append('description', 'the awesome description');
-
-    this.treeService.documentChangeLogs(this.changeAttachmentData).subscribe(
-      (res) => console.log("upload successful")
-    );
-  }
-
-  /******************************************************
   *   get changelog attachment file
   ******************************************************/
   private getAttachment(id: number) {

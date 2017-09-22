@@ -241,21 +241,6 @@ export class TreeService {
     }
 
     /******************************************************
-    *   create a changelog attachment
-    ******************************************************/
-    public documentChangeLogs(data: any) {
-        let headers = new Headers();
-        headers.append('Content-Type', 'multipart/form-data');
-        headers.append('Accept', 'application/json');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
-
-        return this.http.post(TreeService.SERVICE_PREFIX+ 'unitschangelogattachments',
-            data,
-            { headers: headers })
-            .map((res) => res);
-    }
-
-    /******************************************************
     *   Patch a set of ChangeLogs
     ******************************************************/
     public patchChangeLogs(unit: Unit, data: any) {
@@ -331,6 +316,20 @@ export class TreeService {
 
         return this.http.delete(url, { headers: headers })
             .map((res) => res);
+    }
+
+    /******************************************************
+    *   search for units from single query
+    ******************************************************/
+    public searchUnitsGeneric(query: string, level: number) {
+        let headers = new Headers();
+        headers.append('Accept', 'application/json');
+
+        let url: string;
+        url = TreeService.SERVICE_PREFIX + 'units/searchgeneric?do=1&query=' + query + "&level=" + level;
+
+        return this.http.get(url, { headers: headers })
+            .map((res) => Unit.fromJSONArray(res.json()));
     }
 
     /******************************************************

@@ -43,6 +43,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   @ViewChild('selectResponsibleModal') selectResponsibleModal: ModalDirective;
   @ViewChild('selectCountryModal') selectCountryModal: ModalDirective;
   @ViewChild('selectLocationModal') selectLocationModal: ModalDirective;
+  @ViewChild('selectParentUnitModal') selectParentUnitModal: ModalDirective;
   @ViewChild('alertsModal') alertsModal: ModalDirective;
   @ViewChild('attributeModal') attributeModal: ModalDirective;
   @ViewChild('fileUploadInput') fileUploadInput: any;
@@ -105,12 +106,16 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   public searchRoomShowResults: boolean = false;
   public searchRoomErrorMessage: string;
   public searchRoomIsOngoing: boolean = false;
+  public searchParentUnitResults: any[];
+  public searchParentUnitShowResults: boolean = false;
+  public searchParentUnitErrorMessage: string;
+  public searchParentUnitIsOngoing: boolean = false;
 
   public resultsParent: any[];
   public myunit: Unit;
   public matchingResponsible: any;
   public selectedRoom: any;
-  public matchingParent: any;
+  public selectedParentUnit: any;
   public unitTypesList: UnitType[];
   public languagesList: UnitLang[];
   public attributesList: any[];
@@ -171,8 +176,15 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.showAddressTab = false;
     this.selectedUnitAddress = '';
     this.searchReponsibleShowResults = false;
+    this.searchRoomShowResults = false;
     this.searchLocationShowResults = false;
     this.searchCountryShowResults = false;
+    this.searchParentUnitShowResults = false;
+    this.searchReponsibleErrorMessage = null;
+    this.searchRoomErrorMessage = null;
+    this.searchLocationErrorMessage = null;
+    this.searchCountryErrorMessage = null;
+    this.searchParentUnitErrorMessage = null;
     if (resetAccumulatedChangeLogs != null && resetAccumulatedChangeLogs) {
       this.accumulatedChangeLogs = [];
     }
@@ -438,7 +450,12 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   autocomplete result for location search
   ******************************************************/
   private searchLocation() {
+    if (this.unitForm.get('addressLocationText').value.length == 0) {
+      return;
+    }
     if (this.unitForm.get('addressLocationText').value.length < 2) {
+      this.unitForm.get('addressLocationText').setErrors({ "error": true });
+      this.unitForm.get('addressLocationText').markAsDirty();
       this.searchLocationErrorMessage = 'Vous devez saisir au moins 2 caractères';
       return;
     }
@@ -486,7 +503,12 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   autocomplete result for country search
   ******************************************************/
   private searchCountry() {
+    if (this.unitForm.get('addressCountryText').value.length == 0) {
+      return;
+    }
     if (this.unitForm.get('addressCountryText').value.length < 2) {
+      this.unitForm.get('addressCountryText').setErrors({ "error": true });
+      this.unitForm.get('addressCountryText').markAsDirty();
       this.searchCountryErrorMessage = 'Vous devez saisir au moins 2 caractères';
       return;
     }
@@ -572,6 +594,9 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   autocomplete result for unit responsible search
   ******************************************************/
   private searchResponsible() {
+    if (this.unitForm.get('responsibleSearchText').value.length == 0) {
+      return;
+    }
     if (this.unitForm.get('responsibleSearchText').value.length < 3) {
       this.unitForm.get('responsibleSearchText').setErrors({ "error": true });
       this.unitForm.get('responsibleSearchText').markAsDirty();
@@ -637,28 +662,62 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   /******************************************************
   *   autocomplete result for parent search
   ******************************************************/
-  private searchParent(event) {
-    this.treeService.searchUnits(event.query, '', '', '', '', 0, '', '', '', '', '', '', [])
+  private searchParentUnit(event) {
+    if (this.unitForm.get('parentUnitSearchText').value.length == 0) {
+      return;
+    }
+    if (this.unitForm.get('parentUnitSearchText').value.length < 3) {
+      this.unitForm.get('parentUnitSearchText').setErrors({ "error": true });
+      this.unitForm.get('parentUnitSearchText').markAsDirty();
+      this.searchParentUnitErrorMessage = 'Vous devez saisir au moins 3 caractères';
+      return;
+    }
+
+    this.searchParentUnitIsOngoing = true;
+    this.treeService.searchUnitsGeneric(this.unitForm.get('parentUnitSearchText').value, this.selectedUnit.level - 1)
       .subscribe(
-        (parents) => this.resultsParent = parents,
-        (error) => console.log('error retrieving parent units list')
+        (units) => {
+          if (units.length == 1) {
+            this.parentUnitSelected(units[0]);
+            this.searchParentUnitShowResults = false;
+          }
+          else {
+            this.selectParentUnitModal.show();
+            this.searchParentUnitResults = units;
+            this.searchParentUnitShowResults = true;
+          }
+        },
+        (error) => {
+          console.log('Error retrieving units from Units service');
+          this.searchParentUnitResults = [];
+          this.searchParentUnitShowResults = false;
+          this.searchParentUnitIsOngoing = false;
+          this.searchParentUnitErrorMessage = 'Invalid search';
+        },
+        () => {
+          this.searchParentUnitIsOngoing = false;
+          this.searchParentUnitErrorMessage = null;
+        }
     );
   }
 
   /******************************************************
   *   a parent is selected in the autocomplete select
   ******************************************************/
-  private parentSelected(event) {
-    this.unitForm.get('parent').setValue(event.sigle + ' / ' + event.label);
-    this.unitForm.get('parentId').setValue(event.id);
-    console.log("parent selected " + event.id);
+  private parentUnitSelected(unit) {
+    console.log("Parent Unit selected " + unit.id);
+    this.selectedParentUnit = unit;
+    this.searchParentUnitResults = [];
+    this.unitForm.get('parentUnitSearchText').setValue('');
+    this.unitForm.get('parentId').setValue(unit.id);
+    this.selectParentUnitModal.hide();
   }
 
   /******************************************************
   *   clear parent in form
   ******************************************************/
   private clearParent() {
-    this.unitForm.get('parent').setValue('');
+    //this.unitForm.get('parent').setValue('');
     this.unitForm.get('parentId').setValue(0);
   }
 
@@ -666,6 +725,9 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   autocomplete result for room search
   ******************************************************/
   private searchRoom() {
+    if (this.unitForm.get('roomSearchText').value.length == 0) {
+      return;
+    }
     if (this.unitForm.get('roomSearchText').value.length < 2) {
       this.unitForm.get('roomSearchText').setErrors({ "error": true });
       this.unitForm.get('roomSearchText').markAsDirty();
@@ -770,9 +832,9 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       responsible: this.fb.control(''),
       responsibleId: this.fb.control(unit.responsibleId),
       responsibleSearchText: this.fb.control(''),
-      parent: this.fb.control(''),
       position: this.fb.control(unit.position),
       parentId: this.fb.control(unit.parentId, Validators.required),
+      parentUnitSearchText: this.fb.control(''),
       room: this.fb.control(''),
       roomId: this.fb.control(unit.roomId),
       roomSearchText: this.fb.control(''),
@@ -870,12 +932,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       this.treeService.getUnitById(unit.parentId)
         .subscribe(
           (parentUnit) => {
-            this.matchingParent = parentUnit;
-            this.unitForm.get('parent').setValue(this.matchingParent.sigle + ' / ' + this.matchingParent.label);
+            this.selectedParentUnit = parentUnit;
           },
           (error) => {
             console.log('Unable to retrieve parent unit');
-            this.unitForm.get('parent').setValue('');
             this.unitForm.get('parentId').setValue('');
           },
           () => { }
@@ -1229,6 +1289,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       room: this.fb.control(''),
       roomId: this.fb.control(unit.roomId),
       roomSearchText: this.fb.control(''),
+      parentId: this.fb.control(unit.parentId),
+      parentUnitSearchText: this.fb.control(''),
       isTemporary: this.fb.control(unit.isTemporary),
       applyAt: this.fb.control(unit.applyAt == null ? '':moment(unit.applyAt).format('DD.MM.YYYY'), [Validators.required, Validators.pattern(this.dateValidationPattern)]),
       sigleEn: this.fb.control(this.labelENG.sigle),
@@ -1349,8 +1411,23 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             );
         }
       );
+    
+    // Retrieve parent unit
+    if (unit.parentId != null && unit.parentId != 0) {
+      this.treeService.getUnitById(unit.parentId)
+        .subscribe(
+          (parentUnit) => {
+            this.selectedParentUnit = parentUnit;
+          },
+          (error) => {
+            console.log('Unable to retrieve parent unit');
+            this.unitForm.get('parentId').setValue('');
+          },
+          () => { }
+        );
+    }
 
-      this.generateUnitAddress(unit);
+    this.generateUnitAddress(unit);
   }
 
   /******************************************************
@@ -1505,6 +1582,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     let observables: Observable<any>[] = [];
     let observableRoomIsSet: boolean = false;
     let observableResponsibleIsSet: boolean = false;
+    let observableParentUnitIsSet: boolean = false;
     let observableUnitPlannedIsSet: boolean = false;
 
     // console.log('Checking unit: ', JSON.stringify(unit));
@@ -1521,6 +1599,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       observableUnitPlannedIsSet = true;
       observables.push(this.treeService.getUnitPlannedsForUnitId(this.selectedUnit.id));
     }
+    if (this.mode != 'EDIT_UNIT_MODEL' && this.unitForm.get('parentUnitSearchText').value != '') {
+      observableParentUnitIsSet = true;
+      observables.push(this.treeService.searchUnitsGeneric(this.unitForm.get('parentUnitSearchText').value, this.selectedUnit.level - 1));
+    }
     observables.push(this.treeService.searchUnits(unit.sigle, '', '', '', '', 0, '', '', '', '', 'N', 'N', []));
     observables.push(this.treeService.searchUnits('', '', unit.cf, '', '', 0, '', '', '', '', 'N', 'N', []));
 
@@ -1535,6 +1617,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         let unitFromToConsistencyIsOk: boolean = true;
         let unitApplyAtIsOk: boolean = true;
         let unitPlannedApplyAtIsOk: boolean = true;
+        let parentUnitIsOk: boolean = true;
         
         let idx = 0;
 
@@ -1548,7 +1631,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             roomIsOk = false;
             this.unitForm.get('roomSearchText').setErrors({ "error": true });
             this.unitForm.get('roomSearchText').markAsDirty();
-            this.alerts.push("Aucun bureau trouvé pour " + this.unitForm.get('roomSearchText').value);
+            this.alerts.push("Aucun bureau ou résultat non-unique trouvé pour " + this.unitForm.get('roomSearchText').value);
           }
           idx++;
         }
@@ -1563,7 +1646,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             responsibleIsOk = false;
             this.unitForm.get('responsibleSearchText').setErrors({ "error": true });
             this.unitForm.get('responsibleSearchText').markAsDirty();
-            this.alerts.push("Aucun responsable trouvé pour " + this.unitForm.get('responsibleSearchText').value);
+            this.alerts.push("Aucun responsable ou résultat non-unique trouvé pour " + this.unitForm.get('responsibleSearchText').value);
           }
           idx++;
         }
@@ -1577,6 +1660,21 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               this.unitForm.get('applyAt').markAsDirty();
               this.alerts.push("Une version planifiée avec cette date d'application existe déjà");
             }
+          }
+          idx++;
+        }
+
+        // Parent Unit
+        if (observableParentUnitIsSet) {
+          // If search returned a unique result, then fix it in the unit
+          if (dataArray[idx].length == 1) {
+            unit.parentId = dataArray[idx][0].id;
+          }
+          else {
+            parentUnitIsOk = false;
+            this.unitForm.get('parentUnitSearchText').setErrors({ "error": true });
+            this.unitForm.get('parentUnitSearchText').markAsDirty();
+            this.alerts.push("Aucune unité mère ou résultat non-unique trouvé pour " + this.unitForm.get('parentUnitSearchText').value);
           }
           idx++;
         }
@@ -1669,7 +1767,16 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         }
 
         // If everything is ok, then save unit
-        if (roomIsOk && responsibleIsOk && unitSigleIsOk && unitCFIsOk && unitFromIsOk && unitToIsOk && unitFromToConsistencyIsOk && unitApplyAtIsOk && unitPlannedApplyAtIsOk) {
+        if (roomIsOk &&
+            responsibleIsOk &&
+            unitSigleIsOk &&
+            unitCFIsOk &&
+            unitFromIsOk &&
+            unitToIsOk &&
+            unitFromToConsistencyIsOk &&
+            unitApplyAtIsOk &&
+            unitPlannedApplyAtIsOk &&
+            parentUnitIsOk) {
           this.saveUnit(unit);
         }
         else {
@@ -1882,6 +1989,18 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
                   (error) => { },
                   () => { }
                 );
+
+              // Retrieve unit hierarchy
+              this.treeService.getUnitHierarchy(unit.id)
+                .subscribe(
+                  (hierarchy) => {
+                    this.unitHierarchy = hierarchy;
+                  },
+                  (error) => {
+                    console.log('Unable to retrieve unit hierarchy');
+                  },
+                  () => { }
+                );
             }
 
             this.unitUpdated.emit({mode: mode, changelogs: this.accumulatedChangeLogs, unit: this.selectedUnit});
@@ -1942,6 +2061,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       this.selectedUnitPlanned.isEpfl = unit.isEpfl;
       this.selectedUnitPlanned.longSigle = unit.longSigle;
       this.selectedUnitPlanned.level = unit.level;
+      this.selectedUnitPlanned.parentId = unit.parentId;
       this.selectedUnitPlanned.position = unit.position;
       this.selectedUnitPlanned.responsibleId = unit.responsibleId;
       this.selectedUnitPlanned.roomId = unit.roomId;
@@ -2710,7 +2830,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.unitHierarchy = {};
     this.matchingResponsible = {"displayname": ""};
     this.selectedRoom = {"label": ""};
-    this.matchingParent = {"sigle": "", "label": ""};
+    this.selectedParentUnit = {"sigle": "", "label": ""};
     this.attributeEnumsList = [];
     this.changeAttachmentData = new FormData();
     this.accumulatedChangeLogs = [];
@@ -2738,9 +2858,9 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       responsible: this.fb.control(''),
       responsibleId: this.fb.control(''),
       responsibleSearchText: this.fb.control(''),
-      parent: this.fb.control(''),
       position: this.fb.control(''),
       parentId: this.fb.control(''),
+      parentUnitSearchText: this.fb.control(''),
       room: this.fb.control(''),
       roomId: this.fb.control(''),
       roomSearchText: this.fb.control(''),
