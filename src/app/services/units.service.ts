@@ -19,9 +19,9 @@ import * as FileSaver from 'file-saver';
 @Injectable()
 export class TreeService {
 
-    // private static readonly SERVICE_PREFIX = process.env.UNITS_API_URL;
+     private static readonly SERVICE_PREFIX = process.env.UNITS_API_URL;
     // private static readonly SERVICE_PREFIX = 'http://idevelopsrv1.epfl.ch:6081/idm/v1/';
-     private static readonly SERVICE_PREFIX = 'http://localhost:8080/units-api/v1/';
+    // private static readonly SERVICE_PREFIX = 'http://localhost:8080/units-api/v1/';
     // private static readonly SERVICE_PREFIX = 'http://idevelopsrv1.epfl.ch:8081/units-api/v1/';
     // private static readonly SERVICE_PREFIX = 'http://uatesb5.epfl.ch:9092/units-api/v1/';
 

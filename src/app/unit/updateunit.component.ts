@@ -141,9 +141,9 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   public showAddressTab: boolean = false;
   public unitAddress: Address;
   public labelValidationPattern: string = '^[a-zA-Zà-öù-ÿÀ-ÖØ-ß,\'\\+\\-=\\s\\d]{0,80}$';
-  public sigleValidationPattern: string = '^[A-Z\\-\\d]{0,12}$';
+  public sigleValidationPattern: string = '^[a-zA-Z\\-\\d]{0,12}$';
   public cfValidationPattern: string = '^[0-9]{4,5}$';
-  public dateValidationPattern: string = '^(0[1-9]|[12][0-9]|3[01])[\\.](0[1-9]|1[012])[\\.]\\d{4}$';
+  public dateValidationPattern: string = '^(0[1-9]|[12][0-9]|3[01])[\\.](0[1-9]|1[012])[\\.](\\d{2}|\\d{4})$';
 
   constructor(public router: Router,
     public activatedRoute: ActivatedRoute,
@@ -491,11 +491,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   a location is selected in the autocomplete select
   ******************************************************/
   private locationSelected(location) {
+    // console.log("location selected " + location.pttOrder);
     this.selectedLocation = location;
     this.searchLocationResults = [];
     this.unitForm.get('addressLocationText').setValue('');
     this.unitForm.get('addressLocationId').setValue(location.pttOrder);
-    console.log("location selected " + location.pttOrder);
     this.selectLocationModal.hide();
   }
 
@@ -820,7 +820,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
     // Build form
     this.unitForm = this.fb.group({
-      label: this.fb.control(unit.label, [Validators.required, Validators.maxLength(80), Validators.pattern(this.labelValidationPattern)]),
+      label: this.fb.control(unit.label, [Validators.required, Validators.pattern(this.labelValidationPattern)]),
       sigle: this.fb.control(unit.sigle, [Validators.required, Validators.pattern(this.sigleValidationPattern)]),
       labelShort: this.fb.control(unit.labelShort, [Validators.required, Validators.maxLength(40)]),
       type: this.fb.control(unit.type),
@@ -860,86 +860,30 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
     // Retrieve responsible from sciper service
     if (unit.responsibleId != null) {
-      this.sciperService.getById(unit.responsibleId)
-        .subscribe(
-          (person) => {
-            this.selectedResponsible = person;
-            this.matchingResponsible = person;
-            this.unitForm.get('responsible').setValue(this.matchingResponsible.displayname);
-          },
-          (error) => {
-            console.log('Unable to retrieve responsible');
-            this.unitForm.get('responsible').setValue('');
-            this.unitForm.get('responsibleId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshResponsibleSelected(unit.responsibleId);
     }
 
     // Retrieve room from cadi service
     if (unit.roomId != null) {
-      this.infrastructureService.getRoomById(unit.roomId)
-        .subscribe(
-          (room) => {
-            this.selectedRoom = room;
-            this.unitForm.get('room').setValue(this.selectedRoom.label);
-          },
-          (error) => {
-            console.log('Unable to retrieve room');
-            this.unitForm.get('room').setValue('');
-            this.unitForm.get('roomId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshRoomSelected(unit.roomId);
     }
 
     // Retrieve location from cadi service
     if (unit.address != null && unit.address.pttOrder != null) {
-      this.placeService.getLocationsByPttOrder(unit.address.pttOrder)
-        .subscribe(
-          (locations) => {
-            if (locations.length > 0) {
-              this.locationSelected(locations[0]);
-            }
-          },
-          (error) => {
-            console.log('Unable to retrieve location');
-            this.unitForm.get('addressLocationText').setValue('');
-            this.unitForm.get('addressLocationId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshLocationSelected(unit.address.pttOrder);
     }
 
     // Retrieve country from cadi service
     if (unit.address != null && unit.address.countryId != null) {
-      this.placeService.getCountryById(unit.address.countryId)
-        .subscribe(
-          (country) => {
-            this.countrySelected(country);
-          },
-          (error) => {
-            console.log('Unable to retrieve location');
-            this.unitForm.get('addressCountryText').setValue('');
-            this.unitForm.get('addressCountryId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshCountrySelected(unit.address.countryId);
     }
 
     // Retrieve parent unit
     if (unit.parentId != null && unit.parentId != 0) {
-      this.treeService.getUnitById(unit.parentId)
-        .subscribe(
-          (parentUnit) => {
-            this.selectedParentUnit = parentUnit;
-          },
-          (error) => {
-            console.log('Unable to retrieve parent unit');
-            this.unitForm.get('parentId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshParentUnitSelected(unit.parentId);
+    }
+    else {
+      this.selectedParentUnit = null;
     }
 
     // Retrieve unit hierarchy
@@ -1037,7 +981,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       }
 
       this.unitForm = this.fb.group({
-        label: this.fb.control(unitModel.label, [Validators.required, Validators.maxLength(80), Validators.pattern(this.labelValidationPattern)]),
+        label: this.fb.control(unitModel.label, [Validators.required, Validators.pattern(this.labelValidationPattern)]),
         sigle: this.fb.control(unitModel.sigle, [Validators.required, Validators.pattern(this.sigleValidationPattern)]),
         labelShort: this.fb.control(unitModel.labelShort, [Validators.required, Validators.maxLength(40)]),
         type: this.fb.control(unitModel.type),
@@ -1055,6 +999,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         room: this.fb.control(''),
         roomId: this.fb.control(unitModel.roomId),
         roomSearchText: this.fb.control(''),
+        parentId: this.fb.control(unitModel.parentId),
+        parentUnitSearchText: this.fb.control(''),
         sigleEn: this.fb.control(this.labelENG.sigle),
         sigleGe: this.fb.control(this.labelDEU.sigle),
         sigleIt: this.fb.control(this.labelITA.sigle),
@@ -1076,37 +1022,18 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
       //retrieve responsible from sciper service
       if (unitModel.responsibleId != null && unitModel.responsibleId != 0) {
-        this.sciperService.getById(unitModel.responsibleId)
-          .subscribe(
-            (person) => {
-              this.selectedResponsible = person;
-              this.matchingResponsible = person;
-              this.unitForm.get('responsible').setValue(this.matchingResponsible.displayname);
-            },
-            (error) => {
-              console.log('Unable to retrieve responsible');
-              this.unitForm.get('responsible').setValue('');
-              this.unitForm.get('responsibleId').setValue('');
-            },
-            () => { }
-          );
+        this.refreshResponsibleSelected(unitModel.responsibleId);
       }
 
       //retrieve room from cadi service
       if (unitModel.roomId != null && unitModel.roomId != 0) {
-        this.infrastructureService.getRoomById(unitModel.roomId)
-          .subscribe(
-            (room) => {
-              this.selectedRoom = room;
-              this.unitForm.get('room').setValue(this.selectedRoom.label);
-            },
-            (error) => {
-              console.log('Unable to retrieve room');
-              this.unitForm.get('room').setValue('');
-              this.unitForm.get('roomId').setValue('');
-            },
-            () => { }
-          );
+        this.refreshRoomSelected(unitModel.roomId);
+      }
+
+      // Retrieve parent unit
+      this.selectedParentUnit = null;
+      if (unitModel.parentId != null && unitModel.parentId != 0) {
+        this.refreshParentUnitSelected(unitModel.parentId);
       }
 
       //retrieve attributes from unit service
@@ -1114,7 +1041,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     }
     else {
       this.unitForm = this.fb.group({
-        label: this.fb.control('', [Validators.required, Validators.maxLength(80), Validators.pattern(this.labelValidationPattern)]),
+        label: this.fb.control('', [Validators.required, Validators.pattern(this.labelValidationPattern)]),
         sigle: this.fb.control('', [Validators.required, Validators.pattern(this.sigleValidationPattern)]),
         labelShort: this.fb.control('', [Validators.required, Validators.maxLength(40)]),
         type: this.fb.control(''),
@@ -1132,6 +1059,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         room: this.fb.control(''),
         roomId: this.fb.control(''),
         roomSearchText: this.fb.control(''),
+        parentId: this.fb.control(''),
+        parentUnitSearchText: this.fb.control(''),
         sigleEn: this.fb.control(''),
         sigleGe: this.fb.control(''),
         sigleIt: this.fb.control(''),
@@ -1172,38 +1101,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         () => { }
       );
 
-    // Retrieve location from cadi service
-    if (unitModel != null && unitModel.address != null && unitModel.address.pttOrder != null) {
-      this.placeService.getLocationsByPttOrder(unitModel.address.pttOrder)
-        .subscribe(
-          (locations) => {
-            if (locations.length > 0) {
-              this.locationSelected(locations[0]);
-            }
-          },
-          (error) => {
-            console.log('Unable to retrieve location');
-            this.unitForm.get('addressLocationText').setValue('');
-            this.unitForm.get('addressLocationId').setValue('');
-          },
-          () => { }
-        );
-    }
-
-    // Retrieve country from cadi service
-    if (unitModel != null && unitModel.address != null && unitModel.address.countryId != null) {
-      this.placeService.getCountryById(unitModel.address.countryId)
-        .subscribe(
-          (country) => {
-            this.countrySelected(country);
-          },
-          (error) => {
-            console.log('Unable to retrieve location');
-            this.unitForm.get('addressCountryText').setValue('');
-            this.unitForm.get('addressCountryId').setValue('');
-          },
-          () => { }
-        );
+    // Retrieve parent unit
+    this.selectedParentUnit = null;
+    if (this.parentUnit.id != null && this.parentUnit.id != 0) {
+      this.refreshParentUnitSelected(this.parentUnit.id);
     }
 
     // Retrieve unit hierarchy
@@ -1273,7 +1174,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
     // build form
     this.unitForm = this.fb.group({
-      label: this.fb.control(unit.label, [Validators.required, Validators.maxLength(80), Validators.pattern(this.labelValidationPattern)]),
+      label: this.fb.control(unit.label, [Validators.required, Validators.pattern(this.labelValidationPattern)]),
       sigle: this.fb.control(unit.sigle, [Validators.required, Validators.pattern(this.sigleValidationPattern)]),
       labelShort: this.fb.control(unit.labelShort, [Validators.required, Validators.maxLength(40)]),
       type: this.fb.control(unit.type),
@@ -1314,37 +1215,12 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
     // retrieve responsible from sciper service
     if (unit.responsibleId != null && unit.responsibleId != 0) {
-      this.sciperService.getById(unit.responsibleId)
-        .subscribe(
-          (person) => {
-            this.selectedResponsible = person;
-            this.matchingResponsible = person;
-            this.unitForm.get('responsible').setValue(this.matchingResponsible.displayname);
-          },
-          (error) => {
-            console.log('Unable to retrieve responsible');
-            this.unitForm.get('responsible').setValue('');
-            this.unitForm.get('responsibleId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshResponsibleSelected(unit.responsibleId);
     }
 
     // retrieve room from cadi service
     if (unit.roomId != null && unit.roomId != 0) {
-      this.infrastructureService.getRoomById(unit.roomId)
-        .subscribe(
-          (room) => {
-            this.selectedRoom = room;
-            this.unitForm.get('room').setValue(this.selectedRoom.label);
-          },
-          (error) => {
-            console.log('Unable to retrieve room');
-            this.unitForm.get('room').setValue('');
-            this.unitForm.get('roomId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshRoomSelected(unit.roomId);
     }
 
     // retrieve attributes from unit service
@@ -1352,36 +1228,12 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
     // Retrieve location from cadi service
     if (unit.address != null && unit.address.pttOrder != null) {
-      this.placeService.getLocationsByPttOrder(unit.address.pttOrder)
-        .subscribe(
-          (locations) => {
-            if (locations.length > 0) {
-              this.locationSelected(locations[0]);
-            }
-          },
-          (error) => {
-            console.log('Unable to retrieve location');
-            this.unitForm.get('addressLocationText').setValue('');
-            this.unitForm.get('addressLocationId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshLocationSelected(unit.address.pttOrder);
     }
 
     // Retrieve country from cadi service
     if (unit.address != null && unit.address.countryId != null) {
-      this.placeService.getCountryById(unit.address.countryId)
-        .subscribe(
-          (country) => {
-            this.countrySelected(country);
-          },
-          (error) => {
-            console.log('Unable to retrieve location');
-            this.unitForm.get('addressCountryText').setValue('');
-            this.unitForm.get('addressCountryId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshCountrySelected(unit.address.countryId);
     }
 
     // Retrieve unit hierarchy
@@ -1414,17 +1266,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     
     // Retrieve parent unit
     if (unit.parentId != null && unit.parentId != 0) {
-      this.treeService.getUnitById(unit.parentId)
-        .subscribe(
-          (parentUnit) => {
-            this.selectedParentUnit = parentUnit;
-          },
-          (error) => {
-            console.log('Unable to retrieve parent unit');
-            this.unitForm.get('parentId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshParentUnitSelected(unit.parentId);
     }
 
     this.generateUnitAddress(unit);
@@ -1459,7 +1301,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
     // build form
     this.unitForm = this.fb.group({
-      label: this.fb.control(unit.label, [Validators.maxLength(80), Validators.pattern(this.labelValidationPattern)]),
+      label: this.fb.control(unit.label, [Validators.pattern(this.labelValidationPattern)]),
       sigle: this.fb.control(unit.sigle, [Validators.pattern(this.sigleValidationPattern)]),
       labelShort: this.fb.control(unit.labelShort, [Validators.maxLength(40)]),
       type: this.fb.control(unit.type),
@@ -1475,6 +1317,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       room: this.fb.control(''),
       roomId: this.fb.control(unit.roomId),
       roomSearchText: this.fb.control(''),
+      parentId: this.fb.control(unit.parentId),
+      parentUnitSearchText: this.fb.control(''),
       isTemporary: this.fb.control(unit.isTemporary),
       sigleEn: this.fb.control(this.labelENG.sigle),
       sigleGe: this.fb.control(this.labelDEU.sigle),
@@ -1497,37 +1341,12 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
     // retrieve responsible from sciper service
     if (unit.responsibleId != null && unit.responsibleId != 0) {
-      this.sciperService.getById(unit.responsibleId)
-        .subscribe(
-          (person) => {
-            this.selectedResponsible = person;
-            this.matchingResponsible = person;
-            this.unitForm.get('responsible').setValue(this.matchingResponsible.displayname);
-          },
-          (error) => {
-            console.log('Unable to retrieve responsible');
-            this.unitForm.get('responsible').setValue('');
-            this.unitForm.get('responsibleId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshResponsibleSelected(unit.responsibleId);
     }
 
     // retrieve room from cadi service
     if (unit.roomId != null && unit.roomId != 0) {
-      this.infrastructureService.getRoomById(unit.roomId)
-        .subscribe(
-          (room) => {
-            this.selectedRoom = room;
-            this.unitForm.get('room').setValue(this.selectedRoom.label);
-          },
-          (error) => {
-            console.log('Unable to retrieve room');
-            this.unitForm.get('room').setValue('');
-            this.unitForm.get('roomId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshRoomSelected(unit.roomId);
     }
 
     // Retrieve unit on which is based the model
@@ -1797,6 +1616,24 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     if (this.selectedLocation.zipcode == null) {
       this.selectedLocation.zipcode = '';
       this.selectedLocation.labelFrench = this.unitForm.get('addressLocationText').value;
+    }
+
+    // Handle "from" date
+    let fromDate: string = '';
+    let formValue: string = this.unitForm.get('from').value;
+    if (formValue != null && formValue != '') {
+      fromDate = formValue.substring(6, 10) + "-"
+        + formValue.substring(3, 5)+ "-"
+        + formValue.substring(0, 2) + "T00:00:00.000Z";
+    }
+
+    // Handle "to" date
+    let toDate: string = '';
+    formValue = this.unitForm.get('to').value;
+    if (formValue != null && formValue != '') {
+      toDate = formValue.substring(6, 10) + "-" +
+        formValue.substring(3, 5) + "-" +
+        formValue.substring(0, 2) + "T00:00:00.000Z";
     }
 
     /************************************************************************************************
@@ -2691,36 +2528,12 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
     // Retrieve location from cadi service
     if (unit.address != null && unit.address.pttOrder != null) {
-      this.placeService.getLocationsByPttOrder(unit.address.pttOrder)
-        .subscribe(
-          (locations) => {
-            if (locations.length > 0) {
-              this.locationSelected(locations[0]);
-            }
-          },
-          (error) => {
-            console.log('Unable to retrieve location');
-            this.unitForm.get('addressLocationText').setValue('');
-            this.unitForm.get('addressLocationId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshLocationSelected(unit.address.pttOrder);
     }
 
     // Retrieve country from cadi service
     if (unit.address != null && unit.address.countryId != null) {
-      this.placeService.getCountryById(unit.address.countryId)
-        .subscribe(
-          (country) => {
-            this.countrySelected(country);
-          },
-          (error) => {
-            console.log('Unable to retrieve location');
-            this.unitForm.get('addressCountryText').setValue('');
-            this.unitForm.get('addressCountryId').setValue('');
-          },
-          () => { }
-        );
+      this.refreshCountrySelected(unit.address.countryId);
     }
   }
 
@@ -2803,6 +2616,100 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   }
 
   /******************************************************
+  *   Refresh selected address country in UI
+  ******************************************************/
+  private refreshCountrySelected(countryId: number) {
+    this.placeService.getCountryById(countryId)
+      .subscribe(
+        (country) => {
+          this.countrySelected(country);
+        },
+        (error) => {
+          console.log('Unable to retrieve address country');
+          this.unitForm.get('addressCountryText').setValue('');
+          this.unitForm.get('addressCountryId').setValue('');
+        },
+        () => { }
+      );
+  }
+
+  /******************************************************
+  *   Refresh selected address location in UI
+  ******************************************************/
+  private refreshLocationSelected(pttOrder: number) {
+    this.placeService.getLocationsByPttOrder(pttOrder)
+      .subscribe(
+        (locations) => {
+          if (locations.length > 0) {
+            this.locationSelected(locations[0]);
+          }
+        },
+        (error) => {
+          console.log('Unable to retrieve location');
+          this.unitForm.get('addressLocationText').setValue('');
+          this.unitForm.get('addressLocationId').setValue('');
+        },
+        () => { }
+      );
+  }
+
+  /******************************************************
+  *   Refresh selected room in UI
+  ******************************************************/
+  private refreshRoomSelected(roomId: number) {
+    this.infrastructureService.getRoomById(roomId)
+      .subscribe(
+        (room) => {
+          this.selectedRoom = room;
+          this.unitForm.get('room').setValue(this.selectedRoom.label);
+        },
+        (error) => {
+          console.log('Unable to retrieve room');
+          this.unitForm.get('room').setValue('');
+          this.unitForm.get('roomId').setValue('');
+        },
+        () => { }
+      );
+  }
+
+  /******************************************************
+  *   Refresh selected room in UI
+  ******************************************************/
+  private refreshResponsibleSelected(responsibleId: number) {
+    this.sciperService.getById(responsibleId)
+      .subscribe(
+        (person) => {
+          this.selectedResponsible = person;
+          this.matchingResponsible = person;
+          this.unitForm.get('responsible').setValue(this.matchingResponsible.displayname);
+        },
+        (error) => {
+          console.log('Unable to retrieve responsible');
+          this.unitForm.get('responsible').setValue('');
+          this.unitForm.get('responsibleId').setValue('');
+        },
+        () => { }
+      );
+  }
+
+  /******************************************************
+  *   Refresh selected room in UI
+  ******************************************************/
+  private refreshParentUnitSelected(parentId: number) {
+    this.treeService.getUnitById(parentId)
+      .subscribe(
+        (parentUnit) => {
+          this.selectedParentUnit = parentUnit;
+        },
+        (error) => {
+          console.log('Unable to retrieve parent unit');
+          this.unitForm.get('parentId').setValue('');
+        },
+        () => { }
+      );
+  }
+
+  /******************************************************
   *   destroy component
   ******************************************************/
   public ngOnDestroy() {
@@ -2840,6 +2747,9 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.fromUnit = new Unit({});
     this.selectedLocation = {};
     this.selectedCountry = {};
+    this.unitTypesList = [];
+    this.languagesList = [];
+    this.attributesList = [];
 
     this.labelENG = new Label("{}");
     this.labelDEU = new Label("{}");
@@ -2909,15 +2819,5 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         (error) => { console.log('error getting unit langs'); },
         () => { }
       );
-
-      /*
-    this.treeService.getAttributes()
-      .subscribe(
-        (list) => {
-          this.attributesList = list;
-        },
-        (error) => { console.log('error getting unit attributes'); },
-        () => { }
-      );*/
   }
 }
