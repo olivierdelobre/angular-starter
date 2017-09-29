@@ -337,6 +337,7 @@ export class TreeService {
     ******************************************************/
     public searchUnits(sigle: string,
             label: string,
+            labelShort: string,
             cf: string,
             type: string,
             level: string,
@@ -359,6 +360,9 @@ export class TreeService {
         }
         if (label != null) {
             url += '&label=' + label;
+        }
+        if (labelShort != null) {
+            url += '&labelShort=' + labelShort;
         }
         if (cf != null) {
             url += '&cf=' + cf;
@@ -415,8 +419,8 @@ export class TreeService {
     *   search for units tree
     ******************************************************/
     public searchUnitsTree(searchString: string,
-            onlyPermanent: string,
-            onlyValid: string) {
+            onlyPermanent: Boolean,
+            onlyValid: Boolean) {
         
         let headers = new Headers();
         headers.append('Accept', 'application/json');
@@ -426,6 +430,19 @@ export class TreeService {
         url = TreeService.SERVICE_PREFIX + 'unitssearchtrees?do=1';
         if (searchString != null) {
             url += '&searchString=' + searchString;
+        }
+        if (onlyPermanent) {
+            url += '&onlyPermanent=Y';
+        }
+        else {
+            url += '&onlyPermanent=N';
+        }
+
+        if (onlyValid) {
+            url += '&onlyValid=Y';
+        }
+        else {
+            url += '&onlyValid=N';
         }
 
         // console.log("calling " + url);

@@ -143,7 +143,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   public labelValidationPattern: string = '^[a-zA-Zà-öù-ÿÀ-ÖØ-ß,\'\\+\\-=\\s\\d]{0,80}$';
   public sigleValidationPattern: string = '^[a-zA-Z\\-\\d]{0,12}$';
   public cfValidationPattern: string = '^[0-9]{4,5}$';
-  public dateValidationPattern: string = '^(0[1-9]|[12][0-9]|3[01])[\\.](0[1-9]|1[012])[\\.](\\d{2}|\\d{4})$';
+  public dateValidationPattern: string = '^(0?[1-9]|[12][0-9]|3[01])[\\.](0?[1-9]|1[012])[\\.](\\d{2}|\\d{4})$';
 
   constructor(public router: Router,
     public activatedRoute: ActivatedRoute,
@@ -674,7 +674,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     }
 
     this.searchParentUnitIsOngoing = true;
-    this.treeService.searchUnitsGeneric(this.unitForm.get('parentUnitSearchText').value, this.selectedUnit.level - 1)
+    this.treeService.searchUnitsGeneric('%25' + this.unitForm.get('parentUnitSearchText').value + '%25', this.selectedUnit.level - 1)
       .subscribe(
         (units) => {
           if (units.length == 1) {
@@ -1420,23 +1420,27 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     }
     if (this.mode != 'EDIT_UNIT_MODEL' && this.unitForm.get('parentUnitSearchText').value != '') {
       observableParentUnitIsSet = true;
-      observables.push(this.treeService.searchUnitsGeneric(this.unitForm.get('parentUnitSearchText').value, this.selectedUnit.level - 1));
+      observables.push(this.treeService.searchUnitsGeneric('%25' + this.unitForm.get('parentUnitSearchText').value + '%25', this.selectedUnit.level - 1));
     }
-    observables.push(this.treeService.searchUnits(unit.sigle, '', '', '', '', 0, '', '', '', '', 'N', 'N', []));
-    observables.push(this.treeService.searchUnits('', '', unit.cf, '', '', 0, '', '', '', '', 'N', 'N', []));
+    observables.push(this.treeService.searchUnits(unit.sigle, '', '', '', '', '', 0, '', '', '', '', 'N', 'N', []));
+    observables.push(this.treeService.searchUnits('', '', '', unit.cf, '', '', 0, '', '', '', '', 'N', 'N', []));
+    observables.push(this.treeService.searchUnits('', unit.label, '', '', '', '', 0, '', '', '', '', 'N', 'N', []));
+    observables.push(this.treeService.searchUnits('', '', unit.labelShort, '', '', '', 0, '', '', '', '', 'N', 'N', []));
 
     Observable.forkJoin(observables)
       .subscribe((dataArray) => {
         let roomIsOk: boolean = true;
         let responsibleIsOk: boolean = true;
-        let unitSigleIsOk: boolean = true;
-        let unitCFIsOk: boolean = true;
+        let sigleIsOk: boolean = true;
+        let cfIsOk: boolean = true;
         let unitFromIsOk: boolean = true;
         let unitToIsOk: boolean = true;
         let unitFromToConsistencyIsOk: boolean = true;
         let unitApplyAtIsOk: boolean = true;
         let unitPlannedApplyAtIsOk: boolean = true;
         let parentUnitIsOk: boolean = true;
+        let labelIsOk: boolean = true;
+        let labelShortIsOk: boolean = true;
         
         let idx = 0;
 
@@ -1505,21 +1509,22 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           if (unitLoop.sigle == unit.sigle.toUpperCase()) {
             // If create mode
             if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
-              unitSigleIsOk = false;
+              sigleIsOk = false;
             }
             // If updating Unit
             else if (this.mode == 'UPDATE' && unitLoop.id != this.selectedUnit.id) {
-              unitSigleIsOk = false;
+              sigleIsOk = false;
             }
             // If updating UnitPlanned
             else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.unitId) {
-              unitSigleIsOk = false;
+              sigleIsOk = false;
             }
 
-            if (!unitSigleIsOk) {
+            if (!sigleIsOk) {
               this.unitForm.get('sigle').setErrors({ "error": true });
               this.unitForm.get('sigle').markAsDirty();
               this.alerts.push("Le sigle " + unit.sigle.toUpperCase() + " est déjà utilisé");
+              break;
             }
           }
         }
@@ -1531,21 +1536,76 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           if (unitLoop.cf == unit.cf) {
             // If create mode
             if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
-              unitCFIsOk = false;
+              cfIsOk = false;
             }
             // If updating Unit
             else if (this.mode == 'UPDATE' && unitLoop.id != this.selectedUnit.id) {
-              unitCFIsOk = false;
+              cfIsOk = false;
             }
             // If updating UnitPlanned
             else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.unitId) {
-              unitCFIsOk = false;
+              cfIsOk = false;
             }
 
-            if (!unitCFIsOk) {
+            if (!cfIsOk) {
               this.unitForm.get('cf').setErrors({ "error": true });
               this.unitForm.get('cf').markAsDirty();
               this.alerts.push("Le CF " + unit.cf + " est déjà utilisé");
+              break;
+            }
+          }
+        }
+        idx++;
+
+        // Unit Label
+        // Error if an other unit has the same Label
+        for (let unitLoop of dataArray[idx]) {
+          if (unitLoop.label.toUpperCase() == unit.label.toUpperCase()) {
+            // If create mode
+            if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
+              labelIsOk = false;
+            }
+            // If updating Unit
+            else if (this.mode == 'UPDATE' && unitLoop.id != this.selectedUnit.id) {
+              labelIsOk = false;
+            }
+            // If updating UnitPlanned
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.unitId) {
+              labelIsOk = false;
+            }
+
+            if (!labelIsOk) {
+              this.unitForm.get('label').setErrors({ "error": true });
+              this.unitForm.get('label').markAsDirty();
+              this.alerts.push("Le libellé " + unit.label + " est déjà utilisé");
+              break;
+            }
+          }
+        }
+        idx++;
+
+        // Unit LabelShort
+        // Error if an other unit has the same LabelShort
+        for (let unitLoop of dataArray[idx]) {
+          if (unitLoop.labelShort.toUpperCase() == unit.labelShort.toUpperCase()) {
+            // If create mode
+            if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
+              labelShortIsOk = false;
+            }
+            // If updating Unit
+            else if (this.mode == 'UPDATE' && unitLoop.id != this.selectedUnit.id) {
+              labelShortIsOk = false;
+            }
+            // If updating UnitPlanned
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.unitId) {
+              labelShortIsOk = false;
+            }
+
+            if (!labelShortIsOk) {
+              this.unitForm.get('labelShort').setErrors({ "error": true });
+              this.unitForm.get('labelShort').markAsDirty();
+              this.alerts.push("L'abrégé " + unit.labelShort + " est déjà utilisé");
+              break;
             }
           }
         }
@@ -1588,8 +1648,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         // If everything is ok, then save unit
         if (roomIsOk &&
             responsibleIsOk &&
-            unitSigleIsOk &&
-            unitCFIsOk &&
+            sigleIsOk &&
+            cfIsOk &&
+            labelIsOk &&
+            labelShortIsOk &&
             unitFromIsOk &&
             unitToIsOk &&
             unitFromToConsistencyIsOk &&
@@ -1618,51 +1680,20 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       this.selectedLocation.labelFrench = this.unitForm.get('addressLocationText').value;
     }
 
-    // Handle "from" date
-    let fromDate: string = '';
-    let formValue: string = this.unitForm.get('from').value;
-    if (formValue != null && formValue != '') {
-      fromDate = formValue.substring(6, 10) + "-"
-        + formValue.substring(3, 5)+ "-"
-        + formValue.substring(0, 2) + "T00:00:00.000Z";
-    }
-
-    // Handle "to" date
-    let toDate: string = '';
-    formValue = this.unitForm.get('to').value;
-    if (formValue != null && formValue != '') {
-      toDate = formValue.substring(6, 10) + "-" +
-        formValue.substring(3, 5) + "-" +
-        formValue.substring(0, 2) + "T00:00:00.000Z";
-    }
+    // Handle dates
+    let fromDate: string = this.getFormattedDate(this.unitForm.get('from') ? this.unitForm.get('from').value : null);
+    let toDate: string = this.getFormattedDate(this.unitForm.get('to') ? this.unitForm.get('to').value : null);
+    let applyAt: string = this.getFormattedDate(this.unitForm.get('applyAt') ? this.unitForm.get('applyAt').value : null);
 
     /************************************************************************************************
      * Update existing unit
      ***********************************************************************************************/
     if (this.mode == 'UPDATE') {
+      let selectedUnitPreviousParentId: number = this.selectedUnit.parentId;
       unit.id = this.selectedUnit.id;
 
-      // Handle "from" date
-      let formValue: string = this.unitForm.get('from').value;
-      if (formValue != null && formValue != '') {
-        this.selectedUnit.from = formValue.substring(6, 10) + "-"
-          + formValue.substring(3, 5)+ "-"
-          + formValue.substring(0, 2) + "T00:00:00.000Z";
-      }
-      else {
-        this.selectedUnit.from = null;
-      }
-
-      // Handle "to" date
-      formValue = this.unitForm.get('to').value;
-      if (formValue != null && formValue != '') {
-        this.selectedUnit.to = formValue.substring(6, 10) + "-" +
-          formValue.substring(3, 5) + "-" +
-          formValue.substring(0, 2) + "T00:00:00.000Z";
-      }
-      else {
-        this.selectedUnit.to = null;
-      }
+      this.selectedUnit.from = fromDate;
+      this.selectedUnit.to = toDate;
 
       // Handle other base form values
       this.selectedUnit.parentId = unit.parentId;
@@ -1820,6 +1851,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
                 .subscribe(
                   (unit) => {
                     this.selectedUnit = unit;
+                    this.selectedUnitAttributes = unit.attributes;
                     this.generateUnitAddress(this.selectedUnit);
                     this.refreshAddressForm(this.selectedUnit);
                   },
@@ -1840,7 +1872,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
                 );
             }
 
-            this.unitUpdated.emit({mode: mode, changelogs: this.accumulatedChangeLogs, unit: this.selectedUnit});
+            this.unitUpdated.emit({mode: mode, changelogs: this.accumulatedChangeLogs, unit: this.selectedUnit, previousParentId: selectedUnitPreviousParentId});
             this.messageTriggered.emit({ message: 'Unité mise à jour avec succès', level: 'success' });
           }
         );
@@ -1851,39 +1883,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     else if (this.mode == 'EDIT_UNIT_PLANNED') {
       // unit.id = this.selectedUnitPlanned.id;
 
-      // handle "from" date
-      let formValue: string = this.unitForm.get('from').value;
-        if (formValue != null && formValue != '') {
-        this.selectedUnitPlanned.from = formValue.substring(6, 10) + "-"
-          + formValue.substring(3, 5) + "-"
-          + formValue.substring(0, 2) + "T00:00:00.000Z";
-      }
-      else {
-        this.selectedUnitPlanned.from = null;
-      }
-
-      // handle "to" date
-      formValue = this.unitForm.get('to').value;
-      if (formValue != null && formValue != '') {
-        this.selectedUnitPlanned.to = formValue.substring(6, 10) + "-"
-          + formValue.substring(3, 5) + "-"
-          + formValue.substring(0, 2) + "T00:00:00.000Z";
-      }
-      else {
-        this.selectedUnitPlanned.to = null;
-      }
-
-      // handle "applyAt" date
-      formValue = this.unitForm.get('applyAt').value;
-      if (formValue != null && formValue != '') {
-        this.selectedUnitPlanned.applyAt = formValue.substring(6, 10) + "-"
-          + formValue.substring(3, 5) + "-"
-          + formValue.substring(0, 2) + "T00:00:00.000Z";
-      }
-      else {
-        this.selectedUnitPlanned.applyAt = null;
-      }
-
+      this.selectedUnitPlanned.from = fromDate;
+      this.selectedUnitPlanned.to = toDate;
+      this.selectedUnitPlanned.applyAt = applyAt;
+      
       // handle other base form values
       //this.selectedUnitPlanned.unitId = unit.id;
       this.selectedUnitPlanned.isTemporary = unit.isTemporary;
@@ -2065,23 +2068,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     else if (this.mode == 'EDIT_UNIT_MODEL') {
       unit.id = this.selectedUnitModel.id;
 
-      // handle "from" date
-      let formValue: string = this.unitForm.get('from').value;
-        if (formValue != null && formValue != '') {
-        this.selectedUnitModel.from = formValue.substring(6, 10) + "-" + formValue.substring(3, 5) + "-" + formValue.substring(0, 2) + "T00:00:00.000Z";
-      }
-      else {
-        this.selectedUnitModel.from = null;
-      }
-
-      // handle "to" date
-      formValue = this.unitForm.get('to').value;
-      if (formValue != null && formValue != '') {
-        this.selectedUnitModel.to = formValue.substring(6, 10) + "-" + formValue.substring(3, 5) + "-" + formValue.substring(0, 2) + "T00:00:00.000Z";
-      }
-      else {
-        this.selectedUnitModel.to = null;
-      }
+      this.selectedUnitModel.from = fromDate;
+      this.selectedUnitModel.to = toDate;
 
       // handle other base form values
       this.selectedUnitModel.isTemporary = unit.isTemporary;
@@ -2229,31 +2217,13 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
      ***********************************************************************************************/
     else {
       unit.parentId = this.parentUnit.id;
-      if (this.mode == 'CLONE')
+      if (this.mode == 'CLONE') {
         unit.parentId = this.parentUnit.parentId;
-
-      //handle "from" date
-      let formValue: string = this.unitForm.get('from').value;
-      if (formValue != null && formValue != '') {
-        unit.from = formValue.substring(6, 10) + "-"
-          + formValue.substring(3, 5) + "-"
-          + formValue.substring(0, 2) + "T00:00:00.000Z";
       }
-      else {
-        unit.from = null;
-      }
-
-      //handle "to" date
-      formValue = this.unitForm.get('to').value;
-      if (formValue != null && formValue != '') {
-        unit.to = formValue.substring(6, 10) + "-"
-          + formValue.substring(3, 5) + "-"
-          + formValue.substring(0, 2) + "T00:00:00.000Z";
-      }
-      else {
-        unit.to = null;
-      }
-
+      
+      unit.from = fromDate;
+      unit.to = toDate;
+      
       //handle labels
       unit.labels = [];
       //ENG label
@@ -2359,7 +2329,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               this.triggerEditUnit(this.selectedUnit, 'UPDATE', false);
             }
 
-            this.unitUpdated.emit({mode: mode, changelogs: this.accumulatedChangeLogs, unit: unit});
+            this.unitUpdated.emit({mode: mode, changelogs: this.accumulatedChangeLogs, unit: unit, previousParentId: 0});
             this.messageTriggered.emit({ message: 'Unité créée avec succès', level: 'success' });
           }
         );
@@ -2707,6 +2677,31 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         },
         () => { }
       );
+  }
+
+  /******************************************************
+  *   Format a date string to the JSON string date format
+  ******************************************************/
+  private getFormattedDate(dateString: string): string {
+    let dateRegex: RegExp = new RegExp(this.dateValidationPattern);
+    let formattedDate: string = '';
+    let dateRegexMatches: RegExpExecArray = dateRegex.exec(dateString);
+    if (dateRegexMatches != null && dateRegexMatches.length == 4) {
+      if (dateRegexMatches[1].length == 1) {
+        dateRegexMatches[1] = '0' + dateRegexMatches[1];
+      }
+      if (dateRegexMatches[2].length == 1) {
+        dateRegexMatches[2] = '0' + dateRegexMatches[2];
+      }
+      if (dateRegexMatches[3].length == 2) {
+        dateRegexMatches[3] = '20' + dateRegexMatches[3];
+      }
+      return dateRegexMatches[3] + "-"
+        + dateRegexMatches[2] + "-"
+        + dateRegexMatches[1] + "T00:00:00.000Z";
+    }
+
+    return null;
   }
 
   /******************************************************

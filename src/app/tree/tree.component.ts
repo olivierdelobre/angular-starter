@@ -133,10 +133,14 @@ export class TreeComponent implements OnInit, OnDestroy {
     let mode = data.mode;
     let changeLogs = data.changelogs;
     let unitUpdated = data.unit;
+    let previousParentId = data.previousParentId;
     // console.log('unit updated, mode = ' + mode);
     // console.log('unit updated, generatedChangeLogs = ' + JSON.stringify(changeLogs));
     // console.log('unit updated or created = ' + JSON.stringify(unitUpdated));
     this.rootTreeView.retrieveUnitsForce(this.onlyPermanent, this.onlyValid, this.stateDate, unitUpdated.parentId);
+    if (previousParentId != 0) {
+      this.rootTreeView.retrieveUnitsForce(this.onlyPermanent, this.onlyValid, this.stateDate, previousParentId);
+    }
 
     if (mode == 'SAVE_AND_CLOSE' && changeLogs.length > 0) {
       //this.myChangeDocComponent.triggerCreateChangeDoc(JSON.stringify(changeLogs));
@@ -399,7 +403,7 @@ export class TreeComponent implements OnInit, OnDestroy {
         this.treeFilter = filter;
         // console.log("treeFilter change in TreeComponent = " + this.treeFilter);
         if (filter != "") {
-          this.treeService.searchUnitsTree(this.treeFilter, null, null).subscribe(
+          this.treeService.searchUnitsTree(this.treeFilter, this.onlyPermanent, this.onlyValid).subscribe(
             (units) => {
               // console.log("Following units have to be opened = " + JSON.stringify(units));
               this.expandedUnits = Array();

@@ -133,9 +133,10 @@ export class SearchComponent implements OnInit, OnDestroy {
     // console.log("attributesCriterias = " + JSON.stringify(attributesCriterias));
 
     if (mode == "search") {
-      this.treeService.searchUnits(this.searchForm.get('sigle').value,
-        this.searchForm.get('label').value,
-        this.searchForm.get('cf').value,
+      this.treeService.searchUnits('%25' + this.searchForm.get('sigle').value + '%25',
+        null,
+        '%25' + this.searchForm.get('label').value + '%25',
+        '%25' + this.searchForm.get('cf').value + '%25',
         this.searchForm.get('type').value,
         this.searchForm.get('level').value,
         this.searchForm.get('responsibleId').value,
