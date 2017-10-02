@@ -78,7 +78,6 @@ type StoreType = {
     UpdateUnitComponent,
     DeleteUnitComponent,
     ListUnitPlannedComponent,
-//    UnitModelComponent,
     ChangeDocComponent,
     TreeViewComponent,
     HierarchyComponent,
@@ -90,9 +89,7 @@ type StoreType = {
   ],
   imports: [ // import Angular's modules
     BrowserModule,
-    //BrowserAnimationsModule,
     Ng2BootstrapModule.forRoot(), ModalModule.forRoot(), AlertModule.forRoot(),
-    //DatepickerModule.forRoot();
     FormsModule,
     ReactiveFormsModule,
     HttpModule,

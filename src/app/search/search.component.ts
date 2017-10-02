@@ -20,7 +20,6 @@ import { Label } from '../model/label.model';
 
 import { UpdateUnitComponent } from '../unit/updateunit.component';
 import { DeleteUnitComponent } from '../unit/deleteunit.component';
-import { UnitModelComponent } from '../unitmodel/unitmodel.component';
 import { ListUnitPlannedComponent } from '../unit/listunitplanned.component';
 
 @Component({

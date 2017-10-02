@@ -285,13 +285,11 @@ export class TreeComponent implements OnInit, OnDestroy {
             (error) => console.log('error getting unit'),
             () => {
               // console.log('unit model created from unit ' + JSON.stringify(this.selectedUnitModel));
-              //this.myUnitModelComponent.triggerUnitModel(this.selectedUnitModel, false);
               this.myUpdateUnitComponent.triggerUnitModel(this.selectedUnitModel, false);
             }
           );
         },
         () => {
-          //this.myUnitModelComponent.triggerUnitModel(this.selectedUnitModel, true);
           this.myUpdateUnitComponent.triggerUnitModel(this.selectedUnitModel, true);
         }
       );

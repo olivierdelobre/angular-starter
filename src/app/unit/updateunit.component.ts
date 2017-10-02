@@ -1422,10 +1422,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       observableParentUnitIsSet = true;
       observables.push(this.treeService.searchUnitsGeneric('%25' + this.unitForm.get('parentUnitSearchText').value + '%25', this.selectedUnit.level - 1));
     }
-    observables.push(this.treeService.searchUnits(unit.sigle, '', '', '', '', '', 0, '', '', '', '', 'N', 'N', []));
-    observables.push(this.treeService.searchUnits('', '', '', unit.cf, '', '', 0, '', '', '', '', 'N', 'N', []));
-    observables.push(this.treeService.searchUnits('', unit.label, '', '', '', '', 0, '', '', '', '', 'N', 'N', []));
-    observables.push(this.treeService.searchUnits('', '', unit.labelShort, '', '', '', 0, '', '', '', '', 'N', 'N', []));
+    observables.push(this.treeService.searchUnits(unit.sigle, '', '', '', '', '', 0, '', '', '', '', null, null, []));
+    observables.push(this.treeService.searchUnits('', '', '', unit.cf, '', '', 0, '', '', '', '', null, null, []));
+    observables.push(this.treeService.searchUnits('', unit.label, '', '', '', '', 0, '', '', '', '', null, null, []));
+    observables.push(this.treeService.searchUnits('', '', unit.labelShort, '', '', '', 0, '', '', '', '', null, null, []));
 
     Observable.forkJoin(observables)
       .subscribe((dataArray) => {
@@ -1512,11 +1512,14 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               sigleIsOk = false;
             }
             // If updating Unit
-            else if (this.mode == 'UPDATE' && unitLoop.id != this.selectedUnit.id) {
+            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnit.id)) {
               sigleIsOk = false;
             }
             // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.unitId) {
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
+              console.log('unitLoop.id = ' + unitLoop.id);
+              console.log('this.selectedUnitPlanned.unitId = ' + this.selectedUnitPlanned.unitId);
+              console.log('unitLoop.clonedFromId = ' + unitLoop.clonedFromId);
               sigleIsOk = false;
             }
 
@@ -1539,11 +1542,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               cfIsOk = false;
             }
             // If updating Unit
-            else if (this.mode == 'UPDATE' && unitLoop.id != this.selectedUnit.id) {
+            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnit.id)) {
               cfIsOk = false;
             }
             // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.unitId) {
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
               cfIsOk = false;
             }
 
@@ -1566,11 +1569,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               labelIsOk = false;
             }
             // If updating Unit
-            else if (this.mode == 'UPDATE' && unitLoop.id != this.selectedUnit.id) {
+            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnit.id)) {
               labelIsOk = false;
             }
             // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.unitId) {
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
               labelIsOk = false;
             }
 
@@ -1593,11 +1596,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               labelShortIsOk = false;
             }
             // If updating Unit
-            else if (this.mode == 'UPDATE' && unitLoop.id != this.selectedUnit.id) {
+            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnit.id)) {
               labelShortIsOk = false;
             }
             // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && unitLoop.id != this.selectedUnitPlanned.unitId) {
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
               labelShortIsOk = false;
             }
 

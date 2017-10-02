@@ -45,6 +45,7 @@ export class Unit {
     public hasUnitPlanned: boolean;
     public hasUnitModel: boolean;
     public address: Address;
+    public clonedFromId: number;
 
     constructor(obj: Object) {
         this.id = obj['id'];
@@ -84,6 +85,7 @@ export class Unit {
         this.hasUnitPlanned = obj['hasUnitPlanned'];
         this.hasUnitModel = obj['hasUnitModel'];
         this.address = obj['address'];
+        this.clonedFromId = obj['clonedFromId'];
     }
 
     public expand() {
