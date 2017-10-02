@@ -26,6 +26,8 @@ import { DeleteUnitComponent } from '../unit/deleteunit.component';
 import { ChangeDocComponent } from '../changedoc/changedoc.component';
 import { ListUnitPlannedComponent } from '../unit/listunitplanned.component';
 
+import { Utils } from '../common/utils';
+
 @Component({
   selector: 'app-tree',
   providers: [ TreeService, AuthService, SciperService, CadiService ],
@@ -79,7 +81,7 @@ export class TreeComponent implements OnInit, OnDestroy {
   private loggedUserInfoSubscription: Subscription;
   private treeFilterSubscription: Subscription;
   public alerts: Array<Object> = [];
-  private dateValidationPattern: string = '^(0[1-9]|[12][0-9]|3[01])[\\.](0[1-9]|1[012])[\\.]\\d{4}$';
+  private dateValidationPattern: string = '^(0?[1-9]|[12][0-9]|3[01])[\\.](0?[1-9]|1[012])[\\.](\\d{2}|\\d{4})$';
   
   constructor(public router: Router,
     public activatedRoute: ActivatedRoute,
@@ -337,9 +339,9 @@ export class TreeComponent implements OnInit, OnDestroy {
   ******************************************************/
   private changeStateDate() {
     let formValue: string = this.stateDateForm.get('state_date').value;
-    this.stateDate = formValue.substring(6, 10) + formValue.substring(3, 5) + formValue.substring(0, 2);
-    this.stateDateDate = new Date(+formValue.substring(6, 10), +formValue.substring(3, 5) - 1, +formValue.substring(0, 2));
-    console.log("state date has changed = " + this.stateDate);
+    this.stateDate = Utils.getFormattedDate(this.stateDateForm.get('state_date').value, this.dateValidationPattern);
+    this.stateDateDate = new Date(+this.stateDate.substring(0, 4), +this.stateDate.substring(5, 7) - 1, +this.stateDate.substring(8, 10));
+    // console.log("state date has changed = " + this.stateDate);
     this.changeStateDateModal.hide();
     this.rootTreeView.retrieveUnitsForce(this.onlyPermanent, this.onlyValid, this.stateDate);
   }

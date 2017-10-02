@@ -30,6 +30,8 @@ import { UnitModel } from '../model/unitmodel.model';
 import { UnitPlanned } from '../model/unitplanned.model';
 import { Address } from '../model/address.model';
 
+import { Utils } from '../common/utils';
+
 @Component({
   selector: 'app-updateunit',
   providers: [ TreeService, AuthService, SciperService, CadiService, PlaceService, InfrastructureService ],
@@ -1684,9 +1686,9 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     }
 
     // Handle dates
-    let fromDate: string = this.getFormattedDate(this.unitForm.get('from') ? this.unitForm.get('from').value : null);
-    let toDate: string = this.getFormattedDate(this.unitForm.get('to') ? this.unitForm.get('to').value : null);
-    let applyAt: string = this.getFormattedDate(this.unitForm.get('applyAt') ? this.unitForm.get('applyAt').value : null);
+    let fromDate: string = Utils.getFormattedDate(this.unitForm.get('from') ? this.unitForm.get('from').value : null, this.dateValidationPattern);
+    let toDate: string = Utils.getFormattedDate(this.unitForm.get('to') ? this.unitForm.get('to').value : null, this.dateValidationPattern);
+    let applyAt: string = Utils.getFormattedDate(this.unitForm.get('applyAt') ? this.unitForm.get('applyAt').value : null, this.dateValidationPattern);
 
     /************************************************************************************************
      * Update existing unit
@@ -2680,31 +2682,6 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         },
         () => { }
       );
-  }
-
-  /******************************************************
-  *   Format a date string to the JSON string date format
-  ******************************************************/
-  private getFormattedDate(dateString: string): string {
-    let dateRegex: RegExp = new RegExp(this.dateValidationPattern);
-    let formattedDate: string = '';
-    let dateRegexMatches: RegExpExecArray = dateRegex.exec(dateString);
-    if (dateRegexMatches != null && dateRegexMatches.length == 4) {
-      if (dateRegexMatches[1].length == 1) {
-        dateRegexMatches[1] = '0' + dateRegexMatches[1];
-      }
-      if (dateRegexMatches[2].length == 1) {
-        dateRegexMatches[2] = '0' + dateRegexMatches[2];
-      }
-      if (dateRegexMatches[3].length == 2) {
-        dateRegexMatches[3] = '20' + dateRegexMatches[3];
-      }
-      return dateRegexMatches[3] + "-"
-        + dateRegexMatches[2] + "-"
-        + dateRegexMatches[1] + "T00:00:00.000Z";
-    }
-
-    return null;
   }
 
   /******************************************************
