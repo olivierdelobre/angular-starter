@@ -1,4 +1,4 @@
-<div bsModal #deleteConfirmationModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true" (onHide)="onHide()">
+<div bsModal #deleteConfirmationModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true" (onHide)="onHide()" id="modal-delete-unit">
   <div class="modal-dialog modal-md" *ngIf="showView">
     <div class="modal-content">
       <div class="modal-header">
@@ -12,7 +12,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal" (click)="closeModal()">Annuler</button>
-        <button type="button" class="btn btn-danger" (click)="deleteUnit()">Confirmer</button>
+        <button type="button" class="btn btn-danger" (click)="deleteUnit()" id="btn-delete-unit-confirmation">Confirmer</button>
       </div>
     </div>
   </div>

@@ -6,7 +6,7 @@
 <div class="form-inline tree-form-container">
     <div class="col-md-3 checkbox">
         <label>
-            <input type="checkbox" [(ngModel)]="onlyPermanent" (ngModelChange)="filterHasChanged()" /> Seulement les enreg. permanents
+            <input type="checkbox" [(ngModel)]="onlyPermanent" (ngModelChange)="filterHasChanged()" id="filter-only-permanent" /> Seulement les enreg. permanents
         </label>
     </div>
     <div class="col-md-3 checkbox">
@@ -27,7 +27,7 @@
     </div>
 </div>
 <div class="create-root-container" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)">
-  <span class="glyphicon glyphicon-plus create-root-unit" title="Ajouter une unité racine" (click)="createChildUnit()"></span>
+  <span class="glyphicon glyphicon-plus create-root-unit" title="Ajouter une unité racine" (click)="createChildUnit()" id="create-root-unit-button"></span>
 </div>
 <div class="tree-container" style="padding: 0;">
     <app-tree-view #rootTreeView [root]="root"

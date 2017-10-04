@@ -33,7 +33,7 @@
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Libellé *</label>
                   <div class="col-sm-10">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="label" />
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="label" id="input-label" />
                     <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
                         {{ selectedUnit.label }}
                     </p>
@@ -42,14 +42,14 @@
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Sigle *</label>
                   <div class="col-sm-4">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="sigle" style="text-transform: uppercase;" sigle-input />
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="sigle" style="text-transform: uppercase;" id="input-sigle" sigle-input />
                     <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
                         {{ selectedUnit.sigle }}
                     </p>
                   </div>
                   <label for="" class="col-sm-2 control-label">Abrégé *</label>
                   <div class="col-sm-4">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="labelShort" />
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="labelShort" id="input-labelShort" />
                     <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
                         {{ selectedUnit.labelShort }}
                     </p>
@@ -85,7 +85,7 @@
                   </div>
                   <label for="" class="col-sm-2 control-label">CF</label>
                   <div class="col-sm-4">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && mode != 'UPDATE' && mode != 'EDIT_UNIT_PLANNED'" type="text" class="form-control" formControlName="cf" (keyup)="setCfNumber()" number-input />
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && mode != 'UPDATE' && mode != 'EDIT_UNIT_PLANNED'" type="text" class="form-control" formControlName="cf" (keyup)="setCfNumber()" id="input-cf" number-input />
                     <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) || mode == 'UPDATE' || mode == 'EDIT_UNIT_PLANNED'" class="form-text">
                         {{ selectedUnit.cf }}
                     </p>
@@ -94,7 +94,7 @@
                 <div class="form-group" style="position: relative;" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Existe du *</label>
                   <div class="col-sm-4">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="form-control" formControlName="from" maxlength="10" date-input />
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="form-control" formControlName="from" maxlength="10" id="input-from" date-input />
                     <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
                         {{ selectedUnitFromString }}
                     </p>
@@ -604,10 +604,10 @@
           </div>
           <img *ngIf="saveIsOngoing" src="/assets/img/spinner.gif" />&nbsp;&nbsp;
           <button type="button" id="btn-close-unit-update" class="btn btn-default" data-dismiss="modal" (click)="closeModal()" [disabled]="saveIsOngoing">Fermer</button>
-          <button type="button" id="btn-close-unit-update" class="btn btn-danger" *ngIf="mode == 'EDIT_UNIT_PLANNED' && unitPlannedExists" data-dismiss="modal" (click)="deleteUnitPlanned()">Supprimer</button>
-          <button type="button" id="btn-close-unit-update" class="btn btn-danger" *ngIf="mode == 'EDIT_UNIT_MODEL' && unitModelExists" data-dismiss="modal" (click)="deleteUnitModel()">Supprimer le modèle</button>
-          <button type="submit" id="btn-submit-unit-update" class="btn btn-primary" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" [disabled]="saveIsOngoing || !unitForm.valid">Enregistrer</button>
-          <button type="submit" id="btn-submit-unit-update" class="btn btn-primary" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" [disabled]="saveIsOngoing || !unitForm.valid" (click)="setCloseFlag()">Enregistrer puis fermer</button>
+          <button type="button" id="btn-delete-unit-planned" class="btn btn-danger" *ngIf="mode == 'EDIT_UNIT_PLANNED' && unitPlannedExists" data-dismiss="modal" (click)="deleteUnitPlanned()">Supprimer</button>
+          <button type="button" id="btn-delete-unit-model" class="btn btn-danger" *ngIf="mode == 'EDIT_UNIT_MODEL' && unitModelExists" data-dismiss="modal" (click)="deleteUnitModel()">Supprimer le modèle</button>
+          <button type="submit" id="btn-save-unit" class="btn btn-primary" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" [disabled]="saveIsOngoing || !unitForm.valid">Enregistrer</button>
+          <button type="submit" id="btn-save-unit-and-close" class="btn btn-primary" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" [disabled]="saveIsOngoing || !unitForm.valid" (click)="setCloseFlag()">Enregistrer puis fermer</button>
         </div>
       </div>
     </div>
@@ -721,12 +721,12 @@
 </div>
 
 <div class="modal fade" bsModal #alertsModal="bs-modal"
-     tabindex="-1" role="dialog" aria-labelledby="alertsModalLabel" aria-hidden="true">
+     tabindex="-1" role="dialog" aria-labelledby="alertsModalLabel" aria-hidden="true" id="modal-alerts">
   <div class="modal-dialog modal-second">
     <div class="modal-content modal-content-second">
       <div class="modal-header">
         <h4 class="modal-title pull-left">Merci de vérifier les éléments suivants</h4>
-        <button type="button" class="close pull-right" aria-label="Close" (click)="alertsModal.hide()">
+        <button type="button" class="close pull-right" aria-label="Close" (click)="alertsModal.hide()" id="btn-close-modal-alerts">
           <span aria-hidden="true">&times;</span>
         </button>
       </div>

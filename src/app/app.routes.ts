@@ -1,5 +1,4 @@
 import { Routes, RouterModule } from '@angular/router';
-import { Home } from './home';
 import { AboutComponent } from './about';
 import { TreeComponent } from './tree';
 import { LogoutComponent } from './logout';

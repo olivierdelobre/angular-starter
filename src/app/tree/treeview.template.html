@@ -17,13 +17,13 @@
         {{ unit.label }}
       </div>
       <div class="actions-cell" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; right: 0;">
-        <span *ngIf="unit.level < 4" class="glyphicon glyphicon-plus" title="Ajouter une unité rattachée" (click)="createChildUnit(unit)"></span>
-        <span *ngIf="unit.level < 4 && unit.hasUnitModel" class="glyphicon glyphicon-duplicate" title="Modifier le modèle" (click)="propagateCreateOrUpdateUnitModel(unit)"></span>
-        <span *ngIf="unit.level < 4 && !unit.hasUnitModel" class="glyphicon glyphicon-duplicate" style="opacity: 0.33;" title="Créer un modèle" (click)="propagateCreateOrUpdateUnitModel(unit)"></span>
-        <span *ngIf="unit.hasUnitPlanned" class="glyphicon glyphicon-time" title="Modifier la version planifiée" (click)="propagateCreateOrUpdateUnitPlanned(unit)"></span>
-        <span *ngIf="!unit.hasUnitPlanned" class="glyphicon glyphicon-time" style="opacity: 0.33;" title="Créer une version planifiée" (click)="propagateCreateOrUpdateUnitPlanned(unit)"></span>
-        <span class="glyphicon glyphicon-copy" title="Cloner cette unité" (click)="cloneUnit(unit)"></span>
-        <span class="glyphicon glyphicon-trash" title="Supprimer cette unité" (click)="propagateDeleteUnit(unit)"></span>
+        <span *ngIf="unit.level < 4" class="glyphicon glyphicon-plus" title="Ajouter une unité rattachée" (click)="createChildUnit(unit)" id="create-child-unit-{{ unit.id }}"></span>
+        <span *ngIf="unit.level < 4 && unit.hasUnitModel" class="glyphicon glyphicon-duplicate" title="Modifier le modèle" (click)="propagateCreateOrUpdateUnitModel(unit)" id="manage-model-unit-{{ unit.id }}"></span>
+        <span *ngIf="unit.level < 4 && !unit.hasUnitModel" class="glyphicon glyphicon-duplicate" style="opacity: 0.33;" title="Créer un modèle" (click)="propagateCreateOrUpdateUnitModel(unit)" id="manage-model-unit-{{ unit.id }}"></span>
+        <span *ngIf="unit.hasUnitPlanned" class="glyphicon glyphicon-time" title="Modifier les versions planifiées" (click)="propagateCreateOrUpdateUnitPlanned(unit)" id="manage-planned-unit-{{ unit.id }}"></span>
+        <span *ngIf="!unit.hasUnitPlanned" class="glyphicon glyphicon-time" style="opacity: 0.33;" title="Créer une version planifiée" (click)="propagateCreateOrUpdateUnitPlanned(unit)" id="manage-planned-unit-{{ unit.id }}"></span>
+        <span class="glyphicon glyphicon-copy" title="Cloner cette unité" (click)="cloneUnit(unit)" id="clone-unit-{{ unit.id }}"></span>
+        <span class="glyphicon glyphicon-trash icon-delete-unit" title="Supprimer cette unité" (click)="propagateDeleteUnit(unit)" id="delete-unit-{{ unit.id }}"></span>
       </div>
       <div *ngIf="unit.expanded">
           <div class="tree-container">

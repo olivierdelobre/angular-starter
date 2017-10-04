@@ -47,10 +47,10 @@ export class App {
     if (localStorage.getItem('auth_token') != null) {
       this.authService.getUserinfo()
         .subscribe(
-          userinfo => {
+          (userinfo) => {
             this.sharedAppStateService.updateLoggedUserInfo(userinfo);
           },
-          error => console.log('Failed to retrieve user info'),
+          (error) => console.log('Failed to retrieve user info'),
           () => {
             
           }

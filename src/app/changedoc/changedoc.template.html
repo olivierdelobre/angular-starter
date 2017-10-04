@@ -1,4 +1,4 @@
-<form (ngSubmit)="handleChangeDoc(changeDocForm.value)" [formGroup]="changeDocForm">
+<form (ngSubmit)="checkChangeDoc(changeDocForm.value)" [formGroup]="changeDocForm">
   <div bsModal #changeDocModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="modal-changedoc" (onHide)="onHide()">
     <div class="modal-dialog modal-md" *ngIf="showView" style="margin-top: 100px;">
       <div class="modal-content">
@@ -26,10 +26,31 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" id="btn-close-unit-update" class="btn btn-default" data-dismiss="modal" (click)="closeModal()">Annuler</button>
-          <button type="submit" id="btn-submit-unit-update" class="btn btn-primary" [disabled]="!changeDocForm.valid">Valider</button>
+          <button type="button" id="btn-close-changedoc" class="btn btn-default" data-dismiss="modal" (click)="closeModal()">Annuler</button>
+          <button type="submit" id="btn-save-changedoc" class="btn btn-primary" [disabled]="!changeDocForm.valid">Valider</button>
         </div>
       </div>
     </div>
   </div>
 </form>
+
+  <div class="modal fade" bsModal #alertsModal="bs-modal"
+  tabindex="-1" role="dialog" aria-labelledby="alertsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-second">
+      <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">Avertissement</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="alertsModal.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Un document avec ce nom existe déjà !
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" (click)="alertsModal.hide()">Annuler</button>
+        <button type="submit" class="btn btn-danger" (click)="handleChangeDoc(changeDocForm.value)">Continuer et écraser le fichier actuel</button>
+      </div>
+    </div>
+  </div>
+</div>

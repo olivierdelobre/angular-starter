@@ -72,18 +72,17 @@
           <div class="col-md-12">
             <div class="form-group" style="position: relative;">
               <label for="input-responsible">Responsable</label>
-
                 <div *ngIf="selectedResponsible != null" class="search-selected-element-box">
                   {{ selectedResponsible.displaynameLong }} ({{ selectedResponsible.id }})
                   <a target="_blank" href="http://people.epfl.ch/{{ selectedResponsible.id }}">
                     <span class="glyphicon glyphicon-new-window" style="font-size: 65%;" title="Ouvrir sur people"></span>
                   </a>
-                  <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 8px; right: 10px;">
-                    <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer le responsable" (click)="clearResponsible()"></span>   
+                  <div style="position: absolute; top: 8px; right: 10px;">
+                    <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer le responsable" (click)="clearResponsible()" id="clear-responsible-button"></span>   
                   </div>
                 </div>
                 <div  style="position: relative;">
-                  <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="responsibleSearchText" placeholder="Rechercher par nom, prénom, sciper..." (keyup.enter)="searchResponsible()" />
+                  <input type="text" class="form-control" formControlName="responsibleSearchText" placeholder="Rechercher par nom, prénom, sciper..." (keyup.enter)="searchResponsible()" id="input-responsible" />
                   <div *ngIf="searchResponsibleIsOngoing" style="position: absolute; top: 6px; right: 30px;">
                     <img src="/assets/img/spinner.gif" />   
                   </div>
@@ -162,20 +161,20 @@
         </div>
         <div style="text-align: right;">
           <img *ngIf="searchIsOngoing" src="/assets/img/spinner.gif" />
-          <button type="submit" class="btn btn-primary" [disabled]="searchIsOngoing || !searchForm.valid">Rechercher les unités</button>
+          <button type="submit" id="search-button" class="btn btn-primary" [disabled]="searchIsOngoing || !searchForm.valid">Rechercher les unités</button>
         </div>
       </form>
     </div>
   </div>
   <div>
-    <div *ngIf="!searchResults">
+    <div *ngIf="!searchResults" id="select-one-criteria">
       <i>Sélectionnez au moins 1 critère de recherche.</i>
     </div>
     <div *ngIf="searchResults && searchResults.length > 0" class="results-block">
       <div style="text-align: right; margin-bottom: 10px;">
         <button class="btn btn-excel" (click)="searchUnit('export')">Exporter au format CSV&nbsp;&nbsp;<img src="assets/img/excel-icon.png" /></button>
       </div>
-      <table class="table table-striped">
+      <table class="table table-striped" id="results-table">
         <thead>
           <tr>
             <th>
@@ -199,7 +198,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let unit of searchResults">
+          <tr *ngFor="let unit of searchResults" class="result-tr">
             <td>
               {{ unit.sigle }}&nbsp;
               <a target="_blank" href="http://search.epfl.ch/browseunit.do?unit={{ unit.id }}">
@@ -224,7 +223,7 @@
               <span *ngIf="unit.hasUnitPlanned" class="glyphicon glyphicon-time" title="Modifier la version planifiée" (click)="listUnitPlanned(unit)"></span>
               <span *ngIf="!unit.hasUnitPlanned" class="glyphicon glyphicon-time" style="opacity: 0.33;" title="Créer une version planifiée"
                 (click)="listUnitPlanned(unit)"></span>
-              <span class="glyphicon glyphicon-trash" title="Supprimer cette unité" (click)="deleteUnit(unit)"></span>
+              <span class="glyphicon glyphicon-trash icon-delete-unit" title="Supprimer cette unité" (click)="deleteUnit(unit)"></span>
             </td>
           </tr>
         </tbody>
@@ -254,7 +253,7 @@
 </app-listunitplanned>
 
 <div class="modal fade" bsModal #selectSearchResponsibleModal="bs-modal"
-     tabindex="-1" role="dialog" aria-labelledby="selectSearchResponsibleModalLabel" aria-hidden="true">
+     tabindex="-1" role="dialog" aria-labelledby="selectSearchResponsibleModalLabel" aria-hidden="true" id="search-responsible-modal">
   <div class="modal-dialog modal-second">
     <div class="modal-content modal-content-second">
       <div class="modal-header">
@@ -266,7 +265,7 @@
       <div class="modal-body">
         <div *ngIf="searchReponsibleShowResults && searchReponsibleResults.length > 0" class="search-result-box">
           <div *ngFor="let resultPerson of searchReponsibleResults">
-            <span class="cursor-pointer" title="Sélectionner cette personne" (click)="responsibleSelected(resultPerson)">{{ resultPerson.displaynameLong }} ({{ resultPerson.id }})</span>
+            <span class="cursor-pointer" title="Sélectionner cette personne" (click)="responsibleSelected(resultPerson)" id="select-responsible-{{ resultPerson.id }}">{{ resultPerson.displaynameLong }} ({{ resultPerson.id }})</span>
             <a target="_blank" href="http://people.epfl.ch/{{ resultPerson.id }}">
               <span class="glyphicon glyphicon-new-window" style="font-size: 65%;" title="Ouvrir sur people"></span>
             </a>

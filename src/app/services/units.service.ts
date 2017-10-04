@@ -11,6 +11,7 @@ import { UnitAttribute } from '../model/unitattribute.model';
 import { UnitAttributeEnum } from '../model/unitattributeenum.model';
 import { UnitLang } from '../model/unitlang.model';
 import { ChangeLog } from '../model/changelog.model';
+import { ChangeLogAttachment } from '../model/changelogattachment.model';
 
 import 'rxjs/add/operator/map';
 
@@ -449,6 +450,21 @@ export class TreeService {
 
         return this.http.get(url, { headers: headers })
             .map((res) => Unit.fromJSONArray(res.json()));
+    }
+
+    /******************************************************
+    *   search Changelog Attachments
+    ******************************************************/
+    public searchChangeLogAttachments(name: string) {
+        let headers = new Headers();
+        headers.append('Accept', 'application/json');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+
+        let url: string;
+        url = TreeService.SERVICE_PREFIX + 'unitschangelogattachments?name=' + name;
+
+        return this.http.get(url, { headers: headers })
+            .map((res) => ChangeLogAttachment.fromJSONArray(res.json()));
     }
 
     /******************************************************

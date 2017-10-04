@@ -18,7 +18,6 @@ import { App } from './app.component';
 import { APP_RESOLVER_PROVIDERS } from './app.resolver';
 import { AppState, InternalStateType } from './app.service';
 
-import { Home } from './home';
 import { AboutComponent } from './about';
 import { TreeComponent } from './tree';
 import { LogoutComponent } from './logout';
@@ -32,7 +31,6 @@ import { TreeViewComponent } from './tree';
 import { HierarchyComponent } from './unit';
 import { HelpComponent } from './help';
 import { NoContentComponent } from './no-content';
-import { XLarge } from './home/x-large';
 
 import {AuthGuard} from './auth/authguard';
 import {AuthService} from './services/auth.service';
@@ -70,7 +68,6 @@ type StoreType = {
   declarations: [
     App,
     AboutComponent,
-    Home,
     TreeComponent,
     LogoutComponent,
     OAuth2Component,
@@ -83,7 +80,6 @@ type StoreType = {
     HierarchyComponent,
     HelpComponent,
     NoContentComponent,
-    XLarge,
     AttributeFilterPipe, CapitalizePipe, ContainsPipe,
     SigleInputDirective, NumberInputDirective, UnitLabelInputDirective, DateInputDirective
   ],

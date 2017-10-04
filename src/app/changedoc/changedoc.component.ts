@@ -29,6 +29,7 @@ import { UnitPlanned } from '../model/unitplanned.model';
 export class ChangeDocComponent implements OnInit, OnDestroy {
   @ViewChild('changeDocModal') modal: ModalDirective;
   @ViewChild('fileUploadInput') fileUploadInput: any;
+  @ViewChild('alertsModal') alertsModal: ModalDirective;
 
   @Output() changeDocCreated: EventEmitter<Unit> = new EventEmitter<Unit>();
   @Output() messageTriggered: EventEmitter<any> = new EventEmitter<any>();
@@ -43,6 +44,7 @@ export class ChangeDocComponent implements OnInit, OnDestroy {
   public changeAttachmentData: FormData;
   public deleteAttachementFileFlag: boolean = false;
   private selectedUnit: Unit;
+  private filename: string;
 
   constructor(public router: Router,
     public activatedRoute: ActivatedRoute,
@@ -98,55 +100,52 @@ export class ChangeDocComponent implements OnInit, OnDestroy {
   }
 
   /******************************************************
+  *   Check document  validity (if it already exists)
+  ******************************************************/
+  private checkChangeDoc(formData: any) {
+    // console.log("Checking changedoc");
+
+    this.treeService.searchChangeLogAttachments(this.filename).subscribe(
+      (res) => {
+        if (res.length > 0) {
+          this.closeModal();
+          this.alertsModal.show();
+        }
+        else {
+          this.handleChangeDoc(formData);
+        }
+      },
+      (error) => {
+        console.log("Error search ChangeLogAttachment");
+      },
+      () => { }
+    );
+  }
+  
+  /******************************************************
   *   Handle changes documentation
   ******************************************************/
   private handleChangeDoc(formData: any) {
-    // For a Unit
-    // if (this.unitPlanned == null) {
-      // console.log("Creating changedoc for Unit...");
+    // console.log("Creating changedoc for Unit...");
 
-      // Create the change attachment
-      this.changeAttachmentData.append('changes', JSON.stringify(this.changeLogs));
-      this.changeAttachmentData.append('description', this.changeDocForm.get("changeDescription").value);
+    // Create the change attachment
+    this.changeAttachmentData.append('changes', JSON.stringify(this.changeLogs));
+    this.changeAttachmentData.append('description', this.changeDocForm.get("changeDescription").value);
       
-      this.treeService.patchChangeLogs(this.selectedUnit, this.changeAttachmentData).subscribe(
-        (res) => {
-          console.log("change attachment created successfully");
-        },
-        (error) => {
-          console.log("error creating change attachment");
-        },
-        () => {
-          this.closeModal();
-          this.changeDocCreated.emit(formData);
-          //this.messageTriggered.emit({ message: 'Documentation créée avec succès', level: 'success' });
-        }
-      );
-    // }
-    /*
-    // For a UnitPlanned
-    else {
-      console.log("Creating changedoc for UnitPlanned...");
-
-      if (this.changeDocForm.get("changeDescription").value != null)
-        this.changeAttachmentData.append('description', this.changeDocForm.get("changeDescription").value);
-      this.changeAttachmentData.append('doDeleteFile', this.deleteAttachementFileFlag);
-      
-      this.treeService.updateUnitPlannedAttachment(this.unitPlanned.id, this.changeAttachmentData).subscribe(
-        (res) => {
-          console.log("change attachment updated successfully");
-        },
-        (error) => {
-          console.log("error updating change attachment");
-        },
-        () => {
-          this.closeModal();
-          this.changeDocCreated.emit(unit);
-          this.messageTriggered.emit({ message: 'Documentation créée avec succès', level: 'success' });
-        }
-      );
-    }
-    */
+    this.treeService.patchChangeLogs(this.selectedUnit, this.changeAttachmentData).subscribe(
+      (res) => {
+        console.log("Change attachment created successfully");
+      },
+      (error) => {
+        console.log("Error creating change attachment");
+      },
+      () => {
+        this.closeModal();
+        this.alertsModal.hide();
+        this.changeDocCreated.emit(formData);
+        //this.messageTriggered.emit({ message: 'Documentation créée avec succès', level: 'success' });
+      }
+    );
   }
 
   /******************************************************
@@ -168,11 +167,11 @@ export class ChangeDocComponent implements OnInit, OnDestroy {
     let fileList: FileList = event.target.files;
     if (fileList.length > 0) {
         let file: File = fileList[0];
+        this.filename = file.name;
         this.changeAttachmentData = new FormData();
         this.changeAttachmentData.append('file', file, file.name);
         this.changeDocForm.get("changeDescription").clearValidators();
         this.changeDocForm.get("changeDescription").updateValueAndValidity();
-        
     }
   }
 
