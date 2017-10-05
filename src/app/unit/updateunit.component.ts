@@ -1875,6 +1875,9 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
                   },
                   () => { }
                 );
+
+              this.refreshRoomSelected(this.selectedUnit.roomId);
+              this.refreshResponsibleSelected(this.selectedUnit.responsibleId);
             }
 
             this.unitUpdated.emit({mode: mode, changelogs: this.accumulatedChangeLogs, unit: this.selectedUnit, previousParentId: selectedUnitPreviousParentId});
@@ -2637,11 +2640,13 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         (room) => {
           this.selectedRoom = room;
           this.unitForm.get('room').setValue(this.selectedRoom.label);
+          this.showAddressTab = false;
         },
         (error) => {
           console.log('Unable to retrieve room');
           this.unitForm.get('room').setValue('');
           this.unitForm.get('roomId').setValue('');
+          this.showAddressTab = true;
         },
         () => { }
       );

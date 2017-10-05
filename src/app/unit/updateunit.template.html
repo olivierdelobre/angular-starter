@@ -58,7 +58,7 @@
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Type</label>
                   <div class="col-sm-4">
-                    <select *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="form-control" formControlName="type">
+                    <select *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="form-control" formControlName="type" id="input-type">
                       <option *ngFor="let unitType of unitTypesList" value="{{ unitType.code }}">{{ unitType.label }}</option>
                     </select>
                     <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
@@ -142,11 +142,11 @@
                         <span class="glyphicon glyphicon-new-window" style="font-size: 65%;" title="Ouvrir sur people"></span>
                       </a>
                       <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 8px; right: 10px;">
-                        <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer le responsable" (click)="clearResponsible()"></span>   
+                        <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer le responsable" (click)="clearResponsible()" id="btn-clear-responsible"></span>   
                       </div>
                     </div>
                     <div  style="position: relative;">
-                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="responsibleSearchText" placeholder="Rechercher par nom, prénom, sciper..." (keyup.enter)="searchResponsible()" />
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="responsibleSearchText" placeholder="Rechercher par nom, prénom, sciper..." (keyup.enter)="searchResponsible()" id="input-responsible-search" />
                       <div *ngIf="searchResponsibleIsOngoing" style="position: absolute; top: 6px; right: 30px;">
                         <img src="/assets/img/spinner.gif" />
                       </div>
@@ -165,11 +165,11 @@
                     <div *ngIf="selectedRoom != null" class="selected-element-box">
                       {{ selectedRoom.label }}
                       <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 8px; right: 10px;">
-                        <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer le bureau" (click)="clearRoom()"></span>   
+                        <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer le bureau" (click)="clearRoom()" id="btn-clear-room"></span>   
                       </div>
                     </div>
                     <div  style="position: relative;">
-                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="roomSearchText" placeholder="Rechercher par libellé" (keyup.enter)="searchRoom()" />
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="roomSearchText" placeholder="Rechercher par libellé" (keyup.enter)="searchRoom()" id="input-room-search" />
                       <div *ngIf="searchRoomIsOngoing" style="position: absolute; top: 6px; right: 30px;">
                         <img src="/assets/img/spinner.gif" />   
                       </div>
@@ -203,7 +203,7 @@
                   </div>
                   <label for="" class="col-sm-2 control-label">Temporaire</label>
                   <div class="col-sm-2 text-cell">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="checkbox" formControlName="isTemporary">
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="checkbox" formControlName="isTemporary" id="input-isTemporary">
                     <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)">
                         {{ selectedUnitIsTemporaryString }}
                     </p>
@@ -231,19 +231,19 @@
                   <tr>
                     <td><img src="assets/img/flag_ENG.png" style="width: 40px;" alt="Anglais" title="Anglais" /></td>
                     <td>
-                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="sigleEn" style="text-transform: uppercase;" sigle-input />
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="sigleEn" style="text-transform: uppercase;" id="input-sigleEn" sigle-input />
                       <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
                         {{ labelENG.sigle }}
                       </p>
                     </td>
                     <td>
-                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="labelEn" />
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="labelEn" id="input-labelEn" />
                       <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
                         {{ labelENG.label }}
                       </p>
                     </td>
                     <td>
-                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="labelShortEn" />
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="labelShortEn" id="input-labelShortEn" />
                       <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
                         {{ labelENG.labelShort }}
                       </p>
@@ -311,17 +311,17 @@
                           {{ attributeType.label }}
                         </td>
                         <td style="text-align: left;">
-                          <div *ngFor="let attributeValue of (selectedUnitAttributes | attributefilter:attributeType.code)">
+                          <div *ngFor="let attributeValue of (selectedUnitAttributes | attributefilter:attributeType.code)" class="box-attribute-value">
                             {{ attributeValue.text }}
-                            &nbsp;<span *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="glyphicon glyphicon-pencil cursor-pointer" title="Modifier" (click)="showAttributeFormPanel('update', attributeValue, null)"></span>
-                            <span *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer" (click)="deleteAttribute(selectedUnit, attributeValue)"></span>
+                            &nbsp;<span *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="glyphicon glyphicon-pencil cursor-pointer btn-update-attribute" title="Modifier" (click)="showAttributeFormPanel('update', attributeValue, null)"></span>
+                            <span *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="glyphicon glyphicon-remove icon-red cursor-pointer btn-delete-attribute" title="Supprimer" (click)="deleteAttribute(selectedUnit, attributeValue)"></span>
                             <div class="attribute-validity-period">
                               ({{ attributeValue.from | date:"dd.MM.yyyy" }} - {{ attributeValue.to | date:"dd.MM.yyyy" }})
                             </div>
                           </div>
                         </td>
                         <td class="attribute-add-cell">
-                          <a *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="glyphicon glyphicon-plus icon-green cursor-pointer" title="Créer" (click)="showAttributeFormPanel('add', null, attributeType)"></a>
+                          <a *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="glyphicon glyphicon-plus icon-green cursor-pointer" title="Créer" (click)="showAttributeFormPanel('add', null, attributeType)" id="btn-create-attribute-{{ attributeType.code }}"></a>
                         </td>
                       </tr>
                     </tbody>
@@ -334,7 +334,7 @@
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Adresse 1</label>
                   <div class="col-sm-10">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="address1" />
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="address1" id="input-address1" />
                     <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) && selectedUnit.address" class="form-text">
                       {{ selectedUnit.address.address1 }}
                     </p>
@@ -343,7 +343,7 @@
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Adresse 2</label>
                   <div class="col-sm-10">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="address2" />
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="address2" id="input-address2" />
                     <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) && selectedUnit.address" class="form-text">
                       {{ selectedUnit.address.address2 }}
                     </p>
@@ -352,7 +352,7 @@
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Adresse 3</label>
                   <div class="col-sm-10">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="address3" />
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="address3" id="input-address3" />
                     <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) && selectedUnit.address" class="form-text">
                       {{ selectedUnit.address.address3 }}
                     </p>
@@ -361,7 +361,7 @@
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Adresse 4</label>
                   <div class="col-sm-10">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="address4" />
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="address4" id="input-address4" />
                     <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) && selectedUnit.address" class="form-text">
                       {{ selectedUnit.address.address4 }}
                     </p>
@@ -382,14 +382,14 @@
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Localité</label>
                   <div class="col-sm-10">
-                    <div *ngIf="selectedLocation != null && selectedLocation.zipcode != null" class="selected-element-box">
+                    <div *ngIf="selectedLocation != null && selectedLocation.zipcode != null" class="selected-element-box" id="box-selected-location">
                       {{ selectedLocation.zipcode }} {{ selectedLocation.labelFrench }}
                       <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 8px; right: 10px;">
                         <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer la localité" (click)="clearLocation()"></span>   
                       </div>
                     </div>
                     <div  style="position: relative;">
-                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="addressLocationText" placeholder="NPA et/ou nom de localité" (keyup.enter)="searchLocation()" />
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="addressLocationText" placeholder="NPA et/ou nom de localité" (keyup.enter)="searchLocation()" id="input-location-search" />
                       <div *ngIf="searchLocationIsOngoing" style="position: absolute; top: 6px; right: 30px;">
                         <img src="/assets/img/spinner.gif" />   
                       </div>
@@ -405,14 +405,14 @@
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Pays</label>
                   <div class="col-sm-10">
-                    <div *ngIf="selectedCountry != null && selectedCountry.codeISO != null" class="selected-element-box">
+                    <div *ngIf="selectedCountry != null && selectedCountry.codeISO != null" class="selected-element-box" id="box-selected-country">
                       {{ selectedCountry.zipcode }} {{ selectedCountry.labelFrench }}
                       <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 8px; right: 10px;">
                         <span class="glyphicon glyphicon-remove icon-red cursor-pointer" title="Supprimer le pays" (click)="clearCountry()"></span>   
                       </div>
                     </div>
                     <div  style="position: relative;">
-                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="addressCountryText" placeholder="code ISO ou nom de pays" (keyup.enter)="searchCountry()" />
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="addressCountryText" placeholder="code ISO ou nom de pays" (keyup.enter)="searchCountry()" id="input-country-search" />
                       <div *ngIf="searchCountrIsOngoing" style="position: absolute; top: 6px; right: 30px;">
                         <img src="/assets/img/spinner.gif" />   
                       </div>
@@ -427,7 +427,7 @@
                 </div>
               </div>
             </tab>
-            <tab heading="Historique" *ngIf="mode == 'UPDATE'">
+            <tab heading="Historique" *ngIf="mode == 'UPDATE'" id="tab-history">
               <form>
                 <table class="table table-striped" style="font-size: 85%;">
                   <thead>
@@ -445,7 +445,7 @@
                   </thead>
                   <tbody>
                     <ng-container *ngFor="let changeLog of changeLogs">
-                    <tr>
+                    <tr class="tr-history-row">
                       <td>
                         <input type="checkbox" value="1" id="changeLogSelect_{{ changeLog.id }}" />
                       </td>
@@ -669,7 +669,7 @@
 </div>
 
 <div class="modal fade" bsModal #selectCountryModal="bs-modal"
-     tabindex="-1" role="dialog" aria-labelledby="selectCountryModalLabel" aria-hidden="true">
+     tabindex="-1" role="dialog" aria-labelledby="selectCountryModalLabel" aria-hidden="true" id="modal-select-country">
   <div class="modal-dialog modal-second">
     <div class="modal-content modal-content-second">
       <div class="modal-header">
@@ -681,7 +681,7 @@
       <div class="modal-body">
         <div *ngIf="searchCountryShowResults && searchCountryResults.length > 0" class="search-result-box">
           <div *ngFor="let resultCountry of searchCountryResults">
-            <span class="cursor-pointer" title="Sélectionner ce pays" (click)="countrySelected(resultCountry)">
+            <span class="cursor-pointer" title="Sélectionner ce pays" (click)="countrySelected(resultCountry)" id="btn-select-country-{{ resultCountry.codeISO }}">
               {{ resultCountry.zipcode }} {{ resultCountry.labelFrench }}
             </span>
           </div>
@@ -695,7 +695,7 @@
 </div>
 
 <div class="modal fade" bsModal #selectLocationModal="bs-modal"
-     tabindex="-1" role="dialog" aria-labelledby="selectLocationModalLabel" aria-hidden="true">
+     tabindex="-1" role="dialog" aria-labelledby="selectLocationModalLabel" aria-hidden="true" id="modal-select-location">
   <div class="modal-dialog modal-second">
     <div class="modal-content modal-content-second">
       <div class="modal-header">
@@ -707,7 +707,7 @@
       <div class="modal-body">
         <div *ngIf="searchLocationShowResults && searchLocationResults.length > 0" class="search-result-box">
           <div *ngFor="let resultLocation of searchLocationResults">
-            <span class="cursor-pointer" title="Sélectionner cette localité" (click)="locationSelected(resultLocation)">
+            <span class="cursor-pointer" title="Sélectionner cette localité" (click)="locationSelected(resultLocation)" id="btn-select-location-{{ resultLocation.zipcode }}">
               {{ resultLocation.zipcode }} {{ resultLocation.labelFrench }}
             </span>
           </div>
@@ -740,7 +740,7 @@
 </div>
 
 <div class="modal fade" bsModal #attributeModal="bs-modal"
-  tabindex="-1" role="dialog" aria-labelledby="alertsModalLabel" aria-hidden="true">
+  tabindex="-1" role="dialog" aria-labelledby="alertsModalLabel" aria-hidden="true" id="modal-attribute">
   <div class="modal-dialog modal-second">
     <div class="modal-content">
       <div class="modal-header">
@@ -753,15 +753,15 @@
         <div *ngIf="selectedUnitAttribute != null">
           <form (ngSubmit)="createAttribute(attributeForm.value)" [formGroup]="attributeForm">
             <div class="form-group">
-              <label for="attribute_code">Type</label>
-              <select class="form-control" formControlName="code" id="attribute_code" (change)="onAttributeTypeChange($event.target.value)">
+              <label for="select-attribute-type">Type</label>
+              <select class="form-control" formControlName="code" id="select-attribute-type" (change)="onAttributeTypeChange($event.target.value)">
                 <option *ngFor="let attributeType of attributesList" value="{{ attributeType.code }}">{{ attributeType.label }}</option>
               </select>
             </div>
             <div class="form-group">
-              <label for="attribute_text">Valeur</label>
-              <input *ngIf="attributeEnumsList.length == 0" type="text" class="form-control" id="attribute_text" placeholder="" formControlName="text" />
-              <select *ngIf="attributeEnumsList?.length > 0" class="form-control"  formControlName="textSelect" id="attribute_textSelect" (change)="onAttributeValueChange($event.target.value)">
+              <label for="select-attribute-value">Valeur</label>
+              <input *ngIf="attributeEnumsList.length == 0" type="text" class="form-control" id="attribute_text" placeholder="" formControlName="text" id="input-attribute-value" />
+              <select *ngIf="attributeEnumsList?.length > 0" class="form-control"  formControlName="textSelect" id="select-attribute-value" (change)="onAttributeValueChange($event.target.value)">
                 <option *ngFor="let attributeEnum of attributeEnumsList" value="{{ attributeEnum.value }}">
                   {{ attributeEnum.value }}<span *ngIf="attributeEnum.comment != null"> - {{ attributeEnum.comment }}</span>
                 </option>
@@ -771,13 +771,13 @@
               <div class="col-md-6">
                 <div class="form-group">
                   <label for="attribute_valid_from">Valide du...</label>
-                  <input class="form-control" formControlName="from" maxlength="10" date-input />
+                  <input class="form-control" formControlName="from" maxlength="10" id="input-attribute-validFrom" date-input />
                 </div>
               </div>
               <div class="col-md-6">
                   <div class="form-group">
                     <label for="attribute_valid_from">...au</label>
-                    <input class="form-control" formControlName="to" maxlength="10" date-input />
+                    <input class="form-control" formControlName="to" maxlength="10" id="input-attribute-validTo" date-input />
                   </div>
                 </div>
             </div>
@@ -786,7 +786,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" (click)="hideAttributeFormPanel()">Annuler</button>
-        <button type="button" class="btn btn-primary" (click)="saveAttribute()" [disabled]="!attributeForm.valid">Valider</button>
+        <button type="button" class="btn btn-primary" (click)="saveAttribute()" [disabled]="!attributeForm.valid" id="btn-save-attribute">Valider</button>
       </div>
     </div>
   </div>

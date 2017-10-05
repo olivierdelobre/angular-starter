@@ -1,5 +1,5 @@
 <ul style="margin-top: 5px;">
-  <li *ngFor="let unit of units" [ngClass]="{'invalid-unit': unit.isValid == 0, 'filtered-unit': treeFilter != '' && (unit.sigle.toUpperCase().indexOf(treeFilter.toUpperCase()) > -1 || unit.label.toUpperCase().indexOf(treeFilter.toUpperCase()) > -1 || (unit.cf != null && unit.cf.indexOf(treeFilter.toUpperCase()) > -1)) }" class="unit-row">
+  <li *ngFor="let unit of units" [ngClass]="{'invalid-unit': unit.isValid == 0, 'filtered-unit': treeFilter != '' && (unit.sigle.toUpperCase().indexOf(treeFilter.toUpperCase()) > -1 || unit.label.toUpperCase().indexOf(treeFilter.toUpperCase()) > -1 || (unit.cf != null && unit.cf.indexOf(treeFilter.toUpperCase()) > -1)) }" class="unit-row unit-row-{{ unit.sigle }}" id="unit-row-{{ unit.id }}">
     <div style="position: relative;">
       <div id="chevron-cell-{{ unit.id }}" class="chevron-cell" [ngClass]='{"tree-node-no-children": !unit.showIcon}' (click)="expandUnit(unit)">
         <span *ngIf="unit.childrenCount > 0" class="glyphicon {{ unit.icon }}" title="{{ unit.expanded ? 'Fermer':'Ouvrir'  }}"></span>
@@ -13,7 +13,7 @@
       <div class="cf-cell">
         {{ unit.cf }}
       </div>
-      <div id="label-cell-{{ unit.id }}" class="label-cell" (click)="selectUnit(unit)">
+      <div id="label-cell-{{ unit.id }}" class="label-cell label-cell-{{ unit.sigle }}" (click)="selectUnit(unit)">
         {{ unit.label }}
       </div>
       <div class="actions-cell" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; right: 0;">

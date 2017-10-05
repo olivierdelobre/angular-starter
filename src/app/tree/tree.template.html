@@ -20,9 +20,9 @@
     <div class="col-md-4" style="text-align: right; padding-right: 0;">
         <form class="form-inline">
             <div class="form-group">
-                <input type="text" class="form-control" placeholder="Sigle, label, CF..." [(ngModel)]="treeFilter" [ngModelOptions]="{standalone: true}">
+                <input type="text" class="form-control" placeholder="Sigle, label, CF..." [(ngModel)]="treeFilter" [ngModelOptions]="{standalone: true}" id="input-filter">
             </div>
-            <button type="submit" class="btn btn-default" (click)="filterTree()">Filtrer</button>
+            <button type="submit" class="btn btn-default" (click)="filterTree()" id="btn-filter">Filtrer</button>
         </form>
     </div>
 </div>
