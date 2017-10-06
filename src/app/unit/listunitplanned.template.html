@@ -1,4 +1,4 @@
-<div bsModal #mainModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="modal-changedoc" (onHide)="onHide()">
+<div bsModal #mainModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="modal-unit-planned-list" (onHide)="onHide()">
     <div class="modal-dialog modal-md" *ngIf="showView" style="margin-top: 100px;">
       <div class="modal-content">
         <div class="modal-header">
@@ -16,7 +16,7 @@
                 <th>Modifié par</th>
               </tr>
               <ng-container *ngFor="let unitPlanned of unitPlanneds">
-                <tr class="cursor-pointer" title="Modifier l'unité planifiée" (click)="updateUnitPlanned(unitPlanned)">
+                <tr class="cursor-pointer unit-planned-row" title="Modifier l'unité planifiée" (click)="updateUnitPlanned(unitPlanned)">
                   <td>
                     {{ unitPlanned.applyAt | date: 'dd/MM/yyyy' }}
                   </td>
@@ -35,8 +35,8 @@
           </ng-template>
         </div>
         <div class="modal-footer">
-          <button type="button" id="btn-close-unit-update" class="btn btn-default" data-dismiss="modal" (click)="closeModal()">Annuler</button>
-          <button type="button" class="btn btn-primary" data-dismiss="modal" (click)="createUnitPlanned()">En créer une nouvelle</button>
+          <button type="button" id="btn-close-unit-planned-list" class="btn btn-default" data-dismiss="modal" (click)="closeModal()">Annuler</button>
+          <button type="button" id="btn-create-unit-planned" class="btn btn-primary" data-dismiss="modal" (click)="createUnitPlanned()">En créer une nouvelle</button>
         </div>
       </div>
     </div>

@@ -88,21 +88,24 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.searchResponsible();
       return;
     }
-    /*
+
+    this.searchIsOngoing = true;
+
     if (this.searchForm.get('sigle').value == ''
-        && this.searchForm.get('label').value == ''
-        && this.searchForm.get('cf').value == ''
-        && this.searchForm.get('type').value == ''
-        && this.searchForm.get('level').value == ''
-        && (this.searchForm.get('responsibleId').value == '' || this.searchForm.get('responsibleId').value == '0')
-        && this.searchForm.get('created_at_start').value == ''
-        && this.searchForm.get('created_at_end').value == ''
-        && this.searchForm.get('updated_at_start').value == ''
-        && this.searchForm.get('updated_at_end').value == '') {
-      this.alerts.push({msg: "Vous devez sélectionner au moins 1 critère", type: 'danger', closable: true});
+          && this.searchForm.get('label').value == ''
+          && this.searchForm.get('cf').value == ''
+          && this.searchForm.get('type').value == ''
+          && this.searchForm.get('level').value == ''
+          && (this.searchForm.get('responsibleId').value == '' || this.searchForm.get('responsibleId').value == '0')
+          && this.searchForm.get('created_at_start').value == ''
+          && this.searchForm.get('created_at_end').value == ''
+          && this.searchForm.get('updated_at_start').value == ''
+          && this.searchForm.get('updated_at_end').value == '') {
+        this.searchResults = null;
+        this.searchIsOngoing = false;
+        this.alerts.push({msg: "Vous devez sélectionner au moins 1 critère", type: 'danger', closable: true});
       return;
     }
-    */
 
     /*
     console.log("search params are: " +
@@ -118,8 +121,6 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.searchForm.get('only_permanent').value + ", " +
       this.searchForm.get('only_valid').value);
     */
-
-    this.searchIsOngoing = true;
     
     let attributesCriterias: any[] = [];
     let criterias = <FormArray>this.searchForm.controls['attribute_criterias'];
@@ -133,8 +134,8 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     if (mode == "search") {
       this.treeService.searchUnits('%25' + this.searchForm.get('sigle').value + '%25',
-        null,
         '%25' + this.searchForm.get('label').value + '%25',
+        null,
         '%25' + this.searchForm.get('cf').value + '%25',
         this.searchForm.get('type').value,
         this.searchForm.get('level').value,
@@ -151,6 +152,8 @@ export class SearchComponent implements OnInit, OnDestroy {
           (error) => {
             console.log("Error retrieving search results");
             this.searchResults = [];
+            this.searchResults = null;
+            this.searchIsOngoing = false;
           },
           () => {
             if (showAlerts) {

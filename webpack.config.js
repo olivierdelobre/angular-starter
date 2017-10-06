@@ -14,6 +14,9 @@ switch (process.env.NODE_ENV) {
   case 'testing':
     module.exports = require('./config/webpack.test')({env: 'test'});
     break;
+  case 'dit':
+    module.exports = require('./config/webpack.dit')({env: 'test'});
+    break;
   case 'dev':
   case 'development':
   default:

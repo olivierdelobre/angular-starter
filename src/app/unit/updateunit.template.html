@@ -23,7 +23,7 @@
             <div class="form-group">
               <label for="" class="col-sm-2 control-label">Appliquer le *</label>
               <div class="col-sm-3">
-                <input class="form-control" formControlName="applyAt" maxlength="10" date-input />
+                <input class="form-control" formControlName="applyAt" maxlength="10" id="input-applyAt" date-input />
               </div>
             </div>
           </div>
@@ -101,7 +101,7 @@
                   </div>
                   <label for="" class="col-sm-2 control-label">au</label>
                   <div class="col-sm-4">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="form-control" formControlName="to" maxlength="10" date-input />
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="form-control" formControlName="to" maxlength="10" id="input-to" date-input />
                     <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
                         {{ selectedUnitToString }}
                     </p>
@@ -110,11 +110,11 @@
                 <div *ngIf="mode != 'EDIT_UNIT_MODEL'" class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Unité mère</label>
                   <div class="col-sm-10">
-                    <div *ngIf="selectedParentUnit != null && selectedParentUnit.sigle != ''" class="selected-element-box">
+                    <div *ngIf="selectedParentUnit != null && selectedParentUnit.sigle != ''" class="selected-element-box" id="box-selected-parent">
                       {{ selectedParentUnit.sigle }} ({{ selectedParentUnit.label }})
                     </div>
                     <div  style="position: relative;">
-                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="parentUnitSearchText" placeholder="Rechercher par sigle, libellé, CF..." (keyup.enter)="searchParentUnit()" />
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="parentUnitSearchText" placeholder="Rechercher par sigle, libellé, CF..." (keyup.enter)="searchParentUnit()" id="input-parent-search" />
                       <div *ngIf="searchParentUnitIsOngoing" style="position: absolute; top: 6px; right: 30px;">
                         <img src="/assets/img/spinner.gif" />
                       </div>

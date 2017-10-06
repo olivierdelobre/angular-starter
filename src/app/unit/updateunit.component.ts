@@ -387,27 +387,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.selectedUnitAttribute.text = this.attributeForm.get('text').value;
     this.selectedUnitAttribute.url = this.attributeForm.get('url').value;
 
-    // Handle "from" date
-    let formValue: string = this.attributeForm.get('from').value;
-      if (formValue != null && formValue != '') {
-      this.selectedUnitAttribute.from = formValue.substring(6, 10) + "-"
-        + formValue.substring(3, 5) + "-"
-        + formValue.substring(0, 2) + "T00:00:00.000Z";
-    }
-    else {
-      this.selectedUnitAttribute.from = null;
-    }
-
-    // Handle "to" date
-    formValue = this.attributeForm.get('to').value;
-    if (formValue != null && formValue != '') {
-      this.selectedUnitAttribute.to = formValue.substring(6, 10) + "-"
-        + formValue.substring(3, 5) + "-"
-        + formValue.substring(0, 2) + "T00:00:00.000Z";
-    }
-    else {
-      this.selectedUnitAttribute.to = null;
-    }
+    this.selectedUnitAttribute.from = Utils.getFormattedDate(this.attributeForm.get('from') ? this.attributeForm.get('from').value : null, this.dateValidationPattern);
+    this.selectedUnitAttribute.to = Utils.getFormattedDate(this.attributeForm.get('to') ? this.attributeForm.get('to').value : null, this.dateValidationPattern);
 
     // If it's an update of an existing attribute
     if (this.selectedUnitAttribute.id != null) {
@@ -1514,11 +1495,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               sigleIsOk = false;
             }
             // If updating Unit
-            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnit.id)) {
+            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != this.selectedUnit.id)) {
               sigleIsOk = false;
             }
             // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
               console.log('unitLoop.id = ' + unitLoop.id);
               console.log('this.selectedUnitPlanned.unitId = ' + this.selectedUnitPlanned.unitId);
               console.log('unitLoop.clonedFromId = ' + unitLoop.clonedFromId);
@@ -1544,11 +1525,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               cfIsOk = false;
             }
             // If updating Unit
-            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnit.id)) {
+            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != this.selectedUnit.id)) {
               cfIsOk = false;
             }
             // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
               cfIsOk = false;
             }
 
@@ -1571,11 +1552,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               labelIsOk = false;
             }
             // If updating Unit
-            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnit.id)) {
+            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != this.selectedUnit.id)) {
               labelIsOk = false;
             }
             // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
               labelIsOk = false;
             }
 
@@ -1598,11 +1579,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               labelShortIsOk = false;
             }
             // If updating Unit
-            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnit.id)) {
+            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != this.selectedUnit.id)) {
               labelShortIsOk = false;
             }
             // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != null && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
+            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
               labelShortIsOk = false;
             }
 
@@ -1617,7 +1598,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         idx++;
 
         // Check dates validity
-        if (!moment(unit.from, "DD.MM.YYYY").isValid()) {
+        if (unit.from != '' && !moment(unit.from, "DD.MM.YYYY").isValid()) {
           unitFromIsOk = false;
           this.unitForm.get('from').setErrors({ "error": true });
           this.unitForm.get('from').markAsDirty();

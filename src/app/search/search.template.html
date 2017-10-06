@@ -1,4 +1,4 @@
-<div class="alerts-bar">
+<div class="alerts-bar" id="alerts-bar-search">
   <alert *ngFor="let alert of alerts;let i = index" [type]="alert.type" dismissOnTimeout="3000" (close)="closeAlert(i)">
     {{ alert?.msg }}
   </alert>
@@ -160,7 +160,7 @@
           </div>
         </div>
         <div style="text-align: right;">
-          <img *ngIf="searchIsOngoing" src="/assets/img/spinner.gif" />
+          <img *ngIf="searchIsOngoing" id="spinner-searching" src="/assets/img/spinner.gif" />
           <button type="submit" id="search-button" class="btn btn-primary" [disabled]="searchIsOngoing || !searchForm.valid">Rechercher les unités</button>
         </div>
       </form>
