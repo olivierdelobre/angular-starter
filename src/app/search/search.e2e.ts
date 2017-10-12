@@ -36,7 +36,7 @@ describe('search', () => {
     await responsibleInput.clear();
     await responsibleInput.sendKeys('delo');
     await responsibleInput.sendKeys(Key.ENTER);
-    await browser.sleep(1000).then(function(){ });
+    await browser.sleep(2000).then(function(){ });
     expect(await element(by.id('search-responsible-modal')).isDisplayed()).toBe(true);
     await element(by.id('select-responsible-268229')).click();
     await browser.sleep(1000).then(function(){ });
@@ -51,7 +51,7 @@ describe('search', () => {
     await responsibleInput.clear();
     await responsibleInput.sendKeys('delo');
     await element(by.id('search-button')).click();
-    await browser.sleep(1000).then(function(){ });
+    await browser.sleep(2000).then(function(){ });
     expect(await element(by.id('search-responsible-modal')).isDisplayed()).toBe(true);
     await element(by.id('select-responsible-268229')).click();
     await browser.sleep(1000).then(function(){ });

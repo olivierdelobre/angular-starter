@@ -1,19 +1,47 @@
 #!/bin/sh
 
-# run Units API
-nohup java -Xmx128M -Dspring.config.location=classpath:/mock/application.properties -Dserver.port=9081 -jar /c/Users/Olivier/eclipse/Luna/Integration/units-api/target/units-api-1.0.4-SNAPSHOT.jar > /c/Temp/units-api.log &
-UNITS_API_PID=$!
+NEXUS_REPOSITORY=http://idevelopsrv3.epfl.ch:8081/repository/maven-snapshots/
+LOCAL_REPOSITORY=`mvn help:evaluate -Dexpression=settings.localRepository | grep -v '\[INFO\]'`
+UNITS_API_VERSION=1.0.4-SNAPSHOT
+CADI_API_VERSION=1.0.0-SNAPSHOT
+SCIPER_API_VERSION=1.0.2-SNAPSHOT
+ARCHIBUS_API_VERSION=1.0.0-SNAPSHOT
 
+function build_docker_image() {
+	mvn org.apache.maven.plugins:maven-dependency-plugin:2.4:get -DartifactId=$1 -DgroupId=ch.epfl.api -Dversion=$2 -DremoteRepositories=nexus-epfl::::$NEXUS_REPOSITORY -Dtransitive=false -Dskip=true
+	JAR_PATH=`echo "$LOCAL_REPOSITORY/ch/epfl/api/$1/$2/*$2.jar" | tr '\\' '/' | sed -e "s/C:/\/C/g"`
+	cp $JAR_PATH ./e2e/$1/
+	docker build -t $1 ./e2e/$1/
+	rm ./e2e/$1/app.jar
+}
+
+function run_api() {
+	mvn --quiet org.apache.maven.plugins:maven-dependency-plugin:2.4:get -DartifactId=$1 -DgroupId=ch.epfl.api -Dversion=$2 -DremoteRepositories=nexus-epfl::::$NEXUS_REPOSITORY -Dtransitive=false -Dskip=true
+	JAR_PATH=`echo "$LOCAL_REPOSITORY/ch/epfl/api/$1/$2/*$2.jar" | tr '\\' '/' | sed -e "s/C:/\/C/g"`
+	cd ./e2e/$1
+	rm -rf *.jar
+	cp $JAR_PATH ./app.jar
+	nohup java -Xmx128M -Dspring.config.location=file:./application.properties -jar ./app.jar > ./api.log &
+	cd ../..
+}
+
+# run Units API
+#build_docker_image units-api 1.0.4-SNAPSHOT
+#docker rm units-api-001
+#docker run --name units-api-001 -d -p 9081:8080 units-api
+run_api units-api 1.0.4-SNAPSHOT
+UNITS_API_PID=$!
+#
 # run CADI API
-nohup java -Xmx128M -Dspring.config.location=classpath:/mock/application.properties -Dserver.port=9082 -jar /c/Users/Olivier/eclipse/Luna/Integration/cadi-api/target/cadi-api-1.0.0-SNAPSHOT.jar > /c/Temp/cadi-api.log &
+run_api cadi-api 1.0.0-SNAPSHOT
 CADI_API_PID=$!
 
 # run Sciper API
-nohup java -Xmx128M -Dspring.config.location=classpath:/mock/application.properties -Dserver.port=9083 -jar /c/Users/Olivier/eclipse/Luna/Integration/sciper-api/target/sciper-api-1.0.2-SNAPSHOT.jar > /c/Temp/sciper-api.log &
+run_api sciper-api 1.0.2-SNAPSHOT
 SCIPER_API_PID=$!
 
 # run Archibus API
-nohup java -Xmx128M -Dspring.config.location=classpath:/mock/application.properties -Dserver.port=9084 -jar /c/Users/Olivier/eclipse/Luna/Integration/archibus-api/target/archibus-api-1.0.0-SNAPSHOT.jar > /c/Temp/archibus-api.log &
+run_api archibus-api 1.0.0-SNAPSHOT
 ARCHIBUS_API_PID=$!
 
 # run Mock Tequila
@@ -22,7 +50,7 @@ TEQUILA_API_PID=$!
 
 sleep 2s
 echo "Waiting for APIs to be started..."
-
+#
 # wait while APIs start
 curl_command="curl --write-out %{http_code} --silent --output /dev/null localhost:9083/sciper-api/hc"
 response=`$curl_command`
@@ -71,8 +99,15 @@ echo "tequlia mock is started!"
 
 echo "All APIs are started!"
 
+# Wake up APIs...
+curl http://localhost:9081/units-api/v1/units/13030
+curl http://localhost:9082/cadi-api/v1/countries?query=CH
+curl http://localhost:9083/sciper-api/v1/people?query=delo
+curl http://localhost:9084/archibus-api/v1/rooms?query=INN
+
 cp ./config/webpack.dev.js ./config/webpack.dev.js.backup
 cp ./config/webpack.e2e.js ./config/webpack.dev.js
+
 echo "Starting the Frontend test server..."
 npm run server:dev > /c/Temp/frontend-units-dev.log &
 FRONTEND_PID=$!
@@ -91,10 +126,13 @@ cp ./config/webpack.dev.js.backup ./config/webpack.dev.js
 
 echo "Starting E2E tests..."
 npm run e2e
+E2E_PID=$!
 
 # kill all java and node spawned processes
 kill -9 $SCIPER_API_PID
 kill -9 $CADI_API_PID
 kill -9 $ARCHIBUS_API_PID
 kill -9 $UNITS_API_PID
+kill -9 TEQUILA_API_PID
 kill -9 $FRONTEND_PID
+kill -9 $E2E_PID

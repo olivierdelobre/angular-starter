@@ -1,0 +1,170 @@
+CREATE SCHEMA IF NOT EXISTS ORG;
+
+drop table ORG.ORG_ADRESSE if exists;
+drop table ORG.ORG_UNITE_ATTRIBUT if exists;
+drop table ORG.ORG_UNITE_ATTRIBUT_MODEL if exists;
+drop table ORG.ORG_UNITE_ATTRIBUT_PLANNED if exists;
+drop table ORG.ORG_UNITE_CHANGELOG if exists;
+drop table ORG.ORG_UNITE_CHANGELOGATTACHMENT if exists;
+drop table ORG.ORG_UNITE_DOCUMENT if exists;
+drop table ORG.ORG_UNITE_LIBELLE if exists;
+drop table ORG.ORG_UNITE_LIBELLE_MODEL if exists;
+drop table ORG.ORG_UNITE_LIBELLE_PLANNED if exists;
+drop table ORG.ORG_UNITE_MODEL if exists;
+drop table ORG.ORG_UNITE_PLANNED if exists;
+drop table ORG.ORG_UNITE_UNITATTRIBUTE if exists;
+drop table ORG.ORG_UNITE_UNITATTRIBUTE_ENUM if exists;
+drop table ORG.ORG_UNITE_UNITLANG if exists;
+drop table ORG.ORG_UNITE_UNITTYPE if exists;
+drop table ORG.V_ORG_UNITE if exists;
+
+drop sequence if exists ORG.ORG_ADRESSE_SEQ;
+drop sequence if exists ORG.ORG_UNITE_ATTRIBUT_MODEL_SEQ;
+drop sequence if exists ORG.ORG_UNITE_ATTRIBUT_SEQ;
+drop sequence if exists ORG.ORG_UNITE_CHANGELOG_SEQ;
+drop sequence if exists ORG.ORG_UNITE_CHANGELOGATT_SEQ;
+drop sequence if exists ORG.ORG_UNITE_PLANNED_SEQ;
+drop sequence if exists ORG.ORG_UNITE_SEQ;
+
+create sequence ORG.ORG_ADRESSE_SEQ start with 1 increment by 1;
+create sequence ORG.ORG_UNITE_ATTRIBUT_MODEL_SEQ start with 1 increment by 1;
+create sequence ORG.ORG_UNITE_ATTRIBUT_SEQ start with 1 increment by 1;
+create sequence ORG.ORG_UNITE_CHANGELOG_SEQ start with 1 increment by 1;
+create sequence ORG.ORG_UNITE_CHANGELOGATT_SEQ start with 1 increment by 1;
+create sequence ORG.ORG_UNITE_PLANNED_SEQ start with 1 increment by 1;
+create sequence ORG.ORG_UNITE_SEQ start with 1 increment by 1;
+
+create table ORG.ORG_ADRESSE (I_ADRESSE integer not null, X_ADR_LIGNE1 varchar(255), X_ADR_LIGNE2 varchar(255), X_ADR_LIGNE3 varchar(255), X_ADR_LIGNE4 varchar(255), X_ADR_LIGNE5 varchar(255), I_TYPE_ADRESSE integer, I_PAYS integer, D_CREAT timestamp, X_QUICRE varchar(255), N_ORDRE_PTT integer, P_TABLE integer, D_MODIF timestamp, X_QUIMOD varchar(255), I_PROPRIETAIRE integer not null, primary key (I_ADRESSE));
+create table ORG.ORG_UNITE_ATTRIBUT (I_ATTRIBUT integer not null, C_ATTRIBUT varchar(255), D_CREAT timestamp, X_QUICRE varchar(255), C_LANGUE varchar(255), C_TYPE_MIME varchar(255), N_OCTETS integer, X_TEXTE varchar(255), I_UNITE integer, D_MODIF timestamp, X_QUIMODIF varchar(255), X_URL varchar(255), D_DU timestamp, D_AU timestamp, primary key (I_ATTRIBUT));
+create table ORG.ORG_UNITE_ATTRIBUT_MODEL (ID integer not null, CODE varchar(255), CREATED_AT timestamp, CREATED_BY varchar(255), LANG varchar(255), TYPE_MIME varchar(255), LENGTH integer, CONTENT varchar(255), UNIT_ID integer, UPDATED_AT timestamp, UPDATED_BY varchar(255), URL varchar(255), VALID_FROM timestamp, VALID_TO timestamp, primary key (ID));
+create table ORG.ORG_UNITE_ATTRIBUT_PLANNED (ID integer not null, CODE varchar(255), CREATED_AT timestamp, CREATED_BY varchar(255), LANG varchar(255), TYPE_MIME varchar(255), LENGTH integer, CONTENT varchar(255), UNIT_ID integer, UPDATED_AT timestamp, UPDATED_BY varchar(255), URL varchar(255), VALID_FROM timestamp, VALID_TO timestamp, primary key (ID));
+create table ORG.ORG_UNITE_CHANGELOG (ID integer not null, CREATED_AT timestamp, CREATED_BY varchar(255), FIELD_NAME varchar(255), FIELD_TYPE varchar(255), FROM_VALUE varchar(255), OPERATION varchar(255), TO_VALUE varchar(255), UNIT_ID integer, CHANGELOGATTACHMENT_ID integer, primary key (ID));
+create table ORG.ORG_UNITE_CHANGELOGATTACHMENT (ID integer not null, BLOB_DOCUMENT blob, DESCRIPTION varchar(255), FILENAME varchar(255), MIME_TYPE varchar(255), primary key (ID));
+create table ORG.ORG_UNITE_DOCUMENT (I_ATTRIBUT integer not null, BLOB_DOCUMENT binary(255), C_TYPE_MIME varchar(255), N_OCTETS integer, primary key (I_ATTRIBUT));
+create table ORG.ORG_UNITE_LIBELLE (C_LANGUE varchar(255) not null, I_UNITE integer not null, D_CREAT timestamp, X_QUICRE varchar(255), X_LIBELLE varchar(255), X_ABREGE varchar(255), C_SIGLE varchar(255), D_MODIF timestamp, X_QUIMODIF varchar(255), primary key (C_LANGUE, I_UNITE));
+create table ORG.ORG_UNITE_LIBELLE_MODEL (LANG varchar(255) not null, UNIT_ID integer not null, CREATED_AT timestamp, CREATED_BY varchar(255), LABEL varchar(255), LABEL_SHORT varchar(255), SIGLE varchar(255), UPDATED_AT timestamp, UPDATED_BY varchar(255), primary key (LANG, UNIT_ID));
+create table ORG.ORG_UNITE_LIBELLE_PLANNED (LANG varchar(255) not null, UNIT_ID integer not null, CREATED_AT timestamp, CREATED_BY varchar(255), LABEL varchar(255), LABEL_SHORT varchar(255), SIGLE varchar(255), UPDATED_AT timestamp, UPDATED_BY varchar(255), primary key (LANG, UNIT_ID));
+create table ORG.ORG_UNITE_MODEL (ID integer not null, ADDRESS_LINE1 varchar(255), ADDRESS_LINE2 varchar(255), ADDRESS_LINE3 varchar(255), ADDRESS_LINE4 varchar(255), CF varchar(255), CF_NUMBER integer, ADDRESS_COUNTRYID integer, CREATED_AT timestamp, CREATED_BY varchar(255), IS_EPFL varchar(255), IS_TEMPORARY varchar(255), LABEL varchar(255), LABEL_SHORT varchar(255), LANG varchar(255), LVL integer, PARENT_ID integer, POSITION integer, RESPONSIBLE_ID integer, ROOM_ID integer, SIGLE varchar(255), SIGLE_LONG varchar(255), STATION varchar(255), UNIT_TYPE varchar(255), UPDATED_AT timestamp, UPDATED_BY varchar(255), VALID_FROM timestamp, VALID_TO timestamp, ZIPCODE integer, primary key (ID));
+create table ORG.ORG_UNITE_PLANNED (ID integer not null, ADDR_COUNTRY_ID integer, ADDR_LINE1 varchar(255), ADDR_LINE2 varchar(255), ADDR_LINE3 varchar(255), ADDR_LINE4 varchar(255), ADDR_LINE5 varchar(255), ADDR_LOCATION_PTTORDER integer, APPLY_AT timestamp, ATTACHMENT_DESCRIPTION varchar(255), ATTACHMENT_DOCUMENT blob, ATTACHMENT_FILENAME varchar(255), ATTACHMENT_MIME_TYPE varchar(255), CF varchar(5), CF_NUMBER integer, CREATED_AT timestamp, CREATED_BY varchar(255), IS_EPFL varchar(255), IS_TEMPORARY varchar(255), LABEL varchar(80), LABEL_SHORT varchar(40), LANG varchar(255), LVL integer, PARENT_ID integer, POSITION integer, RESPONSIBLE_ID integer, ROOM_ID integer, SIGLE varchar(12), SIGLE_LONG varchar(255), STATION varchar(255), UNIT_TYPE varchar(255), UNIT_ID integer, UPDATED_AT timestamp, UPDATED_BY varchar(255), VALID_FROM timestamp, VALID_TO timestamp, ZIPCODE integer, primary key (ID));
+create table ORG.ORG_UNITE_UNITATTRIBUTE (CODE varchar(255) not null, LABEL varchar(255), POSITION varchar(255), primary key (CODE));
+create table ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (VALUE varchar(255) not null, CODE varchar(255) not null, REMARK varchar(255), primary key (VALUE, CODE));
+create table ORG.ORG_UNITE_UNITLANG (CODE varchar(255) not null, LABEL varchar(255), primary key (CODE));
+create table ORG.ORG_UNITE_UNITTYPE (CODE varchar(255) not null, LABEL varchar(255), primary key (CODE));
+create table ORG.V_ORG_UNITE (I_UNITE integer not null, C_CF varchar(5), N_UNITE integer, CHILDREN_COUNT integer, CLONED_FROM_ID integer, D_CREAT timestamp, X_QUICRE varchar(255), B_EPFL varchar(255), B_TEMPORAIRE varchar(255), X_LIBELLE varchar(80), X_ABREGE varchar(40), C_LANGUE_PRINC varchar(255), N_NIVEAU integer, I_UNITE_MERE integer, N_ORDRE integer, I_PERSONNE_RESP integer, I_ESP integer, C_SIGLE varchar(12), C_LONG_SIGLE varchar(255), X_STATION varchar(255), C_TYPE_UNITE varchar(255), D_MODIF timestamp, X_QUIMODIF varchar(255), D_DEBUT timestamp, D_FIN timestamp, N_CP integer, primary key (I_UNITE));
+
+alter table ORG.ORG_ADRESSE add constraint FK8icmng7ni576crxqxf23m2m90 foreign key (I_PROPRIETAIRE) references ORG.V_ORG_UNITE;
+alter table ORG.ORG_UNITE_ATTRIBUT add constraint FKme1kwp28kxavko63elmobn0gi foreign key (I_UNITE) references ORG.V_ORG_UNITE;
+alter table ORG.ORG_UNITE_ATTRIBUT_MODEL add constraint FK959g3m9r52wsxekx9af00bb55 foreign key (UNIT_ID) references ORG.ORG_UNITE_MODEL;
+alter table ORG.ORG_UNITE_ATTRIBUT_PLANNED add constraint FKc23xyn4f66nr667a3y3bs9jdw foreign key (UNIT_ID) references ORG.ORG_UNITE_PLANNED;
+alter table ORG.ORG_UNITE_CHANGELOG add constraint FKspmsmmexl8raveqk0dfeh4xll foreign key (CHANGELOGATTACHMENT_ID) references ORG.ORG_UNITE_CHANGELOGATTACHMENT;
+alter table ORG.ORG_UNITE_CHANGELOG add constraint FKjdvwrm0erdoqupyx8ug1rai63 foreign key (UNIT_ID) references ORG.V_ORG_UNITE;
+alter table ORG.ORG_UNITE_LIBELLE add constraint FKmdo8bols7fvl7tsn7wg438r4b foreign key (I_UNITE) references ORG.V_ORG_UNITE;
+alter table ORG.ORG_UNITE_LIBELLE_MODEL add constraint FKc49qvu6d9689nes4v4ukouhl8 foreign key (UNIT_ID) references ORG.ORG_UNITE_MODEL;
+alter table ORG.ORG_UNITE_LIBELLE_PLANNED add constraint FK5un2w7kpgwgnfpc4rdfkxdtgb foreign key (UNIT_ID) references ORG.ORG_UNITE_PLANNED;
+alter table ORG.ORG_UNITE_MODEL add constraint FKa6wnuaov03s4ap8fxp5fq1g7a foreign key (ID) references ORG.V_ORG_UNITE;
+alter table ORG.ORG_UNITE_PLANNED add constraint FK1b18y3agw34gucca4tt3n4mjy foreign key (UNIT_ID) references ORG.V_ORG_UNITE;
+
+-- CREATE VIEW ORG.V_ORG_UNITE(I_UNITE, B_TEMPORAIRE, D_DEBUT, D_FIN, C_SIGLE, X_LIBELLE, X_ABREGE, I_UNITE_MERE, C_TYPE_UNITE, C_LANGUE_PRINC, N_UNITE, C_CF, B_EPFL, C_LONG_SIGLE, N_NIVEAU, N_ORDRE, D_CREAT, X_QUICRE, D_MODIF, X_QUIMODIF, I_PERSONNE_RESP, I_ESP, N_CP, X_STATION, CHILDREN_COUNT, CLONED_FROM_ID)  AS SELECT parent.I_UNITE, parent.B_TEMPORAIRE, parent.D_DEBUT, parent.D_FIN, parent.C_SIGLE, parent.X_LIBELLE, parent.X_ABREGE, parent.I_UNITE_MERE, parent.C_TYPE_UNITE, parent.C_LANGUE_PRINC, parent.N_UNITE, parent.C_CF, parent.B_EPFL, parent.C_LONG_SIGLE, parent.N_NIVEAU, parent.N_ORDRE, parent.D_CREAT, parent.X_QUICRE, parent.D_MODIF, parent.X_QUIMODIF, parent.I_PERSONNE_RESP, parent.I_ESP, parent.N_CP, parent.X_STATION, (SELECT COUNT (*)  FROM ORG.ORG_UNITE WHERE I_UNITE_MERE = parent.I_UNITE) AS CHILDREN_COUNT, parent.CLONED_FROM_ID FROM ORG.ORG_UNITE parent;
+
+INSERT INTO ORG.ORG_UNITE_UNITLANG(CODE, LABEL) VALUES('FRA', 'Français');
+INSERT INTO ORG.ORG_UNITE_UNITLANG(CODE, LABEL) VALUES('DEU', 'Allemand');
+INSERT INTO ORG.ORG_UNITE_UNITLANG(CODE, LABEL) VALUES('ENG', 'Anglais');
+INSERT INTO ORG.ORG_UNITE_UNITLANG(CODE, LABEL) VALUES('ITA', 'Italien');
+
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('AFFICHAGE', 'Affichage organigramme', 0);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('ALIAS-LIBELLE-ANN', 'Libellé pour l''annuaire (OBSOLETE)', 2);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('ALIAS-SIGLE', 'Correction sigle organigramme', 0);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('BRANCHE-SIUS', 'Branche SIUS', 0);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('ENTREPRISES', 'Prestations Camipro limitées pour les entreprises', 0);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('FACTURE', 'Modèle de facture', 0);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('FONCTION-SUP', 'Fonctions supplémentaires (OBSOLETE)', 2);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('ID-SIGLE', 'Identification complète par sigle', 0);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('INOVPARK', 'Type unité Innovation Park', 0);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('LIB-FCT-RESP', 'Libellé de la fonction du responsable (OBSOLETE)', 2);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('MASQUE-ANNUAIRE', 'Informations masquées dans l''annuaire (OBSOLETE)', 2);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('NO-CB', 'Numéro du code à barres', 0);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('NO-SIUS-LOCAUX', 'No SIUS pour les locaux', 0);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('REGSIGN', 'Registre des signatures (image de la signature) (OBSOLETE)', 2);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('REGSIGN-PAGE', 'Registre des signatures (pages complètes, PDF) (OBSOLETE)', 2);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('RESIGN-FOND', 'Registre des fonds (pages complètes, PDF) (OBSOLETE)', 2);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('SITUATION-ANTENNE', 'Antenne différenciée par canton', 0);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('TYPE-UNITE', 'Type d''unité', 0);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('VISIBLE', 'Visibilité dans l''organigramme EPFL', 0);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('XLANGUE', 'Nom en une seule langue', 0);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE (CODE, LABEL, POSITION) Values ('XREMARQUE', 'Remarques pour COUNSEL', 1);
+
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('ANTENNE', 'Antenne');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('CENTRE', 'Centre');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('CHAIRE', 'Chaire');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('COLLEGE', 'Collège');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('DIVERS', 'Divers');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('DPT', 'Département');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('ECOLE', 'Ecole');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('TECHNIQUE', 'Entité technique');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('EHE', 'Entités hôtes de l''EPFL');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('ENTREPRISES', 'Entreprises sur site');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('FACULTE', 'Faculté');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('FONDATION', 'Fondation');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('GROUPE', 'Groupe');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('INSTITUT', 'Institut');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('LABO', 'Laboratoire');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('ORIENTAT', 'Orientation');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('PARTICIPATION', 'Participation');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('PROGRAMME', 'Programme');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('REGROUPEMENT', 'Regroupement');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('SECTION', 'Section');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('SEMESTRE', 'Semestre');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('SERVICE-CENTRAL', 'Service central');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('SERVICE-GENERAL', 'Service général');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('ANNUAIRE', 'Visibilité annuaire');
+INSERT INTO ORG.ORG_UNITE_UNITTYPE(CODE, LABEL) VALUES('ORGANIGRAMME', 'Visibilité organigramme');
+
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('AFFICHAGE', 'F', 'Faculté, 1e niveau');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('AFFICHAGE', 'COL', 'Collège, 1e niveau');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('AFFICHAGE', 'S', 'Section, 2e niveau');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('AFFICHAGE', 'PRG', 'Programme, 2e niveau');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('AFFICHAGE', 'I', 'Institut, 3e niveau');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('AFFICHAGE', 'C', 'Centre, 4e niveau');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('AFFICHAGE', 'A', 'Antennes, 1e niveau');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('AFFICHAGE', 'P', 'Présidence, 1e niveau');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('AFFICHAGE', 'PIV', 'Innovation et Valorisation, 1e niveau');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('AFFICHAGE', 'PAA', 'Affaires académique, 1e niveau');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('AFFICHAGE', 'PSI', 'Systèmes d''information, 1e niveau');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('AFFICHAGE', 'PL', 'Planification et Logistique, 1e niveau');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('ENTREPRISE', 'E', 'Pas de prestation, sauf manger sur le site au prix personnel');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('ENTREPRISE', 'N', 'Exception et droit aux prestations');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('INOVPARK', 'GARAGE', NULL);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('INOVPARK', 'PSE', NULL);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('INOVPARK', 'QI', NULL);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('SITUATION-ANTENNE', 'FR', 'Fribourg');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('SITUATION-ANTENNE', 'VS', 'Valais');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('TYPE-UNITE', 'S', 'Unité d''organisation structurelle');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('TYPE-UNITE', 'F', 'Unité d''organisation financière');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('TYPE-UNITE', 'E', 'Unité propre à l''enseignement');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('TYPE-UNITE', 'O', 'Doit être uniquement visible dans l''Organigramme officiel');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('TYPE-UNITE', 'A', 'Autres unités (statistiques, locaux, etc.)');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('TYPE-UNITE', 'X', 'Unité visible uniquement dans Annuaire WEB + ACCRED');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('TYPE-UNITE', 'Z', 'Unité non visible Annuaire WEB, mais visible ACCRED');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('VISIBLE', 'O', NULL);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('VISIBLE', 'N', NULL);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('TYPE-UNITE', 'FS', NULL);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('FACTURE', 'SOCIETE', NULL);
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('ENTREPRISES', 'E', 'Pas de prestation, sauf manger sur le site au prix personnel');
+Insert into ORG.ORG_UNITE_UNITATTRIBUTE_ENUM (CODE, VALUE, REMARK) Values ('ENTREPRISES', 'N', 'Exception et droit aux prestations');
+
+-- Level 0
+INSERT INTO ORG.V_ORG_UNITE (I_UNITE, B_TEMPORAIRE, D_DEBUT, D_FIN, C_SIGLE, X_LIBELLE, X_ABREGE, I_UNITE_MERE, C_TYPE_UNITE, C_LANGUE_PRINC, N_UNITE, C_CF, B_EPFL, C_LONG_SIGLE, N_NIVEAU, N_ORDRE, D_CREAT, X_QUICRE, D_MODIF, X_QUIMODIF, I_PERSONNE_RESP, I_ESP, N_CP, X_STATION, CLONED_FROM_ID, CHILDREN_COUNT) VALUES (0, 'N', parsedatetime('01.01.2000', 'dd.MM.yyyy'), NULL, '[racine]', '[racine]', '[racine]', NULL, 'ECOLE', 'FRA', 0, NULL, 'O', '', 0, 0, parsedatetime('01.01.2001', 'dd.MM.yyyy'), 'Dieu', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 4);
+-- Level 1
+INSERT INTO ORG.V_ORG_UNITE (I_UNITE, B_TEMPORAIRE, D_DEBUT, D_FIN, C_SIGLE, X_LIBELLE, X_ABREGE, I_UNITE_MERE, C_TYPE_UNITE, C_LANGUE_PRINC, N_UNITE, C_CF, B_EPFL, C_LONG_SIGLE, N_NIVEAU, N_ORDRE, D_CREAT, X_QUICRE, D_MODIF, X_QUIMODIF, I_PERSONNE_RESP, I_ESP, N_CP, X_STATION, CLONED_FROM_ID, CHILDREN_COUNT) VALUES (10000, 'N', parsedatetime('01.01.2002', 'dd.MM.yyyy'), NULL, 'EPFL', 'Ecole polytechnique fédérale de Lausanne', 'Ecole Polytechnique Fédérale de Lausanne', 0, 'ECOLE', 'FRA', 1028, '1028', 'O', 'EPFL', 1, 1, parsedatetime('01.01.2002', 'dd.MM.yyyy'), 'Dieu', NULL, NULL, 107537, 943, NULL, NULL, NULL, 1);
+INSERT INTO ORG.V_ORG_UNITE (I_UNITE, B_TEMPORAIRE, D_DEBUT, D_FIN, C_SIGLE, X_LIBELLE, X_ABREGE, I_UNITE_MERE, C_TYPE_UNITE, C_LANGUE_PRINC, N_UNITE, C_CF, B_EPFL, C_LONG_SIGLE, N_NIVEAU, N_ORDRE, D_CREAT, X_QUICRE, D_MODIF, X_QUIMODIF, I_PERSONNE_RESP, I_ESP, N_CP, X_STATION, CLONED_FROM_ID, CHILDREN_COUNT) VALUES (10582, 'N', parsedatetime('01.01.2002', 'dd.MM.yyyy'), NULL, 'EHE', 'Entités hôtes de l''EPFL', 'Entités hôtes de l''EPFL', 0, 'EHE', 'FRA', 8900, '8900', 'O', 'EHE', 1, 3, parsedatetime('01.01.2002', 'dd.MM.yyyy'), 'Dieu', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0);
+INSERT INTO ORG.V_ORG_UNITE (I_UNITE, B_TEMPORAIRE, D_DEBUT, D_FIN, C_SIGLE, X_LIBELLE, X_ABREGE, I_UNITE_MERE, C_TYPE_UNITE, C_LANGUE_PRINC, N_UNITE, C_CF, B_EPFL, C_LONG_SIGLE, N_NIVEAU, N_ORDRE, D_CREAT, X_QUICRE, D_MODIF, X_QUIMODIF, I_PERSONNE_RESP, I_ESP, N_CP, X_STATION, CLONED_FROM_ID, CHILDREN_COUNT) VALUES (3199, 'N', parsedatetime('01.01.2002', 'dd.MM.yyyy'), NULL, 'ENTREPRISES', 'Entreprises sur site', 'Entreprises sur site', 0, 'ENTREPRISES', 'FRA', 8925, '8925', 'O', 'ENTREPRISES', 1, 5, parsedatetime('01.01.2002', 'dd.MM.yyyy'), 'Dieu', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0);
+INSERT INTO ORG.V_ORG_UNITE (I_UNITE, B_TEMPORAIRE, D_DEBUT, D_FIN, C_SIGLE, X_LIBELLE, X_ABREGE, I_UNITE_MERE, C_TYPE_UNITE, C_LANGUE_PRINC, N_UNITE, C_CF, B_EPFL, C_LONG_SIGLE, N_NIVEAU, N_ORDRE, D_CREAT, X_QUICRE, D_MODIF, X_QUIMODIF, I_PERSONNE_RESP, I_ESP, N_CP, X_STATION, CLONED_FROM_ID, CHILDREN_COUNT) VALUES (11390, 'N', parsedatetime('20.09.2006', 'dd.MM.yyyy'), NULL, 'TECHNIQUE', 'Entités techniques', 'Entités techniques', 0, 'TECHNIQUE', 'FRA', 8989, '8989', 'O', 'TECHNIQUE', 1, 7, parsedatetime('20.09.2006', 'dd.MM.yyyy'), 'Dieu', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0);
+-- Level 2
+INSERT INTO ORG.V_ORG_UNITE (I_UNITE, B_TEMPORAIRE, D_DEBUT, D_FIN, C_SIGLE, X_LIBELLE, X_ABREGE, I_UNITE_MERE, C_TYPE_UNITE, C_LANGUE_PRINC, N_UNITE, C_CF, B_EPFL, C_LONG_SIGLE, N_NIVEAU, N_ORDRE, D_CREAT, X_QUICRE, D_MODIF, X_QUIMODIF, I_PERSONNE_RESP, I_ESP, N_CP, X_STATION, CLONED_FROM_ID, CHILDREN_COUNT) VALUES (12635, 'N', parsedatetime('27.08.2012', 'dd.MM.yyyy'), NULL, 'SI', 'Systèmes d''information', 'Systèmes d''information', 10000, 'SERVICE-CENTRAL', 'FRA', 11200, '11200', 'O', 'EPFL|SI', 2, 35, parsedatetime('27.08.2012', 'dd.MM.yyyy'), 'Dieu', NULL, NULL, 229105, 4193, NULL, NULL, NULL, 2);
+-- Level 3
+INSERT INTO ORG.V_ORG_UNITE (I_UNITE, B_TEMPORAIRE, D_DEBUT, D_FIN, C_SIGLE, X_LIBELLE, X_ABREGE, I_UNITE_MERE, C_TYPE_UNITE, C_LANGUE_PRINC, N_UNITE, C_CF, B_EPFL, C_LONG_SIGLE, N_NIVEAU, N_ORDRE, D_CREAT, X_QUICRE, D_MODIF, X_QUIMODIF, I_PERSONNE_RESP, I_ESP, N_CP, X_STATION, CLONED_FROM_ID, CHILDREN_COUNT) VALUES (13028, 'N', parsedatetime('30.12.2014', 'dd.MM.yyyy'), NULL, 'SI-IDEV', 'SI - Ingénierie et développement', 'SI - Ingénierie et développement', 12635, 'SERVICE-CENTRAL', 'FRA', 11231, '11231', 'O', 'EPFL|SI|SI-IDEV', 3, 30, parsedatetime('30.12.2014', 'dd.MM.yyyy'), 'Dieu', NULL, NULL, 240209, 4521, NULL, NULL, NULL, 2);
+INSERT INTO ORG.V_ORG_UNITE (I_UNITE, B_TEMPORAIRE, D_DEBUT, D_FIN, C_SIGLE, X_LIBELLE, X_ABREGE, I_UNITE_MERE, C_TYPE_UNITE, C_LANGUE_PRINC, N_UNITE, C_CF, B_EPFL, C_LONG_SIGLE, N_NIVEAU, N_ORDRE, D_CREAT, X_QUICRE, D_MODIF, X_QUIMODIF, I_PERSONNE_RESP, I_ESP, N_CP, X_STATION, CLONED_FROM_ID, CHILDREN_COUNT) VALUES (13026, 'N', parsedatetime('30.12.2014', 'dd.MM.yyyy'), NULL, 'SI-GOUV', 'SI - Gouvernance et planification', 'SI - Gouvernance et planification', 12635, 'SERVICE-CENTRAL', 'FRA', 11221, '11221', 'O', 'EPFL|SI|SI-GOUV', 3, 20, parsedatetime('30.12.2014', 'dd.MM.yyyy'), 'Dieu', NULL, NULL, 112488, 4521, NULL, NULL, NULL, 1);
+-- Level 4
+INSERT INTO ORG.V_ORG_UNITE (I_UNITE, B_TEMPORAIRE, D_DEBUT, D_FIN, C_SIGLE, X_LIBELLE, X_ABREGE, I_UNITE_MERE, C_TYPE_UNITE, C_LANGUE_PRINC, N_UNITE, C_CF, B_EPFL, C_LONG_SIGLE, N_NIVEAU, N_ORDRE, D_CREAT, X_QUICRE, D_MODIF, X_QUIMODIF, I_PERSONNE_RESP, I_ESP, N_CP, X_STATION, CLONED_FROM_ID, CHILDREN_COUNT) VALUES (13030, 'N', parsedatetime('30.12.2014', 'dd.MM.yyyy'), NULL, 'IDEVELOP', 'SI - Développement', 'SI - Développement', 13028, 'SERVICE-CENTRAL', 'FRA', 1906, '1906', 'O', 'EPFL|SI|SI-IDEV|IDEVELOP', 4, NULL, parsedatetime('30.12.2014', 'dd.MM.yyyy'), 'Dieu', NULL, NULL, 268229, 4521, NULL, NULL, NULL, 0);
+INSERT INTO ORG.V_ORG_UNITE (I_UNITE, B_TEMPORAIRE, D_DEBUT, D_FIN, C_SIGLE, X_LIBELLE, X_ABREGE, I_UNITE_MERE, C_TYPE_UNITE, C_LANGUE_PRINC, N_UNITE, C_CF, B_EPFL, C_LONG_SIGLE, N_NIVEAU, N_ORDRE, D_CREAT, X_QUICRE, D_MODIF, X_QUIMODIF, I_PERSONNE_RESP, I_ESP, N_CP, X_STATION, CLONED_FROM_ID, CHILDREN_COUNT) VALUES (13031, 'N', parsedatetime('30.12.2014', 'dd.MM.yyyy'), NULL, 'IDEVING', 'SI - Ingénierie', 'SI - Ingénierie', 13028, 'SERVICE-CENTRAL', 'FRA', 1907, '1907', 'O', 'EPFL|SI|SI-IDEV|IDEVING', 4, NULL, parsedatetime('30.12.2014', 'dd.MM.yyyy'), 'Dieu', NULL, NULL, 239841, 4521, NULL, NULL, NULL, 0);
+INSERT INTO ORG.V_ORG_UNITE (I_UNITE, B_TEMPORAIRE, D_DEBUT, D_FIN, C_SIGLE, X_LIBELLE, X_ABREGE, I_UNITE_MERE, C_TYPE_UNITE, C_LANGUE_PRINC, N_UNITE, C_CF, B_EPFL, C_LONG_SIGLE, N_NIVEAU, N_ORDRE, D_CREAT, X_QUICRE, D_MODIF, X_QUIMODIF, I_PERSONNE_RESP, I_ESP, N_CP, X_STATION, CLONED_FROM_ID, CHILDREN_COUNT) VALUES (13027, 'N', parsedatetime('30.12.2014', 'dd.MM.yyyy'), NULL, 'SIGOUV-GE', 'SI - Gouvernance planification Gestion', 'SI - Gouvernance planification Gestion', 13026, 'SERVICE-CENTRAL', 'FRA', 1904, '1904', 'O', 'EPFL|SI|SI-GOUV|SIGOUV-GE', 4, NULL, parsedatetime('30.12.2014', 'dd.MM.yyyy'), 'Dieu', NULL, NULL, 112488, 4521, NULL, NULL, NULL, 0);

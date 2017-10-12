@@ -334,10 +334,11 @@ describe('Tree', () => {
     let responsibleInput = await element(by.id('input-responsible-search'));
     await responsibleInput.sendKeys('268229');
     await responsibleInput.sendKeys(Key.ENTER);
+    await browser.sleep(1000).then(function(){ });
     let roomInput = await element(by.id('input-room-search'));
     await roomInput.sendKeys('inn013');
     await roomInput.sendKeys(Key.ENTER);
-    await browser.sleep(500).then(function(){ });
+    await browser.sleep(1000).then(function(){ });
 
     // Save unit
     await element(by.id('btn-save-unit')).click();
@@ -509,7 +510,7 @@ describe('Tree', () => {
     let countrySearchInput = await element(by.id('input-country-search'));
     countrySearchInput.sendKeys('fr');
     countrySearchInput.sendKeys(Key.ENTER);
-    await browser.sleep(500).then(function(){ });
+    await browser.sleep(1000).then(function(){ });
     // Check that country has been updated in UI
     expect(await element(by.id('box-selected-country')).getText()).toBe('France');
 
@@ -555,7 +556,7 @@ describe('Tree', () => {
     let parentSearchInput = await element(by.id('input-parent-search'));
     parentSearchInput.sendKeys('gouv');
     parentSearchInput.sendKeys(Key.ENTER);
-    await browser.sleep(500).then(function(){ });
+    await browser.sleep(1000).then(function(){ });
     // Check that parent has been updated in UI
     expect(await element(by.id('box-selected-parent')).getText()).toBe('SI-GOUV (SI - Gouvernance et planification)');
 
