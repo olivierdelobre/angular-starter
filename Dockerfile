@@ -13,6 +13,7 @@ ADD ./e2e/cadi-api/* /tmp/apis/cadi-api/
 ADD ./e2e/archibus-api/* /tmp/apis/archibus-api/
 ADD ./mock-json-server-db.json /tmp
 ADD ./e2e/startup.sh /tmp
+RUN chmod 755 /tmp/*.sh
 
 # install npm ( in separate dir due to docker cache)
 ADD package.json /tmp/npm_inst/package.json
