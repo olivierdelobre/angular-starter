@@ -1,26 +1,18 @@
-# Usage (given build times depend on machine):
-#
-#    Build SMALL image (no cache; ~20MB, time for build=rebuild = ~360s):
-#    docker build --squash="true" -t angular-starter .
-#
-#    Build FAST (rebuild) image (cache; >280MB, build time ~360s, rebuild time ~80s):
-#    docker build -t angular-starter .
-#
-#    Clean (remove intermidiet images):
-#    docker rmi -f $(docker images -f "dangling=true" -q)
-#
-#    Run image (on localhost:8080):
-#    docker run --name angular-starter -p 8080:80 angular-starter &
-#
-#    Run image as virtual host (read more: https://github.com/jwilder/nginx-proxy):
-#    docker run -e VIRTUAL_HOST=angular-starter.your-domain.com --name angular-starter angular-starter &
-
-FROM nginx:1.13.0-alpine
+FROM openjdk:8-jre
 
 # install console and node
-RUN apk add --no-cache bash=4.3.46-r5 &&\
-    apk add --no-cache openssl=1.0.2k-r0 &&\
-    apk add --no-cache nodejs
+RUN curl -sL https://deb.nodesource.com/setup_6.x -o nodesource_setup.sh &&\
+    bash nodesource_setup.sh &&\
+    apt-get install -y nodejs &&\
+    npm install -g json-server
+
+# install APIs
+ADD ./e2e/units-api/* /tmp/apis/units-api/
+ADD ./e2e/sciper-api/* /tmp/apis/sciper-api/
+ADD ./e2e/cadi-api/* /tmp/apis/cadi-api/
+ADD ./e2e/archibus-api/* /tmp/apis/archibus-api/
+ADD ./mock-json-server-db.json /tmp
+ADD ./e2e/startup.sh /tmp
 
 # install npm ( in separate dir due to docker cache)
 ADD package.json /tmp/npm_inst/package.json
@@ -29,17 +21,25 @@ RUN cd /tmp/npm_inst &&\
     mkdir -p /tmp/app &&\
     mv /tmp/npm_inst/node_modules /tmp/app/
 
-# build and publish application
+# copy and replace config
 ADD . /tmp/app
 RUN cd /tmp/app &&\
-    npm run build:aot &&\
-    mv ./dist/* /usr/share/nginx/html/
+    cp ./config/webpack.e2e.js ./config/webpack.dev.js
 
-# clean
-RUN rm -Rf /tmp/npm_inst  &&\
-    rm -Rf /tmp/app &&\
-    rm -Rf /root/.npm &&\
-    apk del nodejs
+# install nginx
+RUN apt-get install -y nginx
+
+# build and publish application
+RUN cd /tmp/app &&\
+    npm run build:dev &&\
+    mv ./dist/* /var/www/html/
 
 # this is for virtual host purposes
+EXPOSE 9081
+EXPOSE 9082
+EXPOSE 9083
+EXPOSE 9084
+EXPOSE 9085
 EXPOSE 80
+
+CMD /tmp/startup.sh

@@ -1517,13 +1517,14 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         idx++;
 
         // Unit CF
-        // Error if an other unit has the same CF
+        // Error if an other unit has the same CF, only in "Create" mode
         for (let unitLoop of dataArray[idx]) {
           if (unitLoop.cf == unit.cf) {
             // If create mode
             if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
               cfIsOk = false;
             }
+            /*
             // If updating Unit
             else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != this.selectedUnit.id)) {
               cfIsOk = false;
@@ -1532,7 +1533,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
               cfIsOk = false;
             }
-
+            */
             if (!cfIsOk) {
               this.unitForm.get('cf').setErrors({ "error": true });
               this.unitForm.get('cf').markAsDirty();

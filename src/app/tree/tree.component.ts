@@ -391,7 +391,7 @@ export class TreeComponent implements OnInit, OnDestroy {
     this.labelDEU = new Label("{}");
     this.labelITA = new Label("{}");
 
-    console.log('auth_token = ' + localStorage.getItem('auth_token'));
+    // console.log('auth_token = ' + localStorage.getItem('auth_token'));
 
     this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "read" };
     this.loggedUserInfoSubscription =

@@ -1,5 +1,4 @@
 #!/bin/sh
-
 NEXUS_REPOSITORY=http://idevelopsrv3.epfl.ch:8081/repository/maven-snapshots/
 LOCAL_REPOSITORY=`mvn help:evaluate -Dexpression=settings.localRepository | grep -v '\[INFO\]'`
 UNITS_API_VERSION=1.0.4-SNAPSHOT
@@ -25,29 +24,14 @@ function run_api() {
 	cd ../..
 }
 
-# run Units API
-#build_docker_image units-api 1.0.4-SNAPSHOT
-#docker rm units-api-001
-#docker run --name units-api-001 -d -p 9081:8080 units-api
-run_api units-api 1.0.4-SNAPSHOT
-UNITS_API_PID=$!
-#
-# run CADI API
-run_api cadi-api 1.0.0-SNAPSHOT
-CADI_API_PID=$!
+# Build Docker image
+./build-docker.sh
 
-# run Sciper API
-run_api sciper-api 1.0.2-SNAPSHOT
-SCIPER_API_PID=$!
+# Run it
+docker rm --force ngunits-001
+docker run --name ngunits-001 -d -p 9081:9081 -p 9082:9082 -p 9083:9083 -p 9084:9084 -p 9085:9085 -p 3000:80 ngunits
 
-# run Archibus API
-run_api archibus-api 1.0.0-SNAPSHOT
-ARCHIBUS_API_PID=$!
-
-# run Mock Tequila
-json-server --watch mock-json-server-db.json --port 9085 > /c/Temp/tequila-mock.log &
-TEQUILA_API_PID=$!
-
+# Wait for docker image and all APIs inside are up and running
 sleep 2s
 echo "Waiting for APIs to be started..."
 #
@@ -105,34 +89,9 @@ curl http://localhost:9082/cadi-api/v1/countries?query=CH
 curl http://localhost:9083/sciper-api/v1/people?query=delo
 curl http://localhost:9084/archibus-api/v1/rooms?query=INN
 
-cp ./config/webpack.dev.js ./config/webpack.dev.js.backup
-cp ./config/webpack.e2e.js ./config/webpack.dev.js
+# Run webdriver/selenium
+npm run webdriver:update
 
-echo "Starting the Frontend test server..."
-npm run server:dev > /c/Temp/frontend-units-dev.log &
-FRONTEND_PID=$!
-
-# Wait for frontend start to be finished
-sleep 2s
-response=`grep 'Compiled successfully' /c/Temp/frontend-units-dev.log`
-while [ "$response" == "" ]
-do
-	sleep 1s
-	response=`grep 'Compiled successfully' /c/Temp/frontend-units-dev.log`
-done
-echo "Frontend is started!"
-
-cp ./config/webpack.dev.js.backup ./config/webpack.dev.js
-
+# Start E2E tests
 echo "Starting E2E tests..."
 npm run e2e
-E2E_PID=$!
-
-# kill all java and node spawned processes
-kill -9 $SCIPER_API_PID
-kill -9 $CADI_API_PID
-kill -9 $ARCHIBUS_API_PID
-kill -9 $UNITS_API_PID
-kill -9 TEQUILA_API_PID
-kill -9 $FRONTEND_PID
-kill -9 $E2E_PID
