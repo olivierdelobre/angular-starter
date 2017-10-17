@@ -1,6 +1,6 @@
 #!/bin/sh
 NEXUS_REPOSITORY=http://idevelopsrv3.epfl.ch:8081/repository/maven-snapshots/
-LOCAL_REPOSITORY=`mvn help:evaluate -Dexpression=settings.localRepository | grep -v '\[INFO\]'`
+LOCAL_REPOSITORY=`mvn help:evaluate -Dexpression=settings.localRepository | grep -v 'INFO'`
 
 function get_jarfile() {
 	mvn --quiet org.apache.maven.plugins:maven-dependency-plugin:2.4:get -DartifactId=$1 -DgroupId=ch.epfl.api -Dversion=$2 -DremoteRepositories=nexus-epfl::::$NEXUS_REPOSITORY -Dtransitive=false -Dskip=true

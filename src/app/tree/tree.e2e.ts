@@ -860,14 +860,15 @@ describe('Tree', () => {
     let count = await element.all(by.className('icon-delete-unit')).count();
     let deleteButtons = await element.all(by.className('icon-delete-unit'));
     //for (let deleteButton of await element.all(by.className('icon-delete-unit'))) {
-    for (var i = 0; i < count; ++i) {
-      await element.all(by.className('icon-delete-unit')).get(i).click();
+    while (count > 0) {
+      await element.all(by.className('icon-delete-unit')).get(0).click();
       await browser.sleep(1000).then(function(){ });
       // Check that deletion popup is displayed
       expect(await element(by.id('modal-delete-unit')).isDisplayed()).toBe(true);
       // Confirm delete by clicking on the button
       await element(by.id('btn-delete-unit-confirmation')).click();
       await browser.sleep(1000).then(function(){ });
+      count = await element.all(by.className('icon-delete-unit')).count();
     }
   });
 
