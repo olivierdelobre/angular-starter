@@ -1,29 +1,4 @@
 #!/bin/sh
-NEXUS_REPOSITORY=http://idevelopsrv3.epfl.ch:8081/repository/maven-snapshots/
-LOCAL_REPOSITORY=`mvn help:evaluate -Dexpression=settings.localRepository | grep -v '\[INFO\]'`
-UNITS_API_VERSION=1.0.4-SNAPSHOT
-CADI_API_VERSION=1.0.0-SNAPSHOT
-SCIPER_API_VERSION=1.0.2-SNAPSHOT
-ARCHIBUS_API_VERSION=1.0.0-SNAPSHOT
-
-function build_docker_image() {
-	mvn org.apache.maven.plugins:maven-dependency-plugin:2.4:get -DartifactId=$1 -DgroupId=ch.epfl.api -Dversion=$2 -DremoteRepositories=nexus-epfl::::$NEXUS_REPOSITORY -Dtransitive=false -Dskip=true
-	JAR_PATH=`echo "$LOCAL_REPOSITORY/ch/epfl/api/$1/$2/*$2.jar" | tr '\\' '/' | sed -e "s/C:/\/C/g"`
-	cp $JAR_PATH ./e2e/$1/
-	docker build -t $1 ./e2e/$1/
-	rm ./e2e/$1/app.jar
-}
-
-function run_api() {
-	mvn --quiet org.apache.maven.plugins:maven-dependency-plugin:2.4:get -DartifactId=$1 -DgroupId=ch.epfl.api -Dversion=$2 -DremoteRepositories=nexus-epfl::::$NEXUS_REPOSITORY -Dtransitive=false -Dskip=true
-	JAR_PATH=`echo "$LOCAL_REPOSITORY/ch/epfl/api/$1/$2/*$2.jar" | tr '\\' '/' | sed -e "s/C:/\/C/g"`
-	cd ./e2e/$1
-	rm -rf *.jar
-	cp $JAR_PATH ./app.jar
-	nohup java -Xmx128M -Dspring.config.location=file:./application.properties -jar ./app.jar > ./api.log &
-	cd ../..
-}
-
 # Build Docker image
 ./build-docker.sh
 
@@ -94,4 +69,4 @@ npm run webdriver:update
 
 # Start E2E tests
 echo "Starting E2E tests..."
-npm run e2e
+npm run e2e:docker
