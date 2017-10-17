@@ -66,6 +66,9 @@ curl http://localhost:9084/archibus-api/v1/rooms?query=INN
 
 # Run webdriver/selenium
 npm run webdriver:update
+npm run webdriver:start &
+
+sleep 10s
 
 # Start E2E tests
 echo "Starting E2E tests..."
