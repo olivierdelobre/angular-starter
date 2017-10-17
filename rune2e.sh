@@ -73,3 +73,6 @@ sleep 10s
 # Start E2E tests
 echo "Starting E2E tests..."
 npm run e2e:docker
+
+# Shutdown docker image
+docker rm --force ngunits-001

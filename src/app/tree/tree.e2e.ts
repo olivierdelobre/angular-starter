@@ -755,7 +755,7 @@ describe('Tree', () => {
 
     // Create a new Unit Planned
     await element(by.id('btn-create-unit-planned')).click();
-    await browser.sleep(1000).then(function(){ });
+    await browser.sleep(2000).then(function(){ });
 
     // Update information
     let applyAtInput = await element(by.id('input-applyAt'));
@@ -763,40 +763,43 @@ describe('Tree', () => {
     // Type date in the past
     await applyAtInput.clear();
     await applyAtInput.sendKeys('1.1.17');
+    await browser.sleep(500).then(function(){ });
 
     // Save unit
     await element(by.id('btn-save-unit-and-close')).click();
-    await browser.sleep(1000).then(function(){ });
+    await browser.sleep(2000).then(function(){ });
     // The alert modal should be displayed
     expect(await element(by.id('modal-alerts')).isDisplayed()).toBe(true);
     // There should be 1 error displayed
     expect(await element.all(by.className('search-result-box-error')).count()).toEqual(1);
     // Close alerts modal
     await element(by.id('btn-close-modal-alerts')).click();
-    await browser.sleep(500).then(function(){ });
+    await browser.sleep(1000).then(function(){ });
 
     // Type invalid date
     await applyAtInput.clear();
     await applyAtInput.sendKeys('31.2.2030');
+    await browser.sleep(500).then(function(){ });
         
     // Save unit
     await element(by.id('btn-save-unit-and-close')).click();
-    await browser.sleep(1000).then(function(){ });
+    await browser.sleep(2000).then(function(){ });
     // The alert modal should be displayed
     expect(await element(by.id('modal-alerts')).isDisplayed()).toBe(true);
     // There should be 1 error displayed
     expect(await element.all(by.className('search-result-box-error')).count()).toEqual(1);
     // Close alerts modal
     await element(by.id('btn-close-modal-alerts')).click();
-    await browser.sleep(500).then(function(){ });
+    await browser.sleep(1000).then(function(){ });
 
     // Type valid date
     await applyAtInput.clear();
     await applyAtInput.sendKeys('31.01.30');
+    await browser.sleep(500).then(function(){ });
 
     // Save unit
     await element(by.id('btn-save-unit-and-close')).click();
-    await browser.sleep(1000).then(function(){ });
+    await browser.sleep(2000).then(function(){ });
 
     // Modal should close
     expect(await element(by.id('modal-update-unit')).isDisplayed()).toBe(false);
