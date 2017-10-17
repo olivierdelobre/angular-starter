@@ -20,7 +20,7 @@ const HotModuleReplacementPlugin = require('webpack/lib/HotModuleReplacementPlug
  * Webpack Constants
  */
 const ENV = process.env.ENV = process.env.NODE_ENV = 'development';
-const UNITS_API_URL = process.env.UNITS_API_URL = 'http://localhost:9091/units-api/v1/';
+const UNITS_API_URL = process.env.UNITS_API_URL = 'http://localhost:9081/units-api/v1/';
 const SCIPER_API_URL = process.env.SCIPER_API_URL = 'http://localhost:9083/sciper-api/v1/';
 const CADI_API_URL = process.env.CADI_API_URL = 'http://localhost:9082/cadi-api/v1/';
 const ARCHIBUS_API_URL = process.env.ARCHIBUS_API_URL = 'http://localhost:9084/archibus-api/v1/';
