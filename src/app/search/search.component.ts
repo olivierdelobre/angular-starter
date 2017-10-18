@@ -368,7 +368,10 @@ export class SearchComponent implements OnInit, OnDestroy {
   *   unit has been deleted in DeleteUnitComponent
   ******************************************************/
   private unitDeleted(unit: Unit) {
-    this.searchUnit("search", false);
+    this.searchResults = this.searchResults.filter((aUnit) => aUnit.id != unit.id);
+    this.searchResults = this.searchResults.slice();
+    console.log('remove unit from list');
+    //this.searchUnit("search", false);
   }
 
   /******************************************************

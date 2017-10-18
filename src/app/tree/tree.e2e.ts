@@ -626,7 +626,6 @@ describe('Tree', () => {
 
     // Check that close dates are set for all attributes
     expect(await element.all(by.cssContainingText('.attribute-validity-period', '01.01.2018')).count()).toBe(1);
-    await browser.sleep(5000).then(function(){ });
   });
 
   /***********************************************************************************************************
