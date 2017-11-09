@@ -358,16 +358,16 @@ export class TreeService {
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/search?do=1';
-        if (sigle != null) {
+        if (sigle != null && sigle != '%25%25') {
             url += '&sigle=' + sigle;
         }
-        if (label != null) {
+        if (label != null && label != '%25%25') {
             url += '&label=' + label;
         }
-        if (labelShort != null) {
+        if (labelShort != null && labelShort != '%25%25') {
             url += '&labelShort=' + labelShort;
         }
-        if (cf != null) {
+        if (cf != null && cf != '%25%25') {
             url += '&cf=' + cf;
         }
         if (type != null) {
