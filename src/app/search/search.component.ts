@@ -91,22 +91,6 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     this.searchIsOngoing = true;
 
-    if (this.searchForm.get('sigle').value == ''
-          && this.searchForm.get('label').value == ''
-          && this.searchForm.get('cf').value == ''
-          && this.searchForm.get('type').value == ''
-          && this.searchForm.get('level').value == ''
-          && (this.searchForm.get('responsibleId').value == '' || this.searchForm.get('responsibleId').value == '0')
-          && this.searchForm.get('created_at_start').value == ''
-          && this.searchForm.get('created_at_end').value == ''
-          && this.searchForm.get('updated_at_start').value == ''
-          && this.searchForm.get('updated_at_end').value == '') {
-        this.searchResults = null;
-        this.searchIsOngoing = false;
-        this.alerts.push({msg: "Vous devez sélectionner au moins 1 critère", type: 'danger', closable: true});
-      return;
-    }
-
     /*
     console.log("search params are: " +
       this.searchForm.get('sigle').value + ", " +
@@ -131,6 +115,23 @@ export class SearchComponent implements OnInit, OnDestroy {
       attributesCriterias.push({"code": criteria.get('search_attribute_code').value, "value": criteria.get('search_value').value});
     }
     // console.log("attributesCriterias = " + JSON.stringify(attributesCriterias));
+
+    if (this.searchForm.get('sigle').value == ''
+        && this.searchForm.get('label').value == ''
+        && this.searchForm.get('cf').value == ''
+        && this.searchForm.get('type').value == ''
+        && this.searchForm.get('level').value == ''
+        && (this.searchForm.get('responsibleId').value == '' || this.searchForm.get('responsibleId').value == '0')
+        && this.searchForm.get('created_at_start').value == ''
+        && this.searchForm.get('created_at_end').value == ''
+        && this.searchForm.get('updated_at_start').value == ''
+        && this.searchForm.get('updated_at_end').value == ''
+        && attributesCriterias.length == 0) {
+      this.searchResults = null;
+      this.searchIsOngoing = false;
+      this.alerts.push({msg: "Vous devez sélectionner au moins 1 critère", type: 'danger', closable: true});
+      return;
+    }
 
     if (mode == "search") {
       this.treeService.searchUnits('%25' + this.searchForm.get('sigle').value + '%25',

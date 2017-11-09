@@ -194,6 +194,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     // Create a child of an existing unit, or a root unit
     if (mode == 'CREATE_CHILD' || mode == 'CREATE_ROOT') {
       this.parentUnit = unit;
+      // nullify the address5 for display cleaning
+      if (this.selectedUnit.address != null) {
+        this.selectedUnit.address.address5 = '';
+      }
       // Check if a unit model exists
       this.treeService.getUnitModelById(unit.id)
         .subscribe(
@@ -550,7 +554,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   private clearLocation() {
     this.selectedLocation = {};
     this.unitForm.get('addressLocationText').setValue('');
-    this.unitForm.get('addressLocationId').setValue(0);
+    this.unitForm.get('addressLocationId').setValue(null);
   }
 
   /******************************************************
@@ -559,7 +563,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   private clearCountry() {
     this.selectedCountry = {};
     this.unitForm.get('addressCountryText').setValue('');
-    this.unitForm.get('addressCountryId').setValue(0);
+    this.unitForm.get('addressCountryId').setValue(null);
   }
 
   /******************************************************
@@ -622,7 +626,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.selectedResponsible = null;
     this.unitForm.get('responsibleSearchText').setValue('');
     this.unitForm.get('responsible').setValue('');
-    this.unitForm.get('responsibleId').setValue(0);
+    this.unitForm.get('responsibleId').setValue(null);
   }
 
   /******************************************************
@@ -701,7 +705,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   ******************************************************/
   private clearParent() {
     //this.unitForm.get('parent').setValue('');
-    this.unitForm.get('parentId').setValue(0);
+    this.unitForm.get('parentId').setValue(null);
   }
 
   /******************************************************
@@ -750,7 +754,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   ******************************************************/
   private clearRoom() {
     this.unitForm.get('room').setValue('');
-    this.unitForm.get('roomId').setValue(0);
+    this.unitForm.get('roomId').setValue(null);
     this.selectedRoom = null;
     this.showAddressTab = true;
   }
@@ -840,6 +844,16 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       addressCountryText: this.fb.control(''),
       addressCountryId: this.fb.control('')
     });
+
+    // FIXME: Extract the location from address5...
+    if (this.unitAddress.address5 != null) {
+      this.unitForm.get('addressLocationText').setValue(this.unitAddress.address5.substr(3).trim());
+    }
+
+    // If "EPFL", room is mandatory
+    if (this.getRootSigle(unit.sigleLong) == 'EPFL') {
+      this.unitForm.get('roomId').setValidators([Validators.required]);
+    }
 
     // Retrieve responsible from sciper service
     if (unit.responsibleId != null) {
@@ -1013,6 +1027,16 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         this.refreshRoomSelected(unitModel.roomId);
       }
 
+      // Retrieve location from cadi service
+      if (unitModel.address != null && unitModel.address.pttOrder != null) {
+        this.refreshLocationSelected(unitModel.address.pttOrder);
+      }
+
+      // Retrieve country from cadi service
+      if (unitModel.address != null && unitModel.address.countryId != null) {
+        this.refreshCountrySelected(unitModel.address.countryId);
+      }
+
       // Retrieve parent unit
       this.selectedParentUnit = null;
       if (unitModel.parentId != null && unitModel.parentId != 0) {
@@ -1064,16 +1088,16 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       });
 
       this.selectedUnitAttributes = [];
-    }
 
-    // If no model existed, then init the address form with address from level 1 unit
-    this.treeService.getUnitHierarchy(this.parentUnit.id)
+      // If no model existed, then init the address form with address from level 1 unit
+      this.treeService.getUnitHierarchy(this.parentUnit.id)
       .subscribe(
         (hierarchy) => {
           // get Unit data for the level 1 unit in hierarchy
           this.treeService.getUnitById(hierarchy.id)
             .subscribe(
               (unit) => {
+                console.log('refreshAddressForm');
                 this.refreshAddressForm(unit);
               },
               (error) => { },
@@ -1083,6 +1107,12 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         (error) => { },
         () => { }
       );
+    }
+
+    // If "EPFL", room is mandatory
+    if (this.getRootSigle(this.parentUnit.sigleLong) == 'EPFL') {
+      this.unitForm.get('roomId').setValidators([Validators.required]);
+    }
 
     // Retrieve parent unit
     this.selectedParentUnit = null;
@@ -1195,6 +1225,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       addressCountryText: this.fb.control(''),
       addressCountryId: this.fb.control('')
     });
+
+    // If "EPFL", room is mandatory
+    if (this.getRootSigle(unit.sigleLong) == 'EPFL') {
+      this.unitForm.get('roomId').setValidators([Validators.required]);
+    }
 
     // retrieve responsible from sciper service
     if (unit.responsibleId != null && unit.responsibleId != 0) {
@@ -1312,10 +1347,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       labelShortEn: this.fb.control(this.labelENG.labelShort),
       labelShortGe: this.fb.control(this.labelDEU.labelShort),
       labelShortIt: this.fb.control(this.labelITA.labelShort),
-      address1: this.fb.control(''),
-      address2: this.fb.control(''),
-      address3: this.fb.control(''),
-      address4: this.fb.control(''),
+      address1: this.fb.control(unit.address.address1),
+      address2: this.fb.control(unit.address.address2),
+      address3: this.fb.control(unit.address.address3),
+      address4: this.fb.control(unit.address.address4),
       addressLocationText: this.fb.control(''),
       addressLocationId: this.fb.control(''),
       addressCountryText: this.fb.control(''),
@@ -1343,6 +1378,17 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         },
         () => { }
       );
+    
+    // Retrieve location from cadi service
+    console.log("unit.address = " + JSON.stringify(unit.address));
+    if (unit.address != null && unit.address.pttOrder != null) {
+      this.refreshLocationSelected(unit.address.pttOrder);
+    }
+
+    // Retrieve country from cadi service
+    if (unit.address != null && unit.address.countryId != null) {
+      this.refreshCountrySelected(unit.address.countryId);
+    }
     
     // Retrieve unit hierarchy
     this.treeService.getUnitHierarchy(unit.id)
@@ -1420,6 +1466,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         let unitToIsOk: boolean = true;
         let unitFromToConsistencyIsOk: boolean = true;
         let unitApplyAtIsOk: boolean = true;
+        let unitAddressIsOk: boolean = true;
         let unitPlannedApplyAtIsOk: boolean = true;
         let parentUnitIsOk: boolean = true;
         let labelIsOk: boolean = true;
@@ -1460,7 +1507,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         // Check that no UnitPlanned already exists for this applyAt date
         if (observableUnitPlannedIsSet) {
           for (let unitPlannedLoop of dataArray[idx]) {
-            if (moment(unitPlannedLoop.applyAt).format('DD.MM.YYYY') == unit.applyAt && (this.selectedUnitPlanned.id == null || (unitPlannedLoop.id != this.selectedUnitPlanned.id))) {
+            // Reformat applyAt so that it's comparable with the one gotten from API (unitPlannedLoop)
+            let applyAt: string = Utils.getFormattedDate(unit.applyAt, this.dateValidationPattern);
+            applyAt = moment(applyAt).format('DD.MM.YYYY');
+            if (moment(unitPlannedLoop.applyAt).format('DD.MM.YYYY') == applyAt && (this.selectedUnitPlanned.id == null || (unitPlannedLoop.id != this.selectedUnitPlanned.id))) {
               unitPlannedApplyAtIsOk = false;
               this.unitForm.get('applyAt').setErrors({ "error": true });
               this.unitForm.get('applyAt').markAsDirty();
@@ -1632,6 +1682,35 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           this.alerts.push("La date d'application est dans le passé");
         }
 
+        // Check Address validity if no room is provided
+        // First build address
+        unit.address = new Address('{}');
+        unit.address.address1 = this.unitForm.get('address1').value;
+        unit.address.address2 = this.unitForm.get('address2').value;
+        unit.address.address3 = this.unitForm.get('address3').value;
+        unit.address.address4 = this.unitForm.get('address4').value;
+        unit.address.countryId = this.unitForm.get('addressCountryId').value;
+        unit.address.pttOrder = this.unitForm.get('addressLocationId').value;
+        // console.log('unit.address = ' + JSON.stringify(unit.address));
+        // Then check
+        if ((unit.roomId == null || unit.roomId == 0)
+            && (unit.address.address1 != null || unit.address.address2 != null || unit.address.address3 != null || unit.address.address4 != null)
+        ) {
+          console.log('address is set');
+          if (unit.address.countryId == null) {
+            unitAddressIsOk = false;
+            this.unitForm.get('addressCountryText').setErrors({ "error": true });
+            this.unitForm.get('addressCountryText').markAsDirty();
+            this.alerts.push("Le pays est obligatoire");
+          }
+          if (unit.address.pttOrder == null && this.unitForm.get('addressLocationText').value == '') {
+            unitAddressIsOk = false;
+            this.unitForm.get('addressLocationText').setErrors({ "error": true });
+            this.unitForm.get('addressLocationText').markAsDirty();
+            this.alerts.push("La localité est obligatoire");
+          }
+        }
+
         // If everything is ok, then save unit
         if (roomIsOk &&
             responsibleIsOk &&
@@ -1644,7 +1723,9 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             unitFromToConsistencyIsOk &&
             unitApplyAtIsOk &&
             unitPlannedApplyAtIsOk &&
-            parentUnitIsOk) {
+            parentUnitIsOk &&
+            unitAddressIsOk
+          ) {
           this.saveUnit(unit);
         }
         else {
@@ -1693,7 +1774,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       this.selectedUnit.cfNumber = unit.cfNumber;
       this.selectedUnit.cf = unit.cf;
       this.selectedUnit.isEpfl = unit.isEpfl;
-      this.selectedUnit.longSigle = unit.longSigle;
+      this.selectedUnit.sigleLong = unit.sigleLong;
       this.selectedUnit.level = unit.level;
       this.selectedUnit.position = unit.position;
       this.selectedUnit.responsibleId = unit.responsibleId;
@@ -1889,7 +1970,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       this.selectedUnitPlanned.cfNumber = this.unitForm.get('cfNumber').value;
       this.selectedUnitPlanned.cf = unit.cf;
       this.selectedUnitPlanned.isEpfl = unit.isEpfl;
-      this.selectedUnitPlanned.longSigle = unit.longSigle;
+      this.selectedUnitPlanned.sigleLong = unit.sigleLong;
       this.selectedUnitPlanned.level = unit.level;
       this.selectedUnitPlanned.parentId = unit.parentId;
       this.selectedUnitPlanned.position = unit.position;
@@ -1987,6 +2068,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
       // console.log('you submitted unit planned: ', JSON.stringify(this.selectedUnitPlanned));
 
+      // FIXME: if this.selectedUnitPlanned.id is undefined, no need to do the check request
       // test if the unit planned already exist
       this.treeService.getUnitPlannedById(this.selectedUnitPlanned.id)
         .subscribe(
@@ -2072,7 +2154,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       this.selectedUnitModel.cfNumber = this.unitForm.get('cfNumber').value;
       this.selectedUnitModel.cf = unit.cf;
       this.selectedUnitModel.isEpfl = unit.isEpfl;
-      this.selectedUnitModel.longSigle = unit.longSigle;
+      this.selectedUnitModel.sigleLong = unit.sigleLong;
       this.selectedUnitModel.level = unit.level;
       this.selectedUnitModel.position = unit.position;
       this.selectedUnitModel.responsibleId = unit.responsibleId;
@@ -2080,6 +2162,19 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       this.selectedUnitModel.zipcode = unit.zipcode;
       this.selectedUnitModel.station = unit.station;
       this.selectedUnitModel.isValid = unit.isValid;
+
+      // Handle address
+      this.selectedUnitModel.address = new Address('{}');
+      this.selectedUnitModel.address.address1 = this.unitForm.get('address1').value;
+      this.selectedUnitModel.address.address2 = this.unitForm.get('address2').value;
+      this.selectedUnitModel.address.address3 = this.unitForm.get('address3').value;
+      this.selectedUnitModel.address.address4 = this.unitForm.get('address4').value;
+      this.selectedUnitModel.address.address5 = this.selectedCountry.codeISO + '-' + this.selectedLocation.zipcode + ' ' + this.selectedLocation.labelFrench;
+      if (this.selectedLocation.zipcode == null) {
+        this.selectedUnitModel.address.address5 = this.selectedCountry.codeISO;
+      }
+      this.selectedUnitModel.address.countryId = this.unitForm.get('addressCountryId').value;
+      this.selectedUnitModel.address.pttOrder = this.unitForm.get('addressLocationId').value;
 
       // handle labels
       unit.labels = [];
@@ -2141,7 +2236,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         this.selectedUnitModel.labels.push(label);
       }
 
-      // console.log('you submitted unit: ', this.selectedUnitModel);
+       console.log('you submitted unit: ', this.selectedUnitModel);
 
       // test if the unit Model already exist
       this.treeService.getUnitModelById(this.selectedUnitModel.id)
@@ -2377,6 +2472,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   private closeModal() {
     this.showView = false;
     this.modal.hide();
+
+    if (this.mode == 'EDIT_UNIT_PLANNED') {
+      this.listUnitPlanned.emit(this.selectedUnit);
+    }
   }
 
   private onHide() {
@@ -2397,6 +2496,13 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   private setCfNumber() {
     let cfInt: number = +this.unitForm.get('cf').value;
     this.unitForm.get('cfNumber').setValue(cfInt);
+  }
+
+  /******************************************************
+  *   Set value for Address 1 when something is typed in "Sigle" field
+  ******************************************************/
+  private setAddress1() {
+    this.unitForm.get('address1').setValue(this.unitForm.get('label').value);
   }
 
   /******************************************************
@@ -2669,6 +2775,16 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         },
         () => { }
       );
+  }
+
+  /******************************************************
+  *   Get root unit sigle
+  ******************************************************/
+  private getRootSigle(hierarchy: string) {
+    if (hierarchy != null) {
+      return hierarchy.split('|')[0];
+    }
+    return null;
   }
 
   /******************************************************

@@ -22,7 +22,7 @@ export class UnitPlanned {
         unitPlanned.labelShort = unit.labelShort;
         unitPlanned.lang = unit.lang;
         unitPlanned.level = unit.level;
-        unitPlanned.longSigle = unit.longSigle;
+        unitPlanned.sigleLong = unit.sigleLong;
         unitPlanned.parentId = unit.parentId;
         unitPlanned.position = unit.position;
         unitPlanned.responsibleId = unit.responsibleId;
@@ -52,7 +52,7 @@ export class UnitPlanned {
     public cfNumber: number;
     public cf: string;
     public isEpfl: boolean;
-    public longSigle: string;
+    public sigleLong: string;
     public level: number;
     public position: number;
     public createdAt: Date;
@@ -86,7 +86,7 @@ export class UnitPlanned {
         this.cfNumber = obj['cfNumber'];
         this.cf = obj['cf'];
         this.isEpfl = obj['isEpfl'];
-        this.longSigle = obj['longSigle'];
+        this.sigleLong = obj['sigleLong'];
         this.level = obj['level'];
         this.position = obj['position'];
         this.createdAt = obj['createdAt'];

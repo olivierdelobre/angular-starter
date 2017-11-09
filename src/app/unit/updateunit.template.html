@@ -33,7 +33,7 @@
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Libellé *</label>
                   <div class="col-sm-10">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="label" id="input-label" />
+                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="label" id="input-label" (keyup)="setAddress1()" />
                     <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo)" class="form-text">
                         {{ selectedUnit.label }}
                     </p>
@@ -159,8 +159,8 @@
                     </div>
                   </div>
                 </div>
-                <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
-                  <label for="" class="col-sm-2 control-label">Bureau</label>
+                <div *ngIf="getRootSigle(selectedUnit.sigleLong) != 'ENTREPRISES' && getRootSigle(selectedUnit.sigleLong) != 'TECHNIQUE'" class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                  <label for="" class="col-sm-2 control-label">Bureau<span *ngIf="getRootSigle(selectedUnit.sigleLong) == 'EPFL'">&nbsp;*</span></label>
                   <div class="col-sm-10">
                     <div *ngIf="selectedRoom != null" class="selected-element-box">
                       {{ selectedRoom.label }}
@@ -224,7 +224,7 @@
                 <tbody>
                   <tr>
                     <td><img src="assets/img/flag_FRA.png" style="width: 40px;" alt="Français" title="Français" /></td>
-                    <td>{{ unitForm.get('sigle').value.toUpperCase() }}</td>
+                    <td>{{ unitForm.get('sigle').value ? unitForm.get('sigle').value.toUpperCase() : '' }}</td>
                     <td>{{ unitForm.get('label').value }}</td>
                     <td>{{ unitForm.get('labelShort').value }}</td>
                   </tr>
@@ -329,7 +329,7 @@
                 </div>
               </div>
             </tab>
-            <tab *ngIf="showAddressTab" heading="Adresse">
+            <tab *ngIf="showAddressTab && getRootSigle(selectedUnit.sigleLong) != 'EPFL'" heading="Adresse">
               <div class="form-horizontal" style="margin-top: 10px;">
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Adresse 1</label>
@@ -367,17 +367,11 @@
                     </p>
                   </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" *ngIf="mode != 'EDIT_UNIT_MODEL'">
                   <label for="" class="col-sm-2 control-label">Adresse 5</label>
                   <div class="col-sm-10 form-text" *ngIf="selectedUnit.address && selectedUnit.address.address5 != null">
                     {{ selectedUnit.address.address5 }}
                   </div>
-                  <!--div class="col-sm-10 form-text" *ngIf="selectedUnit.address && selectedLocation.zipcode != null">
-                    {{ selectedCountry.codeISO }}-{{ selectedLocation.zipcode }} {{ selectedLocation.labelFrench }}
-                  </div>
-                  <div class="col-sm-10 form-text" *ngIf="selectedUnit.address && selectedLocation.zipcode == null">
-                    {{ selectedCountry.codeISO }}
-                  </div-->
                 </div>
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Localité</label>

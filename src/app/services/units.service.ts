@@ -168,6 +168,7 @@ export class TreeService {
         headers.append('Accept', 'application/json');
         headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
+        // console.log('UnitPlanned = ' + JSON.stringify(unit));
         return this.http.put(TreeService.SERVICE_PREFIX + 'units/' + unit.id,
             unit,
             { headers: headers })
@@ -222,6 +223,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
+        // console.log('UnitPlanned = ' + JSON.stringify(unit));
         return this.http.post(TreeService.SERVICE_PREFIX + 'unitplanneds/',
             unit,
             { headers: headers })

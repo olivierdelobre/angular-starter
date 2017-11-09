@@ -23,7 +23,7 @@ export class Unit {
     public cf: string;
     public orderNo: number;
     public isEpfl: boolean;
-    public longSigle: string;
+    public sigleLong: string;
     public level: number;
     public position: number;
     public createdAt: Date;
@@ -63,7 +63,7 @@ export class Unit {
         this.cf = obj['cf'];
         this.orderNo = obj['orderNo'];
         this.isEpfl = obj['isEpfl'];
-        this.longSigle = obj['longSigle'];
+        this.sigleLong = obj['sigleLong'];
         this.level = obj['level'];
         this.position = obj['position'];
         this.createdAt = obj['createdAt'];
