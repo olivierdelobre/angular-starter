@@ -1,9 +1,10 @@
+<app-unauthorized *ngIf="!authService.isLoggedIn() || (!authService.hasSuperAdminRole(loggedUserInfo) && !authService.hasReadRole(loggedUserInfo))"></app-unauthorized>
 <div class="alerts-bar" id="alerts-bar-search">
   <alert *ngFor="let alert of alerts;let i = index" [type]="alert.type" dismissOnTimeout="3000" (close)="closeAlert(i)">
     {{ alert?.msg }}
   </alert>
 </div>
-<div class="search-container">
+<div class="search-container" *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasReadRole(loggedUserInfo)">
   <div style="position: relative;">
     <div *ngIf="searchResults" class="search-result-count">
       <b>Trouvés</b> : {{ searchResults.length }}

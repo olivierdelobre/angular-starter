@@ -16,7 +16,21 @@ export class AuthService {
     }
 
     public hasSuperAdminRole(loggedUserInfo: any) {
+        if (loggedUserInfo == null) {
+            return false;
+        }
         if (loggedUserInfo.scopes == 'write') {
+            return true;
+        }
+
+        return false;
+    }
+
+    public hasReadRole(loggedUserInfo: any) {
+        if (loggedUserInfo == null) {
+            return false;
+        }
+        if (loggedUserInfo.scopes == 'read') {
             return true;
         }
 

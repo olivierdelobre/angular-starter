@@ -183,9 +183,15 @@ export class TreeViewComponent implements OnInit, OnDestroy {
   ******************************************************/
   public ngOnDestroy() {
     // console.log('ngOnDestroy TreeViewComponent');
-    this.loggedUserInfoSubscription.unsubscribe();
-    this.treeFilterSubscription.unsubscribe();
-    this.refreshParentSubscription.unsubscribe();
+    if (this.loggedUserInfoSubscription != null) {
+      this.loggedUserInfoSubscription.unsubscribe();
+    }
+    if (this.treeFilterSubscription != null) {
+      this.treeFilterSubscription.unsubscribe();
+    }
+    if (this.refreshParentSubscription != null) {
+      this.refreshParentSubscription.unsubscribe();
+    }
   }
 
   /******************************************************
@@ -197,7 +203,7 @@ export class TreeViewComponent implements OnInit, OnDestroy {
     // console.log('ngOnInit parentIdToRefresh = ' + this.parentIdToRefresh);
     this.retrieveUnits();
 
-    this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "read" };
+    this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "" };
     this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe((info) => this.loggedUserInfo = info);
     this.treeFilter = "";
     this.treeFilterSubscription = this.sharedAppStateService.treeFilter.subscribe(filter => {

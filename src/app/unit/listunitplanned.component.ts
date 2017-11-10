@@ -107,14 +107,16 @@ export class ListUnitPlannedComponent implements OnInit, OnDestroy {
   ******************************************************/
   public ngOnDestroy() {
     // console.log('ngOnDestroy `UpdateUnit` component');
-    this.loggedUserInfoSubscription.unsubscribe();
+    if (this.loggedUserInfoSubscription != null) {
+      this.loggedUserInfoSubscription.unsubscribe();
+    }
   }
 
   /******************************************************
   *   on init
   ******************************************************/
   public ngOnInit() {
-    this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "read" };
+    this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "" };
     this.loggedUserInfoSubscription =
     this.sharedAppStateService.loggedUserInfo.subscribe((info) => this.loggedUserInfo = info);
 

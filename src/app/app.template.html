@@ -36,17 +36,18 @@
                             <li *ngIf="!authService.isLoggedIn()">
                                 <a href="{{oauth2ProviderUrl}}auth?client_id={{oauth2ClientId}}&response_type=code&scope=Units,Tequila.profile&redirect_uri={{oauth2TokenProxyUrl}}">Se connecter</a>
                             </li>
-                            <li class="dropdown" *ngIf="authService.isLoggedIn()">
+                            <li *ngIf="authService.isLoggedIn()">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="padding-top: 13px; padding-bottom: 13px;">
                                     <img src="assets/icon/ic_person_white_24dp_1x.png"> 
-                                    <span *ngIf="loggedUserInfo.uniqueid != 0">{{ loggedUserInfo.username }} ({{ loggedUserInfo.uniqueid }})</span> 
-                                    <span class="caret"></span>
+                                    <span *ngIf="loggedUserInfo.uniqueid != 0">{{ loggedUserInfo.username }} ({{ loggedUserInfo.uniqueid }})</span>
                                 </a>
-                                <ul class="dropdown-menu">
-                                    <li><a [routerLink]=" ['./logout'] ">Se déconnecter</a></li>
-                                </ul>
                             </li>
-                            <li [routerLinkActive]="['active']">
+                            <li *ngIf="authService.isLoggedIn()" title="Se déconnecter">
+                                <a [routerLink]=" ['./logout'] ">
+                                    <span class="glyphicon glyphicon-log-out" style="font-size: 120%;"></span>
+                                </a>
+                            </li>
+                            <li [routerLinkActive]="['active']" title="Aide">
                                 <a [routerLink]=" ['./aide'] " style="padding-top: 13px; padding-bottom: 13px;">
                                     <img src="assets/icon/ic_help_white_24dp_1x.png"> 
                                 </a>
@@ -64,7 +65,7 @@
     </div>
     <footer class="footer-container">
         <div class="footer-right-container">
-            © EPFL - idevelop, version 1.0.6 (Octobre 2017)
+            © EPFL - idevelop, version 1.0.8 (Novembre 2017)
         </div>
     </footer>
 </div>

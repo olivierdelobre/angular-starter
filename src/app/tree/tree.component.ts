@@ -365,8 +365,12 @@ export class TreeComponent implements OnInit, OnDestroy {
   ******************************************************/
   public ngOnDestroy() {
     // console.log('ngOnDestroy `Tree` component');
-    this.loggedUserInfoSubscription.unsubscribe();
-    this.treeFilterSubscription.unsubscribe();
+    if (this.loggedUserInfoSubscription != null) {
+      this.loggedUserInfoSubscription.unsubscribe();
+    }
+    if (this.treeFilterSubscription != null) {
+      this.treeFilterSubscription.unsubscribe();
+    }
   }
 
   /******************************************************
@@ -374,7 +378,6 @@ export class TreeComponent implements OnInit, OnDestroy {
   ******************************************************/
   public ngOnInit() {
     // console.log('ngOnInit `Tree` component');
-
     this.stateDate = moment().format('YYYYMMDD');
 
     this.root = null;
@@ -393,11 +396,15 @@ export class TreeComponent implements OnInit, OnDestroy {
 
     // console.log('auth_token = ' + localStorage.getItem('auth_token'));
 
-    this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "read" };
+    this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "" };
     this.loggedUserInfoSubscription =
       this.sharedAppStateService.loggedUserInfo.subscribe((info) => this.loggedUserInfo = info);
-
+    
+    this.stateDateForm = this.fb.group({
+      state_date: this.fb.control(moment().format('DD.MM.YYYY'), [Validators.required, Validators.pattern(this.dateValidationPattern)])
+    });
     this.treeFilter = "";
+
     this.treeFilterSubscription = this.sharedAppStateService.treeFilter.subscribe(
       filter => {
         this.treeFilter = filter;
@@ -422,9 +429,5 @@ export class TreeComponent implements OnInit, OnDestroy {
         }
       }
     );
-
-    this.stateDateForm = this.fb.group({
-      state_date: this.fb.control(moment().format('DD.MM.YYYY'), [Validators.required, Validators.pattern(this.dateValidationPattern)])
-    });
   }
 }

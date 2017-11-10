@@ -31,6 +31,7 @@ import { TreeViewComponent } from './tree';
 import { HierarchyComponent } from './unit';
 import { HelpComponent } from './help';
 import { NoContentComponent } from './no-content';
+import { UnauthorizedComponent } from './common';
 
 import {AuthGuard} from './auth/authguard';
 import {AuthService} from './services/auth.service';
@@ -80,6 +81,7 @@ type StoreType = {
     HierarchyComponent,
     HelpComponent,
     NoContentComponent,
+    UnauthorizedComponent,
     AttributeFilterPipe, CapitalizePipe, ContainsPipe,
     SigleInputDirective, NumberInputDirective, UnitLabelInputDirective, DateInputDirective
   ],

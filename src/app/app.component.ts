@@ -41,7 +41,7 @@ export class App {
 
     this.treeFilter = "";
 
-    this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "read" };
+    this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "" };
     this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe(info => this.loggedUserInfo = info);
     
     if (localStorage.getItem('auth_token') != null) {
@@ -60,7 +60,9 @@ export class App {
 
 
   ngOnDestroy() {
-    this.loggedUserInfoSubscription.unsubscribe();
+    if (this.loggedUserInfoSubscription != null) {
+      this.loggedUserInfoSubscription.unsubscribe();
+    }
   }
 
 }

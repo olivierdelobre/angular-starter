@@ -1,50 +1,53 @@
+<app-unauthorized *ngIf="!authService.isLoggedIn() || (!authService.hasSuperAdminRole(loggedUserInfo) && !authService.hasReadRole(loggedUserInfo))"></app-unauthorized>
 <div class="alerts-bar">
   <alert *ngFor="let alert of alerts;let i = index" [type]="alert.type" dismissOnTimeout="3000" (close)="closeAlert(i)">
     {{ alert?.msg }}
   </alert>
 </div>
-<div class="form-inline tree-form-container">
-    <div class="col-md-3 checkbox">
-        <label>
-            <input type="checkbox" [(ngModel)]="onlyPermanent" (ngModelChange)="filterHasChanged()" id="filter-only-permanent" /> Seulement les enreg. permanents
-        </label>
+<div *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasReadRole(loggedUserInfo)">
+    <div class="form-inline tree-form-container">
+        <div class="col-md-3 checkbox">
+            <label>
+                <input type="checkbox" [(ngModel)]="onlyPermanent" (ngModelChange)="filterHasChanged()" id="filter-only-permanent" /> Seulement les enreg. permanents
+            </label>
+        </div>
+        <div class="col-md-3 checkbox">
+            <label>
+                <input type="checkbox" [(ngModel)]="onlyValid" (ngModelChange)="filterHasChanged()" /> Seulement les unités valides
+            </label>
+        </div>
+        <div class="col-md-2 checkbox">
+            Etat au <span class="state-date" (click)="changeStateDateModal.show()">{{ stateDateDate | date:"dd.MM.yyyy" }}</span>
+        </div>
+        <div class="col-md-4" style="text-align: right; padding-right: 0;">
+            <form class="form-inline">
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Sigle, label, CF..." [(ngModel)]="treeFilter" [ngModelOptions]="{standalone: true}" id="input-filter">
+                </div>
+                <button type="submit" class="btn btn-default" (click)="filterTree()" id="btn-filter">Filtrer</button>
+            </form>
+        </div>
     </div>
-    <div class="col-md-3 checkbox">
-        <label>
-            <input type="checkbox" [(ngModel)]="onlyValid" (ngModelChange)="filterHasChanged()" /> Seulement les unités valides
-        </label>
+    <div class="create-root-container" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)">
+    <span class="glyphicon glyphicon-plus create-root-unit" title="Ajouter une unité racine" (click)="createChildUnit()" id="create-root-unit-button"></span>
     </div>
-    <div class="col-md-2 checkbox">
-        Etat au <span class="state-date" (click)="changeStateDateModal.show()">{{ stateDateDate | date:"dd.MM.yyyy" }}</span>
+    <div class="tree-container" style="padding: 0;">
+        <app-tree-view #rootTreeView [root]="root"
+                [expandedUnits]="expandedUnits"
+                [onlyPermanent]="onlyPermanent"
+                [onlyValid]="onlyValid"
+                [stateDate]="stateDate"
+                (unitSelected)="selectUnit($event)"
+                (unitToDelete)="deleteUnit($event)"
+                (unitToCreateChild)="createChildUnit($event)"
+                (unitToClone)="cloneUnit($event)"
+                (unitOpenedOrClosed)="unitOpenedOrClosed($event)"
+                (createOrUpdateUnitModelTriggered)="createOrUpdateUnitModel($event)"
+                (createOrUpdateUnitPlannedTriggered)="listUnitPlanned($event)"
+                (errorTriggered)="errorTriggered($event)"
+                >
+        </app-tree-view>
     </div>
-    <div class="col-md-4" style="text-align: right; padding-right: 0;">
-        <form class="form-inline">
-            <div class="form-group">
-                <input type="text" class="form-control" placeholder="Sigle, label, CF..." [(ngModel)]="treeFilter" [ngModelOptions]="{standalone: true}" id="input-filter">
-            </div>
-            <button type="submit" class="btn btn-default" (click)="filterTree()" id="btn-filter">Filtrer</button>
-        </form>
-    </div>
-</div>
-<div class="create-root-container" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)">
-  <span class="glyphicon glyphicon-plus create-root-unit" title="Ajouter une unité racine" (click)="createChildUnit()" id="create-root-unit-button"></span>
-</div>
-<div class="tree-container" style="padding: 0;">
-    <app-tree-view #rootTreeView [root]="root"
-            [expandedUnits]="expandedUnits"
-            [onlyPermanent]="onlyPermanent"
-            [onlyValid]="onlyValid"
-            [stateDate]="stateDate"
-            (unitSelected)="selectUnit($event)"
-            (unitToDelete)="deleteUnit($event)"
-            (unitToCreateChild)="createChildUnit($event)"
-            (unitToClone)="cloneUnit($event)"
-            (unitOpenedOrClosed)="unitOpenedOrClosed($event)"
-            (createOrUpdateUnitModelTriggered)="createOrUpdateUnitModel($event)"
-            (createOrUpdateUnitPlannedTriggered)="listUnitPlanned($event)"
-            (errorTriggered)="errorTriggered($event)"
-            >
-    </app-tree-view>
 </div>
 
 <app-updateunit #myUpdateUnitComponent

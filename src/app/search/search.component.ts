@@ -481,7 +481,9 @@ export class SearchComponent implements OnInit, OnDestroy {
   ******************************************************/
   public ngOnDestroy() {
     // console.log('ngOnDestroy `Tree` component');
-    this.loggedUserInfoSubscription.unsubscribe();
+    if (this.loggedUserInfoSubscription != null) {
+      this.loggedUserInfoSubscription.unsubscribe();
+    }
   }
 
   /******************************************************
@@ -490,7 +492,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   public ngOnInit() {
     // console.log('ngOnInit `Tree` component');
     // console.log('auth_token = ' + localStorage.getItem('auth_token'));
-    this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "read" };
+    this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "" };
     this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe((info) => this.loggedUserInfo = info);
 
     this.selectedUnit = new Unit({});
@@ -499,6 +501,10 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.labelENG = new Label("{}");
     this.labelGER = new Label("{}");
     this.labelITA = new Label("{}");
+
+    this.unitTypesList = [];
+    this.languagesList = [];
+    this.attributesList = [];
 
     this.searchForm = this.fb.group({
       sigle: this.fb.control(''),
@@ -517,6 +523,14 @@ export class SearchComponent implements OnInit, OnDestroy {
       only_valid: this.fb.control(''),
       attribute_criterias: this.fb.array([])
     });
+
+    console.log('loggedUserInfo = ' + JSON.stringify(this.loggedUserInfo));
+    console.log('authService.hasSuperAdminRole = ' + this.authService.hasSuperAdminRole(this.loggedUserInfo));
+    console.log('authService.hasReadRole = ' + this.authService.hasReadRole(this.loggedUserInfo));
+
+    if (!this.authService.isLoggedIn()) {
+      return;
+    }
 
     this.treeService.getUnitTypes()
       .subscribe(
