@@ -9,7 +9,7 @@ function get_jarfile() {
 	cp -r $JAR_PATH ./e2e/$1/app.jar
 }
 
-get_jarfile units-api 1.0.4-SNAPSHOT
+get_jarfile units-api 1.0.7-SNAPSHOT
 get_jarfile cadi-api 1.0.0-SNAPSHOT
 get_jarfile sciper-api 1.0.2-SNAPSHOT
 get_jarfile archibus-api 1.0.0-SNAPSHOT

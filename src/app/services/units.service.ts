@@ -21,10 +21,7 @@ import * as FileSaver from 'file-saver';
 export class TreeService {
 
      private static readonly SERVICE_PREFIX = process.env.UNITS_API_URL;
-    // private static readonly SERVICE_PREFIX = 'http://idevelopsrv1.epfl.ch:6081/idm/v1/';
     // private static readonly SERVICE_PREFIX = 'http://localhost:8080/units-api/v1/';
-    // private static readonly SERVICE_PREFIX = 'http://idevelopsrv1.epfl.ch:8081/units-api/v1/';
-    // private static readonly SERVICE_PREFIX = 'http://uatesb5.epfl.ch:9092/units-api/v1/';
 
     constructor(private http: Http) { }
 
@@ -35,6 +32,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units?parentId=' + parentId;
@@ -68,6 +66,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/' + id + '?withlabels&withattributes';
@@ -85,6 +84,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitplanneds/' + id + '?withlabels&withattributes';
@@ -102,6 +102,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/' + unitId + '/unitplanneds?withlabels&withattributes';
@@ -119,6 +120,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitsmodel/' + id + '?withlabels&withattributes';
@@ -136,6 +138,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/' + id + '/changelogs';
@@ -151,6 +154,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/' + id + '/hierarchy';
@@ -327,6 +331,7 @@ export class TreeService {
     public searchUnitsGeneric(query: string, level: number) {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/searchgeneric?do=1&query=' + query + "&level=" + level;
@@ -355,6 +360,7 @@ export class TreeService {
         
         let headers = new Headers();
         headers.append('Accept', 'application/json');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/search?do=1';
@@ -428,6 +434,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitssearchtrees?do=1';
@@ -506,6 +513,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitstypes';
@@ -521,6 +529,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitslangs';
@@ -536,6 +545,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitsattributes?rootUnitSigle=' + rootUnitSigle;
@@ -553,6 +563,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitsattributeenums/' + code;

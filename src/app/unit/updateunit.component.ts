@@ -1693,17 +1693,21 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         unit.address.pttOrder = this.unitForm.get('addressLocationId').value;
         // console.log('unit.address = ' + JSON.stringify(unit.address));
         // Then check
-        if ((unit.roomId == null || unit.roomId == 0)
-            && (unit.address.address1 != null || unit.address.address2 != null || unit.address.address3 != null || unit.address.address4 != null)
+        console.log('root = ' + this.getRootSigle(this.selectedUnit.sigleLong));
+        console.log('address = ' + JSON.stringify(unit.address));
+        if ((unit.roomId == null || unit.roomId == 0) &&
+          (this.getRootSigle(this.selectedUnit.sigleLong) == 'ENTREPRISES' ||
+            ((this.getRootSigle(this.selectedUnit.sigleLong) == 'TECHNIQUE' || this.getRootSigle(this.selectedUnit.sigleLong) == 'EHE')
+              && ((unit.address.address1 != null && unit.address.address1 != '') || (unit.address.address2 != null && unit.address.address2 != '') || (unit.address.address3 != null && unit.address.address3 != '') || (unit.address.address4 != null && unit.address.address4 != '')))
+          )
         ) {
-          console.log('address is set');
-          if (unit.address.countryId == null) {
+          if (unit.address.countryId == null || unit.address.countryId == '') {
             unitAddressIsOk = false;
             this.unitForm.get('addressCountryText').setErrors({ "error": true });
             this.unitForm.get('addressCountryText').markAsDirty();
             this.alerts.push("Le pays est obligatoire");
           }
-          if (unit.address.pttOrder == null && this.unitForm.get('addressLocationText').value == '') {
+          if ((unit.address.pttOrder == null || unit.address.pttOrder == '') && this.unitForm.get('addressLocationText').value == '') {
             unitAddressIsOk = false;
             this.unitForm.get('addressLocationText').setErrors({ "error": true });
             this.unitForm.get('addressLocationText').markAsDirty();
@@ -2069,70 +2073,60 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       // console.log('you submitted unit planned: ', JSON.stringify(this.selectedUnitPlanned));
 
       // FIXME: if this.selectedUnitPlanned.id is undefined, no need to do the check request
-      // test if the unit planned already exist
-      this.treeService.getUnitPlannedById(this.selectedUnitPlanned.id)
-        .subscribe(
-          // if exist (no error), update it
-          (res) => {
-            this.treeService.updateUnitPlanned(this.selectedUnitPlanned)
-              .subscribe(
-                (res) => res,
-                (error) => {
-                  console.log("error updating unit");
-                  this.saveIsOngoing = false;
-                  this.closeModal();
-                  this.messageTriggered
-                    .emit({ message: 'Erreur lors de la modification de l\'unité planifiée', level: 'danger' });
-                },
-                () => {
-                  // console.log("updating unit finished");
-                  this.saveIsOngoing = false;
+      if (this.selectedUnitPlanned.id != null) {
+        this.treeService.updateUnitPlanned(this.selectedUnitPlanned)
+          .subscribe(
+            (res) => res,
+            (error) => {
+              console.log("error updating unit");
+              this.saveIsOngoing = false;
+              this.closeModal();
+              this.messageTriggered
+                .emit({ message: 'Erreur lors de la modification de l\'unité planifiée', level: 'danger' });
+            },
+            () => {
+              // console.log("updating unit finished");
+              this.saveIsOngoing = false;
 
-                  let mode = "SAVE";
-                  if (this.closeModalFlag) {
-                    mode = "SAVE_AND_CLOSE";
-                    this.closeModal();
-                    this.listUnitPlanned.emit(this.selectedUnit);
-                  }
-                  
-                  this.unitPlannedDone.emit({mode: mode, unitPlanned: this.selectedUnitPlanned});
-                  this.messageTriggered.emit({ message:'Unité planifiée modifiée avec succès', level: 'success' });
-                }
-              );
-          },
-          // if the unit planned doesn't exist (error 404), then create it
-          (error) => {
-            // console.log("creating unit planned for " + JSON.stringify(this.selectedUnitPlanned));
-            this.treeService.createUnitPlanned(this.selectedUnitPlanned)
-              .subscribe(
-                (res) => res,
-                (error) => {
-                  console.log("error creating unit planned");
-                  this.saveIsOngoing = false;
-                  this.closeModal();
-                  this.messageTriggered
-                    .emit({ message: 'Erreur lors de la création de l\'unité planifiée', level: 'danger' });
-                },
-                () => {
-                  // console.log("creating unit planned finished");
-                  this.saveIsOngoing = false;                  
-                  let mode = "SAVE";
-                  if (this.closeModalFlag) {
-                    mode = "SAVE_AND_CLOSE";
-                    this.closeModal();
-                    this.listUnitPlanned.emit(this.selectedUnit);
-                  }
+              let mode = "SAVE";
+              if (this.closeModalFlag) {
+                mode = "SAVE_AND_CLOSE";
+                this.closeModal();
+                this.listUnitPlanned.emit(this.selectedUnit);
+              }
+              
+              this.unitPlannedDone.emit({mode: mode, unitPlanned: this.selectedUnitPlanned});
+              this.messageTriggered.emit({ message:'Unité planifiée modifiée avec succès', level: 'success' });
+            }
+          );
+      }
+      else {
+        this.treeService.createUnitPlanned(this.selectedUnitPlanned)
+          .subscribe(
+            (res) => res,
+            (error) => {
+              console.log("error creating unit planned");
+              this.saveIsOngoing = false;
+              this.closeModal();
+              this.messageTriggered
+                .emit({ message: 'Erreur lors de la création de l\'unité planifiée', level: 'danger' });
+            },
+            () => {
+              // console.log("creating unit planned finished");
+              this.saveIsOngoing = false;                  
+              let mode = "SAVE";
+              if (this.closeModalFlag) {
+                mode = "SAVE_AND_CLOSE";
+                this.closeModal();
+                this.listUnitPlanned.emit(this.selectedUnit);
+              }
 
-                  this.unitPlannedDone.emit({mode: mode, unitPlanned: this.selectedUnitPlanned});
-                  this.messageTriggered
-                    .emit({ message: 'Unité planifiée créée avec succès', level: 'success' });
-                }
-              );
-          },
-          () => {
-            
-          }
-        );
+              this.unitPlannedDone.emit({mode: mode, unitPlanned: this.selectedUnitPlanned});
+              this.messageTriggered
+                .emit({ message: 'Unité planifiée créée avec succès', level: 'success' });
+            }
+          );
+      }
     }
     /************************************************************************************************
      * UnitModel

@@ -20,10 +20,10 @@ const HotModuleReplacementPlugin = require('webpack/lib/HotModuleReplacementPlug
  * Webpack Constants
  */
 const ENV = process.env.ENV = process.env.NODE_ENV = 'development';
-const UNITS_API_URL = process.env.UNITS_API_URL = 'https://infotest.epfl.ch/units-api/v1/';
-const SCIPER_API_URL = process.env.SCIPER_API_URL = 'https://infotest.epfl.ch/sciper-api/v1/';
-const CADI_API_URL = process.env.CADI_API_URL = 'https://infotest.epfl.ch/cadi-api/v1/';
-const ARCHIBUS_API_URL = process.env.ARCHIBUS_API_URL = 'https://infotest.epfl.ch/archibus-api/v1/';
+const UNITS_API_URL = process.env.UNITS_API_URL = 'https://api-test.epfl.ch/units/v1/';
+const SCIPER_API_URL = process.env.SCIPER_API_URL = 'https://api-test.epfl.ch/sciper/v1/';
+const CADI_API_URL = process.env.CADI_API_URL = 'https://api-test.epfl.ch/cadi/v1/';
+const ARCHIBUS_API_URL = process.env.ARCHIBUS_API_URL = 'https://api-test.epfl.ch/archibus/v1/';
 const OAUTH2_PROVIDER_URL = process.env.OAUTH2_PROVIDER_URL = 'https://test-tequila.epfl.ch/OAUTH2IdP/';
 const OAUTH2_TOKEN_PROXY_URL = process.env.OAUTH2_TOKEN_PROXY_URL = 'https://infotest.epfl.ch/ng-units-oauth2-proxy/v1/oauth2/getTokens';
 const OAUTH2_CLIENT_ID = process.env.OAUTH2_CLIENT_ID = 'd518e10ce2bfdaee8c5484ba@epfl.ch';
