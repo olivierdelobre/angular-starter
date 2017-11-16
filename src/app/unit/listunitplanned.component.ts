@@ -74,7 +74,7 @@ export class ListUnitPlannedComponent implements OnInit, OnDestroy {
   *   create a new unit planned
   ******************************************************/
   private createUnitPlanned() {
-    console.log("create new unit planned");
+    // console.log("create new unit planned");
     this.showView = false;
     this.mainModal.hide();
     this.createUnitPlannedTriggered.emit(this.selectedUnit);

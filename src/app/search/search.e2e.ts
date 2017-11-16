@@ -4,10 +4,12 @@ import 'tslib';
 describe('search', () => {
 
   beforeEach(async () => {
-    await browser.get('/#/recherche');
+    await browser.get('/#/oauth2/Units.mytoken');
   });
 
   it('should search',  async () => {
+    await browser.get('/#/recherche');
+    
     // Empty search
     await element(by.id('search-button')).click();
     await browser.sleep(1000).then(function(){ });

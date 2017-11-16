@@ -653,10 +653,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     if (this.unitForm.get('parentUnitSearchText').value.length == 0) {
       return;
     }
-    if (this.unitForm.get('parentUnitSearchText').value.length < 3) {
+    if (this.unitForm.get('parentUnitSearchText').value.length < 2) {
       this.unitForm.get('parentUnitSearchText').setErrors({ "error": true });
       this.unitForm.get('parentUnitSearchText').markAsDirty();
-      this.searchParentUnitErrorMessage = 'Vous devez saisir au moins 3 caractères';
+      this.searchParentUnitErrorMessage = 'Vous devez saisir au moins 2 caractères';
       return;
     }
 
@@ -884,31 +884,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     }
 
     // Retrieve unit hierarchy
-    this.treeService.getUnitHierarchy(unit.id)
-      .subscribe(
-        (hierarchy) => {
-          this.unitHierarchy = hierarchy;
-        },
-        (error) => {
-          console.log('Unable to retrieve unit hierarchy');
-        },
-        () => {
-          // Retrieve UnitAttributes and pass the root of it, to determine
-          // if it's in the ENTREPRISES branch or not
-          let rootUnitSigle: string = '';
-          if (this.unitHierarchy != null && this.unitHierarchy.sigle != '[racine]') {
-            rootUnitSigle = this.unitHierarchy.sigle;
-          }
-          this.treeService.getAttributes(rootUnitSigle)
-            .subscribe(
-              (list) => {
-                this.attributesList = list;
-              },
-              (error) => { console.log('error getting unit attributes'); },
-              () => { }
-            );
-        }
-      );
+    this.refreshHierarchy(unit.id);
 
     this.selectedUnitAttributes = unit.attributes;
     this.generateUnitAddress(this.selectedUnit);
@@ -1121,32 +1097,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     }
 
     // Retrieve unit hierarchy
-    this.treeService.getUnitHierarchy(this.parentUnit.id)
-      .subscribe(
-        (hierarchy) => {
-          this.unitHierarchy = hierarchy;
-        },
-        (error) => {
-          console.log('Unable to retrieve unit hierarchy');
-        },
-        () => {
-          // Retrieve UnitAttributes and pass the root of it, to determine
-          // if it's in the ENTREPRISES branch or not
-          let rootUnitSigle: string = '';
-          // console.log('this.unitHierarchy = ' + JSON.stringify(this.unitHierarchy));
-          if (this.unitHierarchy != null && this.unitHierarchy.sigle != '[racine]') {
-            rootUnitSigle = this.unitHierarchy.sigle;
-          }
-          this.treeService.getAttributes(rootUnitSigle)
-            .subscribe(
-              (list) => {
-                this.attributesList = list;
-              },
-              (error) => { console.log('error getting unit attributes'); },
-              () => { }
-            );
-        }
-      );
+    this.refreshHierarchy(this.parentUnit.id);
 
     if (unitModel != null) {
       this.generateUnitAddress(unitModel);
@@ -1255,32 +1206,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     }
 
     // Retrieve unit hierarchy
-    this.treeService.getUnitHierarchy(unit.unitId)
-      .subscribe(
-        (hierarchy) => {
-          this.unitHierarchy = hierarchy;
-        },
-        (error) => {
-          console.log('Unable to retrieve unit hierarchy');
-        },
-        () => {
-          // Retrieve UnitAttributes and pass the root of it, to determine
-          // if it's in the ENTREPRISES branch or not
-          let rootUnitSigle: string = '';
-          // console.log('this.unitHierarchy = ' + JSON.stringify(this.unitHierarchy));
-          if (this.unitHierarchy != null && this.unitHierarchy.sigle != '[racine]') {
-            rootUnitSigle = this.unitHierarchy.sigle;
-          }
-          this.treeService.getAttributes(rootUnitSigle)
-            .subscribe(
-              (list) => {
-                this.attributesList = list;
-              },
-              (error) => { console.log('error getting unit attributes'); },
-              () => { }
-            );
-        }
-      );
+    this.refreshHierarchy(unit.unitId);
     
     // Retrieve parent unit
     if (unit.parentId != null && unit.parentId != 0) {
@@ -1380,7 +1306,6 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       );
     
     // Retrieve location from cadi service
-    console.log("unit.address = " + JSON.stringify(unit.address));
     if (unit.address != null && unit.address.pttOrder != null) {
       this.refreshLocationSelected(unit.address.pttOrder);
     }
@@ -1391,31 +1316,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     }
     
     // Retrieve unit hierarchy
-    this.treeService.getUnitHierarchy(unit.id)
-      .subscribe(
-        (hierarchy) => {
-          this.unitHierarchy = hierarchy;
-        },
-        (error) => {
-          console.log('Unable to retrieve unit hierarchy');
-        },
-        () => {
-          // Retrieve UnitAttributes and pass the root of it, to determine
-          // if it's in the ENTREPRISES branch or not
-          let rootUnitSigle: string = '';
-          if (this.unitHierarchy != null && this.unitHierarchy.sigle != '[racine]') {
-            rootUnitSigle = this.unitHierarchy.sigle;
-          }
-          this.treeService.getAttributes(rootUnitSigle)
-            .subscribe(
-              (list) => {
-                this.attributesList = list;
-              },
-              (error) => { console.log('error getting unit attributes'); },
-              () => { }
-            );
-        }
-      );
+    this.refreshHierarchy(unit.id);
 
     // retrieve attributes from unit service
     this.selectedUnitAttributes = unit.attributes;
@@ -1574,16 +1475,6 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
               cfIsOk = false;
             }
-            /*
-            // If updating Unit
-            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != this.selectedUnit.id)) {
-              cfIsOk = false;
-            }
-            // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
-              cfIsOk = false;
-            }
-            */
             if (!cfIsOk) {
               this.unitForm.get('cf').setErrors({ "error": true });
               this.unitForm.get('cf').markAsDirty();
@@ -1691,27 +1582,27 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         unit.address.address4 = this.unitForm.get('address4').value;
         unit.address.countryId = this.unitForm.get('addressCountryId').value;
         unit.address.pttOrder = this.unitForm.get('addressLocationId').value;
-        // console.log('unit.address = ' + JSON.stringify(unit.address));
-        // Then check
-        console.log('root = ' + this.getRootSigle(this.selectedUnit.sigleLong));
-        console.log('address = ' + JSON.stringify(unit.address));
-        if ((unit.roomId == null || unit.roomId == 0) &&
-          (this.getRootSigle(this.selectedUnit.sigleLong) == 'ENTREPRISES' ||
-            ((this.getRootSigle(this.selectedUnit.sigleLong) == 'TECHNIQUE' || this.getRootSigle(this.selectedUnit.sigleLong) == 'EHE')
-              && ((unit.address.address1 != null && unit.address.address1 != '') || (unit.address.address2 != null && unit.address.address2 != '') || (unit.address.address3 != null && unit.address.address3 != '') || (unit.address.address4 != null && unit.address.address4 != '')))
-          )
-        ) {
-          if (unit.address.countryId == null || unit.address.countryId == '') {
-            unitAddressIsOk = false;
-            this.unitForm.get('addressCountryText').setErrors({ "error": true });
-            this.unitForm.get('addressCountryText').markAsDirty();
-            this.alerts.push("Le pays est obligatoire");
-          }
-          if ((unit.address.pttOrder == null || unit.address.pttOrder == '') && this.unitForm.get('addressLocationText').value == '') {
-            unitAddressIsOk = false;
-            this.unitForm.get('addressLocationText').setErrors({ "error": true });
-            this.unitForm.get('addressLocationText').markAsDirty();
-            this.alerts.push("La localité est obligatoire");
+        // Don't check for Unit Model where nothing is mandatory
+        if (this.mode != 'EDIT_UNIT_MODEL') {
+          // Then check
+          if ((unit.roomId == null || unit.roomId == 0) &&
+            (this.getRootSigle(this.selectedUnit.sigleLong) == 'ENTREPRISES' ||
+              ((this.getRootSigle(this.selectedUnit.sigleLong) == 'TECHNIQUE' || this.getRootSigle(this.selectedUnit.sigleLong) == 'EHE')
+                && ((unit.address.address1 != null && unit.address.address1 != '') || (unit.address.address2 != null && unit.address.address2 != '') || (unit.address.address3 != null && unit.address.address3 != '') || (unit.address.address4 != null && unit.address.address4 != '')))
+            )
+          ) {
+            if (unit.address.countryId == null || unit.address.countryId == '') {
+              unitAddressIsOk = false;
+              this.unitForm.get('addressCountryText').setErrors({ "error": true });
+              this.unitForm.get('addressCountryText').markAsDirty();
+              this.alerts.push("Le pays est obligatoire");
+            }
+            if ((unit.address.pttOrder == null || unit.address.pttOrder == '') && this.unitForm.get('addressLocationText').value == '') {
+              unitAddressIsOk = false;
+              this.unitForm.get('addressLocationText').setErrors({ "error": true });
+              this.unitForm.get('addressLocationText').markAsDirty();
+              this.alerts.push("La localité est obligatoire");
+            }
           }
         }
 
@@ -2103,7 +1994,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       else {
         this.treeService.createUnitPlanned(this.selectedUnitPlanned)
           .subscribe(
-            (res) => res,
+            (res) => {
+              let location = res.headers.get('Location');
+              this.selectedUnitPlanned.id = +location.substring(location.lastIndexOf('/') + 1);
+            },
             (error) => {
               console.log("error creating unit planned");
               this.saveIsOngoing = false;
@@ -2156,6 +2050,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       this.selectedUnitModel.zipcode = unit.zipcode;
       this.selectedUnitModel.station = unit.station;
       this.selectedUnitModel.isValid = unit.isValid;
+      this.selectedUnitModel.attributes = this.selectedUnitAttributes;
 
       // Handle address
       this.selectedUnitModel.address = new Address('{}');
@@ -2549,24 +2444,6 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         (error) => console.log('error retrieving unit address'),
         () => { }
       );
-    /*
-    this.selectedUnitAddress = '';
-    if (unit.address.address1 != null) {
-      this.selectedUnitAddress += unit.address.address1 + '<br />';
-    }
-    if (unit.address.address2 != null) {
-      this.selectedUnitAddress += unit.address.address2 + '<br />';
-    }
-    if (unit.address.address3 != null) {
-      this.selectedUnitAddress += unit.address.address3 + '<br />';
-    }
-    if (unit.address.address4 != null) {
-      this.selectedUnitAddress += unit.address.address4 + '<br />';
-    }
-    if (unit.address.address5 != null) {
-      this.selectedUnitAddress += unit.address.address5 + '<br />';
-    }
-    */
   }
 
   /******************************************************
@@ -2768,6 +2645,37 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           this.unitForm.get('parentId').setValue('');
         },
         () => { }
+      );
+  }
+
+  /******************************************************
+  *   Refresh hierarchy
+  ******************************************************/
+  private refreshHierarchy(unitId: number) {
+    this.treeService.getUnitHierarchy(unitId)
+      .subscribe(
+        (hierarchy) => {
+          this.unitHierarchy = hierarchy;
+        },
+        (error) => {
+          console.log('Unable to retrieve unit hierarchy');
+        },
+        () => {
+          // Retrieve UnitAttributes and pass the root of it, to determine
+          // if it's in the ENTREPRISES branch or not
+          let rootUnitSigle: string = '';
+          if (this.unitHierarchy != null && this.unitHierarchy.sigle != '[racine]') {
+            rootUnitSigle = this.unitHierarchy.sigle;
+          }
+          this.treeService.getAttributes(rootUnitSigle)
+            .subscribe(
+              (list) => {
+                this.attributesList = list;
+              },
+              (error) => { console.log('error getting unit attributes'); },
+              () => { }
+            );
+        }
       );
   }
 
