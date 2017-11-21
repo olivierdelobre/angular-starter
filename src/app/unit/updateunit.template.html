@@ -159,7 +159,7 @@
                     </div>
                   </div>
                 </div>
-                <div *ngIf="getRootSigle(selectedUnit.sigleLong) != 'ENTREPRISES' && (selectedUnitModel != null && getRootSigle(selectedUnitModel.sigleLong) != 'ENTREPRISES') && getRootSigle(selectedUnit.sigleLong) != 'TECHNIQUE' && (selectedUnitModel != null && getRootSigle(selectedUnitModel.sigleLong) != 'TECHNIQUE')" class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
+                <div *ngIf="getRootSigle(selectedUnit.sigleLong) != 'ENTREPRISES' && (selectedUnitModel == null || (selectedUnitModel != null && getRootSigle(selectedUnitModel.sigleLong) != 'ENTREPRISES')) && getRootSigle(selectedUnit.sigleLong) != 'TECHNIQUE' && (selectedUnitModel == null || (selectedUnitModel != null && getRootSigle(selectedUnitModel.sigleLong) != 'TECHNIQUE'))" class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Bureau<span *ngIf="getRootSigle(selectedUnit.sigleLong) == 'EPFL'">&nbsp;*</span></label>
                   <div class="col-sm-10">
                     <div *ngIf="selectedRoom != null" class="selected-element-box">
