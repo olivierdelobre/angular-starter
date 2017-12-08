@@ -15,13 +15,17 @@ export class SciperService {
     /******************************************************
     *   Search person by his name
     ******************************************************/
-    public searchByName(query: string) {
+    public searchByName(query: string, hasAccreds: boolean) {
         let headers = new Headers();
         headers.append('Authorization', 'Basic ' + btoa('delobre:secret'));
         headers.append('Accept', 'application/json');
 
         let url: string;
-        url = SciperService.SERVICE_PREFIX + 'people?query=' + query + "&hasAccreds";
+        url = SciperService.SERVICE_PREFIX + 'people?query=' + query;
+
+        if (hasAccreds) {
+            url += "&hasAccreds";
+        }
         
         // console.log("calling " + url);
 

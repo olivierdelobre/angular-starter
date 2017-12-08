@@ -411,7 +411,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
 
     this.searchResponsibleIsOngoing = true;
-    this.sciperService.searchByName(this.searchForm.get('responsibleSearchText').value)
+    this.sciperService.searchByName(this.searchForm.get('responsibleSearchText').value, false)
       .subscribe(
         (people) => {
           if (people.length == 1) {

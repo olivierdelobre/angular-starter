@@ -570,7 +570,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   autocomplete result for person search
   ******************************************************/
   private searchPerson(event) {
-    this.sciperService.searchByName(event.query)
+    this.sciperService.searchByName(event.query, true)
       .subscribe(
         (people) => this.searchReponsibleResults = people,
         (error) => console.log('Error retrieving people from sciper service')
@@ -592,7 +592,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     }
 
     this.searchResponsibleIsOngoing = true;
-    this.sciperService.searchByName(this.unitForm.get('responsibleSearchText').value)
+    this.sciperService.searchByName(this.unitForm.get('responsibleSearchText').value, true)
       .subscribe(
         (people) => {
           if (people.length == 1) {
@@ -1342,7 +1342,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     }
     if ((unit.responsibleId == null || unit.responsibleId == 0) && this.unitForm.get('responsibleSearchText').value != '') {
       observableResponsibleIsSet = true;
-      observables.push(this.sciperService.searchByName(this.unitForm.get('responsibleSearchText').value));
+      observables.push(this.sciperService.searchByName(this.unitForm.get('responsibleSearchText').value, true));
     }
     if (this.mode == 'EDIT_UNIT_PLANNED') {
       observableUnitPlannedIsSet = true;
