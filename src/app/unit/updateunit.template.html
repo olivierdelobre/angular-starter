@@ -313,15 +313,15 @@
                         <td style="text-align: left;">
                           <div *ngFor="let attributeValue of (selectedUnitAttributes | attributefilter:attributeType.code)" class="box-attribute-value">
                             {{ attributeValue.text }}
-                            &nbsp;<span *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="glyphicon glyphicon-pencil cursor-pointer btn-update-attribute" title="Modifier" (click)="showAttributeFormPanel('update', attributeValue, null)"></span>
-                            <span *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="glyphicon glyphicon-remove icon-red cursor-pointer btn-delete-attribute" title="Supprimer" (click)="deleteAttribute(selectedUnit, attributeValue)"></span>
+                            &nbsp;<span *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasLimitedWriteRole(loggedUserInfo)" class="glyphicon glyphicon-pencil cursor-pointer btn-update-attribute" title="Modifier" (click)="showAttributeFormPanel('update', attributeValue, null)"></span>
+                            <span *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasLimitedWriteRole(loggedUserInfo)" class="glyphicon glyphicon-remove icon-red cursor-pointer btn-delete-attribute" title="Supprimer" (click)="deleteAttribute(selectedUnit, attributeValue)"></span>
                             <div class="attribute-validity-period">
                               ({{ attributeValue.from | date:"dd.MM.yyyy" }} - {{ attributeValue.to | date:"dd.MM.yyyy" }})
                             </div>
                           </div>
                         </td>
                         <td class="attribute-add-cell">
-                          <a *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" class="glyphicon glyphicon-plus icon-green cursor-pointer" title="Créer" (click)="showAttributeFormPanel('add', null, attributeType)" id="btn-create-attribute-{{ attributeType.code }}"></a>
+                          <a *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasLimitedWriteRole(loggedUserInfo)" class="glyphicon glyphicon-plus icon-green cursor-pointer" title="Créer" (click)="showAttributeFormPanel('add', null, attributeType)" id="btn-create-attribute-{{ attributeType.code }}"></a>
                         </td>
                       </tr>
                     </tbody>
@@ -421,7 +421,7 @@
                 </div>
               </div>
             </tab>
-            <tab heading="Historique" *ngIf="mode == 'UPDATE'" id="tab-history">
+            <tab heading="Historique" *ngIf="mode == 'UPDATE' && authService.hasSuperAdminRole(loggedUserInfo)" id="tab-history">
               <form>
                 <table class="table table-striped" style="font-size: 85%;">
                   <thead>
@@ -600,8 +600,8 @@
           <button type="button" id="btn-close-unit-update" class="btn btn-default" data-dismiss="modal" (click)="closeModal()" [disabled]="saveIsOngoing">Fermer</button>
           <button type="button" id="btn-delete-unit-planned" class="btn btn-danger" *ngIf="mode == 'EDIT_UNIT_PLANNED' && unitPlannedExists" data-dismiss="modal" (click)="deleteUnitPlanned()">Supprimer</button>
           <button type="button" id="btn-delete-unit-model" class="btn btn-danger" *ngIf="mode == 'EDIT_UNIT_MODEL' && unitModelExists" data-dismiss="modal" (click)="deleteUnitModel()">Supprimer le modèle</button>
-          <button type="submit" id="btn-save-unit" class="btn btn-primary" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" [disabled]="saveIsOngoing || !unitForm.valid">Enregistrer</button>
-          <button type="submit" id="btn-save-unit-and-close" class="btn btn-primary" *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" [disabled]="saveIsOngoing || !unitForm.valid" (click)="setCloseFlag()">Enregistrer puis fermer</button>
+          <button type="submit" id="btn-save-unit" class="btn btn-primary" *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasLimitedWriteRole(loggedUserInfo)" [disabled]="saveIsOngoing || !unitForm.valid">Enregistrer</button>
+          <button type="submit" id="btn-save-unit-and-close" class="btn btn-primary" *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasLimitedWriteRole(loggedUserInfo)" [disabled]="saveIsOngoing || !unitForm.valid" (click)="setCloseFlag()">Enregistrer puis fermer</button>
         </div>
       </div>
     </div>

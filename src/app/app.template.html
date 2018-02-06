@@ -25,10 +25,10 @@
                     <!-- Collect the nav links, forms, and other content for toggling -->
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                         <ul class="nav navbar-nav">
-                            <li [routerLinkActive]="['active']">
+                            <li [routerLinkActive]="['active']" *ngIf="authService.isLoggedIn()">
                                 <a [routerLink]=" ['./arbre'] ">Arbre des unités</a>
                             </li>
-                            <li [routerLinkActive]="['active']">
+                            <li [routerLinkActive]="['active']" *ngIf="authService.isLoggedIn()">
                                 <a [routerLink]=" ['./recherche'] ">Recherche d'unités</a>
                             </li>
                         </ul>
@@ -65,7 +65,7 @@
     </div>
     <footer class="footer-container">
         <div class="footer-right-container">
-            © EPFL - idevelop, version 1.0.9 (Novembre 2017)
+            © EPFL - idevelop, version 1.0.11 (Février 2018)
         </div>
     </footer>
 </div>

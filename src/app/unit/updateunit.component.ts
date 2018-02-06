@@ -1777,69 +1777,64 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             // console.log('this.accumulatedChangeLogs = ' + JSON.stringify(this.accumulatedChangeLogs));
           },
           (error) => {
-            this.saveIsOngoing = false;
-
-            let errorBody = JSON.parse(error._body);
             console.log("error updating unit");
-
-            if (this.closeModalFlag) {
-              this.closeModal();
-            }
-
+            this.saveIsOngoing = false;
+            let errorBody = JSON.parse(error._body);
             this.errors = [];
             this.errors.push({msg: errorBody.reasons[0].message, type: 'danger', closable: true});
-
             this.messageTriggered.emit({ message: errorBody.reasons[0].message, level: 'danger' });
           },
           () => {
-            console.log("updating unit finished");
-            this.saveIsOngoing = false;
+            if (this.errors.length == 0) {
+              console.log("updating unit finished");
+              this.saveIsOngoing = false;
 
-            let mode = "SAVE";
-            if (this.closeModalFlag) {
-              mode = "SAVE_AND_CLOSE";
-              this.closeModal();
+              let mode = "SAVE";
+              if (this.closeModalFlag) {
+                mode = "SAVE_AND_CLOSE";
+                this.closeModal();
+              }
+
+              if (mode == 'SAVE') {
+                // Retrieve unit change logs
+                this.treeService.getUnitChangeLogs(unit.id)
+                  .subscribe(
+                    (logs) => { this.changeLogs = logs },
+                    (error) => console.log('error retrieving unit change logs'),
+                    () => { }
+                  );
+                
+                this.treeService.getUnitById(unit.id)
+                  .subscribe(
+                    (unit) => {
+                      this.selectedUnit = unit;
+                      this.selectedUnitAttributes = unit.attributes;
+                      this.generateUnitAddress(this.selectedUnit);
+                      this.refreshAddressForm(this.selectedUnit);
+                    },
+                    (error) => { },
+                    () => { }
+                  );
+
+                // Retrieve unit hierarchy
+                this.treeService.getUnitHierarchy(unit.id)
+                  .subscribe(
+                    (hierarchy) => {
+                      this.unitHierarchy = hierarchy;
+                    },
+                    (error) => {
+                      console.log('Unable to retrieve unit hierarchy');
+                    },
+                    () => { }
+                  );
+
+                this.refreshRoomSelected(this.selectedUnit.roomId);
+                this.refreshResponsibleSelected(this.selectedUnit.responsibleId);
+              }
+
+              this.unitUpdated.emit({mode: mode, changelogs: this.accumulatedChangeLogs, unit: this.selectedUnit, previousParentId: selectedUnitPreviousParentId});
+              this.messageTriggered.emit({ message: 'Unité mise à jour avec succès', level: 'success' });
             }
-
-            if (mode == 'SAVE') {
-              // Retrieve unit change logs
-              this.treeService.getUnitChangeLogs(unit.id)
-                .subscribe(
-                  (logs) => { this.changeLogs = logs },
-                  (error) => console.log('error retrieving unit change logs'),
-                  () => { }
-                );
-              
-              this.treeService.getUnitById(unit.id)
-                .subscribe(
-                  (unit) => {
-                    this.selectedUnit = unit;
-                    this.selectedUnitAttributes = unit.attributes;
-                    this.generateUnitAddress(this.selectedUnit);
-                    this.refreshAddressForm(this.selectedUnit);
-                  },
-                  (error) => { },
-                  () => { }
-                );
-
-              // Retrieve unit hierarchy
-              this.treeService.getUnitHierarchy(unit.id)
-                .subscribe(
-                  (hierarchy) => {
-                    this.unitHierarchy = hierarchy;
-                  },
-                  (error) => {
-                    console.log('Unable to retrieve unit hierarchy');
-                  },
-                  () => { }
-                );
-
-              this.refreshRoomSelected(this.selectedUnit.roomId);
-              this.refreshResponsibleSelected(this.selectedUnit.responsibleId);
-            }
-
-            this.unitUpdated.emit({mode: mode, changelogs: this.accumulatedChangeLogs, unit: this.selectedUnit, previousParentId: selectedUnitPreviousParentId});
-            this.messageTriggered.emit({ message: 'Unité mise à jour avec succès', level: 'success' });
           }
         );
     }
@@ -1971,23 +1966,26 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             (error) => {
               console.log("error updating unit");
               this.saveIsOngoing = false;
-              this.closeModal();
-              this.messageTriggered
-                .emit({ message: 'Erreur lors de la modification de l\'unité planifiée', level: 'danger' });
+              let errorBody = JSON.parse(error._body);
+              this.errors = [];
+              this.errors.push({msg: errorBody.reasons[0].message, type: 'danger', closable: true});
+              this.messageTriggered.emit({ message: errorBody.reasons[0].message, level: 'danger' });
             },
             () => {
-              // console.log("updating unit finished");
-              this.saveIsOngoing = false;
+              if (this.errors.length == 0) {
+                // console.log("updating unit finished");
+                this.saveIsOngoing = false;
 
-              let mode = "SAVE";
-              if (this.closeModalFlag) {
-                mode = "SAVE_AND_CLOSE";
-                this.closeModal();
-                this.listUnitPlanned.emit(this.selectedUnit);
+                let mode = "SAVE";
+                if (this.closeModalFlag) {
+                  mode = "SAVE_AND_CLOSE";
+                  this.closeModal();
+                  this.listUnitPlanned.emit(this.selectedUnit);
+                }
+                
+                this.unitPlannedDone.emit({mode: mode, unitPlanned: this.selectedUnitPlanned});
+                this.messageTriggered.emit({ message:'Unité planifiée modifiée avec succès', level: 'success' });
               }
-              
-              this.unitPlannedDone.emit({mode: mode, unitPlanned: this.selectedUnitPlanned});
-              this.messageTriggered.emit({ message:'Unité planifiée modifiée avec succès', level: 'success' });
             }
           );
       }
@@ -2138,21 +2136,24 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
                 (error) => {
                   console.log("error updating unit model");
                   this.saveIsOngoing = false;
-                  this.closeModal();
                   let errorBody = JSON.parse(error._body);
-                  this.messageTriggered.emit({ message: 'Erreur lors de la mise à jour de l\'unité modèle', level: 'danger' });
+                  this.errors = [];
+                  this.errors.push({msg: errorBody.reasons[0].message, type: 'danger', closable: true});
+                  this.messageTriggered.emit({ message: errorBody.reasons[0].message, level: 'danger' });
                 },
                 () => {
-                  console.log("updating unit model finished");
-                  this.saveIsOngoing = false;
-                  let mode = "SAVE";
-                  if (this.closeModalFlag) {
-                    mode = "SAVE_AND_CLOSE";
-                    this.closeModal();
-                  }
+                  if (this.errors.length == 0) {
+                    console.log("updating unit model finished");
+                    this.saveIsOngoing = false;
+                    let mode = "SAVE";
+                    if (this.closeModalFlag) {
+                      mode = "SAVE_AND_CLOSE";
+                      this.closeModal();
+                    }
 
-                  this.unitModelDone.emit(this.selectedUnitModel);
-                  this.messageTriggered.emit({ message: 'Unité modèle mise à jour avec succès', level: 'success' });
+                    this.unitModelDone.emit(this.selectedUnitModel);
+                    this.messageTriggered.emit({ message: 'Unité modèle mise à jour avec succès', level: 'success' });
+                  }
                 }
               );
           },
@@ -2273,9 +2274,9 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             // console.log('this.accumulatedChangeLogs = ' + JSON.stringify(this.accumulatedChangeLogs));
           },
           (error) => {
+            console.log("error creating unit");
             this.saveIsOngoing = false;
             let errorBody = JSON.parse(error._body);
-            console.log("error creating unit");
             this.errors = [];
             this.errors.push({msg: errorBody.reasons[0].message, type: 'danger', closable: true});
             if (errorBody.reasons[0].code == 'E0101') {
@@ -2288,23 +2289,25 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             }
           },
           () => {
-            console.log("creating unit finished");
-            this.saveIsOngoing = false;
-            this.selectedUnit = unit;
-            this.selectedUnit.id = this.generatedId;
-            this.generatedChangeLogs = [];
+            if (this.errors.length == 0) {
+              console.log("creating unit finished");
+              this.saveIsOngoing = false;
+              this.selectedUnit = unit;
+              this.selectedUnit.id = this.generatedId;
+              this.generatedChangeLogs = [];
 
-            let mode = "SAVE";
-            if (this.closeModalFlag) {
-              mode = "SAVE_AND_CLOSE";
-              this.closeModal();
-            }
-            else {
-              this.triggerEditUnit(this.selectedUnit, 'UPDATE', false);
-            }
+              let mode = "SAVE";
+              if (this.closeModalFlag) {
+                mode = "SAVE_AND_CLOSE";
+                this.closeModal();
+              }
+              else {
+                this.triggerEditUnit(this.selectedUnit, 'UPDATE', false);
+              }
 
-            this.unitUpdated.emit({mode: mode, changelogs: this.accumulatedChangeLogs, unit: unit, previousParentId: 0});
-            this.messageTriggered.emit({ message: 'Unité créée avec succès', level: 'success' });
+              this.unitUpdated.emit({mode: mode, changelogs: this.accumulatedChangeLogs, unit: unit, previousParentId: 0});
+              this.messageTriggered.emit({ message: 'Unité créée avec succès', level: 'success' });
+            }
           }
         );
     }

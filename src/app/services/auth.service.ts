@@ -19,7 +19,18 @@ export class AuthService {
         if (loggedUserInfo == null) {
             return false;
         }
-        if (loggedUserInfo.scopes == 'write') {
+        if (loggedUserInfo.scopes != null && loggedUserInfo.scopes.split(' ') != null && loggedUserInfo.scopes.split(' ').indexOf('write') > -1) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public hasLimitedWriteRole(loggedUserInfo: any) {
+        if (loggedUserInfo == null) {
+            return false;
+        }
+        if (loggedUserInfo.scopes != null && loggedUserInfo.scopes.split(' ') != null && loggedUserInfo.scopes.split(' ').indexOf('limited.write') > -1) {
             return true;
         }
 
@@ -30,7 +41,7 @@ export class AuthService {
         if (loggedUserInfo == null) {
             return false;
         }
-        if (loggedUserInfo.scopes == 'read') {
+        if (loggedUserInfo.scopes != null && loggedUserInfo.scopes.split(' ') != null && loggedUserInfo.scopes.split(' ').indexOf('read') > -1) {
             return true;
         }
 
