@@ -137,6 +137,30 @@ span.active {
 .attribute-add-cell > a {
   text-decoration: none;
 }
+.tips-box {
+    padding: 10px 15px;
+    border-radius: 5px;
+    background: #f4f4f4;
+    border: 1px dotted #c0c0c0;
+    margin-top: 20px;
+}
+.tips-icon {
+    font-size: 72px;
+    color: #c4c4c4;
+}
+.state-date {
+    color: blue;
+    cursor: pointer;
+}
+.modal-calendar {
+    width: 340px;
+}
+.invalid-unit {
+    color: red;
+}
+.invalid-unit a {
+    color: red;
+}
 
 
 /* override bootstrap properties */

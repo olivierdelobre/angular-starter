@@ -482,6 +482,22 @@ export class TreeService {
     public getExportUrl() {
         return TreeService.SERVICE_PREFIX + 'unitsexports?do=1';
     }
+    public downloadExport(id: number){
+        let headers = new Headers();
+        let fileContent: any;
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+
+        let url = TreeService.SERVICE_PREFIX + 'unitsexports?do=1&' + id;
+        // console.log('Calling ' + url);
+
+        return this.http.get(url, { responseType: ResponseContentType.Blob, headers: headers })
+            .subscribe(
+                (response: any) => {                   
+                    FileSaver.saveAs(response.blob(), "export.csv");
+                },
+                (error) => console.log('Error retrieving file')
+            );
+    }
 
     /******************************************************
     *   get the changelog attachment url

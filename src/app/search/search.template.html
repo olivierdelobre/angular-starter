@@ -199,7 +199,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let unit of searchResults" class="result-tr">
+          <tr *ngFor="let unit of searchResults" [ngClass]="{'invalid-unit': unit.isValid == 0}" class="result-tr">
             <td>
               {{ unit.sigle }}&nbsp;
               <a target="_blank" href="http://search.epfl.ch/browseunit.do?unit={{ unit.id }}">

@@ -850,10 +850,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       this.unitForm.get('addressLocationText').setValue(this.unitAddress.address5.substr(3).trim());
     }
 
-    // If "EPFL", room is mandatory
-    if (this.getRootSigle(unit.sigleLong) == 'EPFL') {
-      this.unitForm.get('roomId').setValidators([Validators.required]);
-    }
+    // // If "EPFL", room is mandatory
+    // if (this.getRootSigle(unit.sigleLong) == 'EPFL') {
+    //   this.unitForm.get('roomId').setValidators([Validators.required]);
+    // }
 
     // Retrieve responsible from sciper service
     if (unit.responsibleId != null) {
@@ -1085,10 +1085,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       );
     }
 
-    // If "EPFL", room is mandatory
-    if (this.getRootSigle(this.parentUnit.sigleLong) == 'EPFL') {
-      this.unitForm.get('roomId').setValidators([Validators.required]);
-    }
+    // // If "EPFL", room is mandatory
+    // if (this.getRootSigle(this.parentUnit.sigleLong) == 'EPFL') {
+    //   this.unitForm.get('roomId').setValidators([Validators.required]);
+    // }
 
     // Retrieve parent unit
     this.selectedParentUnit = null;
@@ -1177,10 +1177,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       addressCountryId: this.fb.control('')
     });
 
-    // If "EPFL", room is mandatory
-    if (this.getRootSigle(unit.sigleLong) == 'EPFL') {
-      this.unitForm.get('roomId').setValidators([Validators.required]);
-    }
+    // // If "EPFL", room is mandatory
+    // if (this.getRootSigle(unit.sigleLong) == 'EPFL') {
+    //   this.unitForm.get('roomId').setValidators([Validators.required]);
+    // }
 
     // retrieve responsible from sciper service
     if (unit.responsibleId != null && unit.responsibleId != 0) {

@@ -160,7 +160,7 @@
                   </div>
                 </div>
                 <div *ngIf="getRootSigle(selectedUnit.sigleLong) != 'ENTREPRISES' && (selectedUnitModel == null || (selectedUnitModel != null && getRootSigle(selectedUnitModel.sigleLong) != 'ENTREPRISES')) && getRootSigle(selectedUnit.sigleLong) != 'TECHNIQUE' && (selectedUnitModel == null || (selectedUnitModel != null && getRootSigle(selectedUnitModel.sigleLong) != 'TECHNIQUE'))" class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
-                  <label for="" class="col-sm-2 control-label">Bureau<span *ngIf="getRootSigle(selectedUnit.sigleLong) == 'EPFL'">&nbsp;*</span></label>
+                  <label for="" class="col-sm-2 control-label">Bureau</label>
                   <div class="col-sm-10">
                     <div *ngIf="selectedRoom != null" class="selected-element-box">
                       {{ selectedRoom.label }}
@@ -329,7 +329,7 @@
                 </div>
               </div>
             </tab>
-            <tab *ngIf="showAddressTab && getRootSigle(selectedUnit.sigleLong) != 'EPFL'" heading="Adresse">
+            <tab *ngIf="showAddressTab" heading="Adresse">
               <div class="form-horizontal" style="margin-top: 10px;">
                 <div class="form-group" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
                   <label for="" class="col-sm-2 control-label">Adresse 1</label>

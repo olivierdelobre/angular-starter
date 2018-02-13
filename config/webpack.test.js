@@ -21,7 +21,7 @@ const SCIPER_API_URL = process.env.SCIPER_API_URL = 'http://localhost:8083/scipe
 const CADI_API_URL = process.env.CADI_API_URL = 'http://localhost:8082/cadi-api/v1/';
 const ARCHIBUS_API_URL = process.env.ARCHIBUS_API_URL = 'http://localhost:8084/archibus-api/v1/';
 const OAUTH2_PROVIDER_URL = process.env.OAUTH2_PROVIDER_URL = 'https://test-tequila.epfl.ch/OAUTH2IdP/';
-const OAUTH2_TOKEN_PROXY_URL = process.env.OAUTH2_TOKEN_PROXY_URL = 'https://infotest.epfl.ch/ng-units-oauth2-proxy/v1/oauth2/getTokens';
+const OAUTH2_TOKEN_PROXY_URL = process.env.OAUTH2_TOKEN_PROXY_URL = 'https://api-test.epfl.ch/oauth2-proxy/v1/d518e10ce2bfdaee8c5484ba@epfl.ch/tokens';
 const OAUTH2_CLIENT_ID = process.env.OAUTH2_CLIENT_ID = 'd518e10ce2bfdaee8c5484ba@epfl.ch';
 const METADATA = {
   UNITS_API_URL: UNITS_API_URL,

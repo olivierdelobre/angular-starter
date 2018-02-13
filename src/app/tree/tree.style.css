@@ -10,9 +10,6 @@
 .modal-xlg {
   width: 1000px;
 }
-.modal-calendar {
-  width: 340px;
-}
 .form-error {
   color: #ff0000;
 }
@@ -36,10 +33,6 @@
 .filter-box {
   display: inline-block;
   margin-right: 20px;
-}
-.state-date {
-  color: blue;
-  cursor: pointer;
 }
 .state-date-calendar-container {
   margin-bottom: -20px;

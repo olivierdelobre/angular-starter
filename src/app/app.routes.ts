@@ -6,6 +6,7 @@ import { OAuth2Component } from './oauth2';
 import { SearchComponent } from './search';
 import { HelpComponent } from './help';
 import { NoContentComponent } from './no-content';
+import { ListExportComponent } from './listexport';
 
 import { AuthGuard } from './auth/authguard';
 
@@ -17,6 +18,7 @@ export const ROUTES: Routes = [
   { path: 'logout',  component: LogoutComponent },
   { path: 'oauth2/:token', component: OAuth2Component },
   { path: 'about', component: AboutComponent, canActivate: [AuthGuard] },
+  { path: 'liste',  component: ListExportComponent },
   { path: 'arbre',  component: TreeComponent },
   { path: 'arbre/:openedIds',  component: TreeComponent },
   { path: 'recherche',  component: SearchComponent },

@@ -1,10 +1,10 @@
-<app-unauthorized *ngIf="!authService.isLoggedIn() || (!authService.hasSuperAdminRole(loggedUserInfo) && !authService.hasReadRole(loggedUserInfo))"></app-unauthorized>
+<app-unauthorized *ngIf="!authService.isLoggedIn() || (!authService.hasSuperAdminRole(loggedUserInfo) && !authService.hasLimitedWriteRole(loggedUserInfo) && !authService.hasReadRole(loggedUserInfo))"></app-unauthorized>
 <div class="alerts-bar">
   <alert *ngFor="let alert of alerts;let i = index" [type]="alert.type" dismissOnTimeout="3000" (close)="closeAlert(i)">
     {{ alert?.msg }}
   </alert>
 </div>
-<div *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasReadRole(loggedUserInfo)">
+<div *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasLimitedWriteRole(loggedUserInfo) || authService.hasReadRole(loggedUserInfo)">
     <div class="form-inline tree-form-container">
         <div class="col-md-3 checkbox">
             <label>

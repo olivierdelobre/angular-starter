@@ -31,6 +31,9 @@
                             <li [routerLinkActive]="['active']" *ngIf="authService.isLoggedIn()">
                                 <a [routerLink]=" ['./recherche'] ">Recherche d'unités</a>
                             </li>
+                            <li [routerLinkActive]="['active']" *ngIf="authService.isLoggedIn()">
+                                <a [routerLink]=" ['./liste'] ">Liste CSV</a>
+                            </li>
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
                             <li *ngIf="!authService.isLoggedIn()">

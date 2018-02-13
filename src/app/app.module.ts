@@ -19,6 +19,7 @@ import { APP_RESOLVER_PROVIDERS } from './app.resolver';
 import { AppState, InternalStateType } from './app.service';
 
 import { AboutComponent } from './about';
+import { ListExportComponent } from './listexport';
 import { TreeComponent } from './tree';
 import { LogoutComponent } from './logout';
 import { OAuth2Component } from './oauth2';
@@ -69,6 +70,7 @@ type StoreType = {
   declarations: [
     App,
     AboutComponent,
+    ListExportComponent,
     TreeComponent,
     LogoutComponent,
     OAuth2Component,

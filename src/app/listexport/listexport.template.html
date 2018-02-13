@@ -1,0 +1,67 @@
+<app-unauthorized *ngIf="!authService.isLoggedIn() || (!authService.hasSuperAdminRole(loggedUserInfo) && !authService.hasLimitedWriteRole(loggedUserInfo) && !authService.hasReadRole(loggedUserInfo))"></app-unauthorized>
+<div class="alerts-bar">
+  <alert *ngFor="let alert of alerts;let i = index" [type]="alert.type" dismissOnTimeout="3000" (close)="closeAlert(i)">
+    {{ alert?.msg }}
+  </alert>
+</div>
+<div *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasLimitedWriteRole(loggedUserInfo) || authService.hasReadRole(loggedUserInfo)">
+    <div class="form-inline tree-form-container">
+        <div class="col-md-12 checkbox" style="text-align: right;">
+            Etat au <span class="state-date" (click)="changeStateDateModal.show()">{{ stateDateDate | date:"dd.MM.yyyy" }}</span>
+        </div>
+    </div>
+    <div class="list-export-box">
+        <a href="https://infotest.epfl.ch/imoniteur/OrgUnites.csv?ww_x_date_ref={{ stateDateDate | date: 'dd.MM.yyyy' }}&ww_c_branche=EPFL">
+            Extraction de la liste csv (Excel) de toutes les unités <b>EPFL</b> au {{ stateDateDate | date:"dd.MM.yyyy" }}
+        </a>
+        <br />
+        <br />
+        <a href="https://infotest.epfl.ch/imoniteur/OrgUnites.csv?ww_x_date_ref={{ stateDateDate | date:'dd.MM.yyyy' }}&ww_c_branche=EHE">
+            Extraction de la liste csv (Excel) de toutes les unités <b>hors EPFL</b>
+            <br />
+            (y compris les unités <b>Entreprises</b> et <b>Technique</b>) au {{ stateDateDate | date:"dd.MM.yyyy" }}
+        </a>
+    </div>
+    <div class="tips-box">
+        <div class="row">
+            <div class="col-md-1">
+                <span class="glyphicon glyphicon-question-sign tips-icon">&nbsp;</span>
+            </div>
+            <div class="col-md-11">
+                    Vous obtiendrez un fichier CSV en cliquant sur l'une des lignes ci-dessus. Dans certains cas, l'ensemble des informations est contenu dans la première colonne de votre tableur. Avec Excel, pour répartir les données dans les différentes colonnes, opérez de la manière suivante :
+                    <br />
+                    <ul>
+                        <li>Sélectionner la première colonne (A)</li>
+                        <li>Aller dans le menu données/convertir (haut de l'écran)</li>
+                        <li>Etape 1 : types de données d'origine : choisir délimité</li>
+                        <li>Etape 2 : séparateurs : choisir point-virgule</li>
+                        <li>Fin, les données sont réparties dans différentes colonnes.</li>
+                    </ul>
+            </div>
+        </div>
+        
+        
+    </div>
+</div>
+
+<form (ngSubmit)="changeStateDate()" [formGroup]="stateDateForm">
+  <div bsModal #changeStateDateModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+      <div class="modal-dialog modal-calendar">
+          <div class="modal-content">
+              <div class="modal-header">
+                  <button type="button" class="close" (click)="changeStateDateModal.hide()" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                  </button>
+                  <h4 class="modal-title">Date de référence pour l'affichage</h4>
+              </div>
+              <div class="modal-body">
+                  <input class="form-control" formControlName="state_date" maxlength="10" date-input />
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal" (click)="changeStateDateModal.hide()">Fermer</button>
+                  <button type="submit" class="btn btn-primary" (click)="changeStateDate()">Valider</button>
+              </div>
+          </div>
+      </div>
+  </div>
+</form>
