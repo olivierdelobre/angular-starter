@@ -1342,7 +1342,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.unitForm.get('cf').markAsDirty();
     this.unitForm.get('from').markAsDirty();
     this.unitForm.get('to').markAsDirty();
-    this.unitForm.get('applyAt').markAsDirty();
+    if (this.unitForm.get('applyAt'))
+      this.unitForm.get('applyAt').markAsDirty();
   }
 
   /******************************************************
@@ -1356,7 +1357,50 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     let observableParentUnitIsSet: boolean = false;
     let observableUnitPlannedIsSet: boolean = false;
 
+    let roomIsOk: boolean = true;
+    let responsibleIsOk: boolean = true;
+    let unitFromIsOk: boolean = true;
+    let unitToIsOk: boolean = true;
+    let unitFromToConsistencyIsOk: boolean = true;
+    let unitApplyAtIsOk: boolean = true;
+    let unitAddressIsOk: boolean = true;
+    let parentUnitIsOk: boolean = true;
+
     // console.log('Checking unit: ', JSON.stringify(unit));
+
+    // Check dates validity
+    if (unit.from != '' && !moment(unit.from, "DD.MM.YYYY").isValid()) {
+      unitFromIsOk = false;
+      this.unitForm.get('from').setErrors({ "error": true });
+      this.unitForm.get('from').markAsDirty();
+      this.alerts.push("La date de début est invalide");
+    }
+    if (unit.to != '' && !moment(unit.to, "DD.MM.YYYY").isValid()) {
+      unitToIsOk = false;
+      this.unitForm.get('to').setErrors({ "error": true });
+      this.unitForm.get('to').markAsDirty();
+      this.alerts.push("La date de fin est invalide");
+    }
+    if (unit.from != '' && unit.to != '' && moment(unit.to, "DD.MM.YYYY").isBefore(moment(unit.from, "DD.MM.YYYY"))) {
+      unitFromToConsistencyIsOk = false;
+      this.unitForm.get('to').setErrors({ "error": true });
+      this.unitForm.get('to').markAsDirty();
+      this.alerts.push("La date de fin est avant la date de début");
+    }
+
+    // Check ApplyAt for UnitPlanned
+    if (unit.applyAt != null && !moment(unit.applyAt, "DD.MM.YYYY").isValid()) {
+      unitApplyAtIsOk = false;
+      this.unitForm.get('applyAt').setErrors({ "error": true });
+      this.unitForm.get('applyAt').markAsDirty();
+      this.alerts.push("La date d'application est invalide");
+    }
+    if (unit.applyAt != null && moment(unit.applyAt, "DD.MM.YYYY").isBefore(moment())) {
+      unitApplyAtIsOk = false;
+      this.unitForm.get('applyAt').setErrors({ "error": true });
+      this.unitForm.get('applyAt').markAsDirty();
+      this.alerts.push("La date d'application est dans le passé");
+    }
 
     if ((unit.roomId == null || unit.roomId == 0) && this.unitForm.get('roomSearchText').value != '') {
       observableRoomIsSet = true;
@@ -1366,35 +1410,13 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       observableResponsibleIsSet = true;
       observables.push(this.sciperService.searchByName(this.unitForm.get('responsibleSearchText').value, true));
     }
-    if (this.mode == 'EDIT_UNIT_PLANNED') {
-      observableUnitPlannedIsSet = true;
-      observables.push(this.treeService.getUnitPlannedsForUnitId(this.selectedUnit.id));
-    }
     if (this.mode != 'EDIT_UNIT_MODEL' && this.unitForm.get('parentUnitSearchText').value != '') {
       observableParentUnitIsSet = true;
       observables.push(this.treeService.searchUnitsGeneric('%25' + this.unitForm.get('parentUnitSearchText').value + '%25', this.selectedUnit.level - 1));
     }
-    observables.push(this.treeService.searchUnits(unit.sigle, '', '', '', '', '', 0, '', '', '', '', '', null, null, null, []));
-    observables.push(this.treeService.searchUnits('', '', '', unit.cf, '', '', 0, '', '', '', '', '', null, null, null, []));
-    observables.push(this.treeService.searchUnits('', unit.label, '', '', '', '', 0, '', '', '', '', '', null, null, null, []));
-    observables.push(this.treeService.searchUnits('', '', unit.labelShort, '', '', '', 0, '', '', '', '', '', null, null, null, []));
 
     Observable.forkJoin(observables)
       .subscribe((dataArray) => {
-        let roomIsOk: boolean = true;
-        let responsibleIsOk: boolean = true;
-        let sigleIsOk: boolean = true;
-        let cfIsOk: boolean = true;
-        let unitFromIsOk: boolean = true;
-        let unitToIsOk: boolean = true;
-        let unitFromToConsistencyIsOk: boolean = true;
-        let unitApplyAtIsOk: boolean = true;
-        let unitAddressIsOk: boolean = true;
-        let unitPlannedApplyAtIsOk: boolean = true;
-        let parentUnitIsOk: boolean = true;
-        let labelIsOk: boolean = true;
-        let labelShortIsOk: boolean = true;
-        
         let idx = 0;
 
         // Room
@@ -1427,22 +1449,6 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           idx++;
         }
 
-        // Check that no UnitPlanned already exists for this applyAt date
-        if (observableUnitPlannedIsSet) {
-          for (let unitPlannedLoop of dataArray[idx]) {
-            // Reformat applyAt so that it's comparable with the one gotten from API (unitPlannedLoop)
-            let applyAt: string = Utils.getFormattedDate(unit.applyAt, this.dateValidationPattern);
-            applyAt = moment(applyAt).format('DD.MM.YYYY');
-            if (moment(unitPlannedLoop.applyAt).format('DD.MM.YYYY') == applyAt && (this.selectedUnitPlanned.id == null || (unitPlannedLoop.id != this.selectedUnitPlanned.id))) {
-              unitPlannedApplyAtIsOk = false;
-              this.unitForm.get('applyAt').setErrors({ "error": true });
-              this.unitForm.get('applyAt').markAsDirty();
-              this.alerts.push("Une version planifiée avec cette date d'application existe déjà");
-            }
-          }
-          idx++;
-        }
-
         // Parent Unit
         if (observableParentUnitIsSet) {
           // If search returned a unique result, then fix it in the unit
@@ -1456,144 +1462,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             this.alerts.push("Aucune unité mère ou résultat non-unique trouvé pour " + this.unitForm.get('parentUnitSearchText').value);
           }
           idx++;
-        }
-
-        // Unit sigle
-        // Error if an other unit has the same sigle
-        // console.log("this.selectedUnitPlanned.unitId = " + this.selectedUnitPlanned.unitId);
-        for (let unitLoop of dataArray[idx]) {
-          if (unitLoop.sigle == unit.sigle.toUpperCase()) {
-            // If create mode
-            if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
-              sigleIsOk = false;
-            }
-            // If updating Unit
-            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != this.selectedUnit.id)) {
-              sigleIsOk = false;
-            }
-            // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
-              console.log('unitLoop.id = ' + unitLoop.id);
-              console.log('this.selectedUnitPlanned.unitId = ' + this.selectedUnitPlanned.unitId);
-              console.log('unitLoop.clonedFromId = ' + unitLoop.clonedFromId);
-              sigleIsOk = false;
-            }
-
-            if (!sigleIsOk) {
-              this.unitForm.get('sigle').setErrors({ "error": true });
-              this.unitForm.get('sigle').markAsDirty();
-              this.alerts.push("Le sigle " + unit.sigle.toUpperCase() + " est déjà utilisé");
-              break;
-            }
-          }
-        }
-        idx++;
-
-        // Unit CF
-        // Error if an other unit has the same CF, only in "Create" mode
-        for (let unitLoop of dataArray[idx]) {
-          if (unitLoop.cf == unit.cf) {
-            // If create mode
-            if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
-              cfIsOk = false;
-            }
-            if (!cfIsOk) {
-              this.unitForm.get('cf').setErrors({ "error": true });
-              this.unitForm.get('cf').markAsDirty();
-              this.alerts.push("Le CF " + unit.cf + " est déjà utilisé");
-              break;
-            }
-          }
-        }
-        idx++;
-
-        // Unit Label
-        // Error if an other unit has the same Label
-        for (let unitLoop of dataArray[idx]) {
-          if (unitLoop.label.toUpperCase() == unit.label.toUpperCase()) {
-            // If create mode
-            if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
-              labelIsOk = false;
-            }
-            // If updating Unit
-            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != this.selectedUnit.id)) {
-              labelIsOk = false;
-            }
-            // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
-              labelIsOk = false;
-            }
-
-            if (!labelIsOk) {
-              this.unitForm.get('label').setErrors({ "error": true });
-              this.unitForm.get('label').markAsDirty();
-              this.alerts.push("Le libellé " + unit.label + " est déjà utilisé");
-              break;
-            }
-          }
-        }
-        idx++;
-
-        // Unit LabelShort
-        // Error if an other unit has the same LabelShort
-        for (let unitLoop of dataArray[idx]) {
-          if (unitLoop.labelShort.toUpperCase() == unit.labelShort.toUpperCase()) {
-            // If create mode
-            if (this.mode == 'CREATE_CHILD' || this.mode == 'CREATE_ROOT' || this.mode == 'CLONE') {
-              labelShortIsOk = false;
-            }
-            // If updating Unit
-            else if (this.mode == 'UPDATE' && (unitLoop.id != this.selectedUnit.id && unitLoop.clonedFromId != this.selectedUnit.id)) {
-              labelShortIsOk = false;
-            }
-            // If updating UnitPlanned
-            else if (this.mode == 'EDIT_UNIT_PLANNED' && (unitLoop.id != this.selectedUnitPlanned.unitId && unitLoop.clonedFromId != this.selectedUnitPlanned.unitId)) {
-              labelShortIsOk = false;
-            }
-
-            if (!labelShortIsOk) {
-              this.unitForm.get('labelShort').setErrors({ "error": true });
-              this.unitForm.get('labelShort').markAsDirty();
-              this.alerts.push("L'abrégé " + unit.labelShort + " est déjà utilisé");
-              break;
-            }
-          }
-        }
-        idx++;
-
-        // Check dates validity
-        if (unit.from != '' && !moment(unit.from, "DD.MM.YYYY").isValid()) {
-          unitFromIsOk = false;
-          this.unitForm.get('from').setErrors({ "error": true });
-          this.unitForm.get('from').markAsDirty();
-          this.alerts.push("La date de début est invalide");
-        }
-        if (unit.to != '' && !moment(unit.to, "DD.MM.YYYY").isValid()) {
-          unitToIsOk = false;
-          this.unitForm.get('to').setErrors({ "error": true });
-          this.unitForm.get('to').markAsDirty();
-          this.alerts.push("La date de fin est invalide");
-        }
-        if (unit.from != '' && unit.to != '' && moment(unit.to, "DD.MM.YYYY").isBefore(moment(unit.from, "DD.MM.YYYY"))) {
-          unitFromToConsistencyIsOk = false;
-          this.unitForm.get('to').setErrors({ "error": true });
-          this.unitForm.get('to').markAsDirty();
-          this.alerts.push("La date de fin est avant la date de début");
-        }
-
-        // Check ApplyAt for UnitPlanned
-        if (unit.applyAt != null && !moment(unit.applyAt, "DD.MM.YYYY").isValid()) {
-          unitApplyAtIsOk = false;
-          this.unitForm.get('applyAt').setErrors({ "error": true });
-          this.unitForm.get('applyAt').markAsDirty();
-          this.alerts.push("La date d'application est invalide");
-        }
-        if (unit.applyAt != null && moment(unit.applyAt, "DD.MM.YYYY").isBefore(moment())) {
-          unitApplyAtIsOk = false;
-          this.unitForm.get('applyAt').setErrors({ "error": true });
-          this.unitForm.get('applyAt').markAsDirty();
-          this.alerts.push("La date d'application est dans le passé");
-        }
+        }        
 
         // Check Address validity if no room is provided
         // First build address
@@ -1631,15 +1500,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         // If everything is ok, then save unit
         if (roomIsOk &&
             responsibleIsOk &&
-            sigleIsOk &&
-            cfIsOk &&
-            labelIsOk &&
-            labelShortIsOk &&
             unitFromIsOk &&
             unitToIsOk &&
             unitFromToConsistencyIsOk &&
             unitApplyAtIsOk &&
-            unitPlannedApplyAtIsOk &&
             parentUnitIsOk &&
             unitAddressIsOk
           ) {
@@ -1649,6 +1513,117 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           this.alertsModal.show();
         }
     });
+
+    // If no observables
+    if (observables.length == 0) {
+      // If everything is ok, then save unit
+      if (roomIsOk &&
+        responsibleIsOk &&
+        unitFromIsOk &&
+        unitToIsOk &&
+        unitFromToConsistencyIsOk &&
+        unitApplyAtIsOk &&
+        parentUnitIsOk &&
+        unitAddressIsOk
+      ) {
+        this.saveUnit(unit);
+      }
+      else {
+        this.alertsModal.show();
+      }
+    }
+  }
+
+  /******************************************************
+  *   Handle errors raised by backend API
+  ******************************************************/
+  private handleBackendErrors(body: any) {
+    this.errors = [];
+    this.alerts = [];
+    for (let reason of body.reasons) {
+      // console.log("reason = " + reason.message);
+      this.alerts.push(reason.message);
+      this.errors.push({msg: reason.message, type: 'danger', closable: true});
+
+      if (reason.code == 'E0001')
+        this.makeUnitFieldInvalid('cf');
+      if (reason.code == 'E0002')
+        this.makeUnitFieldInvalid('cfNumber');
+      if (reason.code == 'E0003')
+        this.makeUnitFieldInvalid('label');
+      if (reason.code == 'E0004')
+        this.makeUnitFieldInvalid('labelShort');
+      if (reason.code == 'E0005')
+        this.makeUnitFieldInvalid('lang');
+      if (reason.code == 'E0006')
+        this.makeUnitFieldInvalid('parentUnitSearchText');
+      if (reason.code == 'E0007')
+        this.makeUnitFieldInvalid('sigle');
+      if (reason.code == 'E0008')
+        this.makeUnitFieldInvalid('type');
+      if (reason.code == 'E0009')
+        this.makeUnitFieldInvalid('from');
+      if (reason.code == 'E0010')
+        this.makeUnitFieldInvalid('from');
+
+      if (reason.code == 'E0101')
+        this.makeUnitFieldInvalid('sigle');
+      if (reason.code == 'E0102')
+        this.makeUnitFieldInvalid('cf');
+      if (reason.code == 'E0105')
+        this.makeUnitFieldInvalid('parentUnitSearchText');
+      if (reason.code == 'E0107')
+        this.makeUnitFieldInvalid('roomSearchText');
+      if (reason.code == 'E0108')
+        this.makeUnitFieldInvalid('addressCountryText');
+      if (reason.code == 'E0109')
+        this.makeUnitFieldInvalid('addressLocationText');
+      if (reason.code == 'E0111')
+        this.makeUnitFieldInvalid('label');
+      if (reason.code == 'E0112')
+        this.makeUnitFieldInvalid('labelShort');
+      if (reason.code == 'E0114')
+        this.makeUnitFieldInvalid('addressLocationText');
+     
+      // Unit planned
+      if (reason.code == 'E1001')
+        this.makeUnitFieldInvalid('cf');
+      if (reason.code == 'E1002')
+        this.makeUnitFieldInvalid('cfNumber');
+      if (reason.code == 'E1003')
+        this.makeUnitFieldInvalid('label');
+      if (reason.code == 'E1004')
+        this.makeUnitFieldInvalid('labelShort');
+      if (reason.code == 'E1005')
+        this.makeUnitFieldInvalid('lang');
+      if (reason.code == 'E1006')
+        this.makeUnitFieldInvalid('parentUnitSearchText');
+      if (reason.code == 'E1007')
+        this.makeUnitFieldInvalid('sigle');
+      if (reason.code == 'E1008')
+        this.makeUnitFieldInvalid('type');
+      if (reason.code == 'E1009')
+        this.makeUnitFieldInvalid('from');
+      if (reason.code == 'E1011')
+        this.makeUnitFieldInvalid('applyAt');
+
+      if (reason.code == 'E1101')
+        this.makeUnitFieldInvalid('applyAt');
+
+      // UnitModel
+      if (reason.code == 'E2001')
+        this.makeUnitFieldInvalid('from');
+      if (reason.code == 'E2002')
+        this.makeUnitFieldInvalid('to');
+    }
+    this.alertsModal.show();
+  }
+
+  private makeUnitFieldInvalid(fieldName: string) {
+    if (!this.unitForm.get(fieldName))
+      return;
+    this.unitForm.get(fieldName).setErrors({ "error": true });
+    this.unitForm.get(fieldName).markAsDirty();
   }
 
   /******************************************************
@@ -1802,9 +1777,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             console.log("error updating unit");
             this.saveIsOngoing = false;
             let errorBody = JSON.parse(error._body);
-            this.errors = [];
-            this.errors.push({msg: errorBody.reasons[0].message, type: 'danger', closable: true});
-            this.messageTriggered.emit({ message: errorBody.reasons[0].message, level: 'danger' });
+            // this.messageTriggered.emit({ message: errorBody.reasons[0].message, level: 'danger' });
+            this.handleBackendErrors(errorBody);
           },
           () => {
             if (this.errors.length == 0) {
@@ -1978,7 +1952,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         this.selectedUnitPlanned.labels.push(label);
       }
 
-      console.log('you submitted unit planned: ', JSON.stringify(this.selectedUnitPlanned));
+      // console.log('you submitted unit planned: ', JSON.stringify(this.selectedUnitPlanned));
 
       // FIXME: if this.selectedUnitPlanned.id is undefined, no need to do the check request
       if (this.selectedUnitPlanned.id != null) {
@@ -1989,9 +1963,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               console.log("error updating unit");
               this.saveIsOngoing = false;
               let errorBody = JSON.parse(error._body);
-              this.errors = [];
-              this.errors.push({msg: errorBody.reasons[0].message, type: 'danger', closable: true});
-              this.messageTriggered.emit({ message: errorBody.reasons[0].message, level: 'danger' });
+              this.handleBackendErrors(errorBody);
             },
             () => {
               if (this.errors.length == 0) {
@@ -2021,9 +1993,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             (error) => {
               console.log("error creating unit planned");
               this.saveIsOngoing = false;
-              this.closeModal();
-              this.messageTriggered
-                .emit({ message: 'Erreur lors de la création de l\'unité planifiée', level: 'danger' });
+              // this.closeModal();
+              // this.messageTriggered.emit({ message: 'Erreur lors de la création de l\'unité planifiée', level: 'danger' });
+              let errorBody = JSON.parse(error._body);
+              this.handleBackendErrors(errorBody);
             },
             () => {
               // console.log("creating unit planned finished");
@@ -2159,9 +2132,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
                   console.log("error updating unit model");
                   this.saveIsOngoing = false;
                   let errorBody = JSON.parse(error._body);
-                  this.errors = [];
-                  this.errors.push({msg: errorBody.reasons[0].message, type: 'danger', closable: true});
-                  this.messageTriggered.emit({ message: errorBody.reasons[0].message, level: 'danger' });
+                  this.handleBackendErrors(errorBody);
                 },
                 () => {
                   if (this.errors.length == 0) {
@@ -2188,9 +2159,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
                 (error) => {
                   console.log("error creating unit model");
                   this.saveIsOngoing = false;
-                  this.closeModal();
+                  // this.closeModal();
+                  // let errorBody = JSON.parse(error._body);
+                  // this.messageTriggered.emit({ message: 'Erreur lors de la création de l\'unité modèle', level: 'danger' });
                   let errorBody = JSON.parse(error._body);
-                  this.messageTriggered.emit({ message: 'Erreur lors de la création de l\'unité modèle', level: 'danger' });
+                  this.handleBackendErrors(errorBody);
                 },
                 () => {
                   console.log("creating unit model finished");
@@ -2299,16 +2272,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             console.log("error creating unit");
             this.saveIsOngoing = false;
             let errorBody = JSON.parse(error._body);
-            this.errors = [];
-            this.errors.push({msg: errorBody.reasons[0].message, type: 'danger', closable: true});
-            if (errorBody.reasons[0].code == 'E0101') {
-              this.unitForm.get('sigle').setErrors({ "error": true });
-              this.unitForm.get('sigle').markAsDirty();
-            }
-            if (errorBody.reasons[0].code == 'E0102') {
-              this.unitForm.get('cf').setErrors({ "error": true });
-              this.unitForm.get('cf').markAsDirty();
-            }
+            this.handleBackendErrors(errorBody);
           },
           () => {
             if (this.errors.length == 0) {
@@ -2345,8 +2309,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         (error) => {
           console.log("error deleting unit planned");
           this.modal.hide();
-          this.messageTriggered
-            .emit({ message: "Erreur lors de la suppression de l'unité planifiée", level: "danger" });
+          this.messageTriggered.emit({ message: "Erreur lors de la suppression de l'unité planifiée", level: "danger" });
         },
         () => {
           console.log("deleting unit planned finished");

@@ -14,11 +14,6 @@
           <h4 *ngIf="mode == 'EDIT_UNIT_MODEL'" class="modal-title">Modèle pour <i>{{ fromUnit.sigle }} - {{ fromUnit.label }}</i></h4>
         </div>
         <div class="modal-body">
-          <div *ngIf="errors.length > 0" class="errors-bar">
-            <div *ngFor="let error of errors;let i = index">
-              {{ error?.msg }}
-            </div>
-          </div>
           <div class="form-horizontal" *ngIf="mode == 'EDIT_UNIT_PLANNED'">
             <div class="form-group">
               <label for="" class="col-sm-2 control-label">Appliquer le *</label>
@@ -738,7 +733,7 @@
 </div>
 
 <div class="modal fade" bsModal #attributeModal="bs-modal"
-  tabindex="-1" role="dialog" aria-labelledby="alertsModalLabel" aria-hidden="true" id="modal-attribute">
+  tabindex="-1" role="dialog" aria-labelledby="attributeModalLabel" aria-hidden="true" id="modal-attribute">
   <div class="modal-dialog modal-second">
     <div class="modal-content">
       <div class="modal-header">
