@@ -141,7 +141,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   public fromUnit: Unit;
   public showAddressTab: boolean = false;
   public unitAddress: Address;
-  public labelValidationPattern: string = '^[a-zA-Zà-öù-ÿÀ-ÖØ-ß,\'\\+\\-=\\s\\d]{0,80}$';
+  public labelValidationPattern: string = '^[a-zA-Zà-öù-ÿÀ-ÖØ-ß,\'\\+\\-=\\s\\d\\.]{0,80}$';
   public sigleValidationPattern: string = '^[a-zA-Z\\-\\d]{0,12}$';
   public cfValidationPattern: string = '^[0-9]{4,5}$';
   public dateValidationPattern: string = '^(0?[1-9]|[12][0-9]|3[01])[\\.](0?[1-9]|1[012])[\\.](\\d{2}|\\d{4})$';
@@ -844,6 +844,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       addressCountryId: this.fb.control('')
     });
 
+    this.preValidateUnitForm();
+
     // FIXME: Extract the location from address5...
     if (this.unitAddress.address5 != null) {
       this.unitForm.get('addressLocationText').setValue(this.unitAddress.address5.substr(3).trim());
@@ -992,6 +994,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         addressCountryId: this.fb.control('')
       });
 
+      this.preValidateUnitForm();
+
       //retrieve responsible from sciper service
       if (unitModel.responsibleId != null && unitModel.responsibleId != 0) {
         this.refreshResponsibleSelected(unitModel.responsibleId);
@@ -1061,6 +1065,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         addressCountryText: this.fb.control(''),
         addressCountryId: this.fb.control('')
       });
+
+      this.preValidateUnitForm();
 
       this.selectedUnitAttributes = [];
 
@@ -1176,6 +1182,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       addressCountryId: this.fb.control('')
     });
 
+    this.preValidateUnitForm();
+
     // // If "EPFL", room is mandatory
     // if (this.getRootSigle(unit.sigleLong) == 'EPFL') {
     //   this.unitForm.get('roomId').setValidators([Validators.required]);
@@ -1282,6 +1290,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       addressCountryId: this.fb.control('')
     });
 
+    this.preValidateUnitForm();
+
     // retrieve responsible from sciper service
     if (unit.responsibleId != null && unit.responsibleId != 0) {
       this.refreshResponsibleSelected(unit.responsibleId);
@@ -1321,6 +1331,19 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.selectedUnitAttributes = unit.attributes;
   }
 
+  /******************************************************
+  *   Pre validate form controls
+  ******************************************************/
+  private preValidateUnitForm() {
+    // To trigger validation
+    this.unitForm.get('sigle').markAsDirty();
+    this.unitForm.get('label').markAsDirty();
+    this.unitForm.get('labelShort').markAsDirty();
+    this.unitForm.get('cf').markAsDirty();
+    this.unitForm.get('from').markAsDirty();
+    this.unitForm.get('to').markAsDirty();
+    this.unitForm.get('applyAt').markAsDirty();
+  }
 
   /******************************************************
   *   check submitted unit consistency before saving it
