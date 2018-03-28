@@ -26,7 +26,7 @@
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                         <ul class="nav navbar-nav">
                             <li [routerLinkActive]="['active']" *ngIf="authService.isLoggedIn()">
-                                <a [routerLink]=" ['./arbre'] ">Arbre des unités</a>
+                                <a [routerLink]=" ['./unites'] ">Arbre des unités</a>
                             </li>
                             <li [routerLinkActive]="['active']" *ngIf="authService.isLoggedIn()">
                                 <a [routerLink]=" ['./recherche'] ">Recherche d'unités</a>
@@ -37,7 +37,7 @@
                         </ul>
                         <ul class="nav navbar-nav navbar-right">
                             <li *ngIf="!authService.isLoggedIn()">
-                                <a href="{{oauth2ProviderUrl}}auth?client_id={{oauth2ClientId}}&response_type=code&scope=Units,Tequila.profile&redirect_uri={{oauth2TokenProxyUrl}}">Se connecter</a>
+                                <a href="{{oauth2ProviderUrl}}auth?client_id={{oauth2ClientId}}&response_type=code&scope=Units,Tequila.profile,Persons,RealEstate&redirect_uri={{oauth2TokenProxyUrl}}">Se connecter</a>
                             </li>
                             <li *ngIf="authService.isLoggedIn()">
                                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" style="padding-top: 13px; padding-bottom: 13px;">
@@ -68,7 +68,7 @@
     </div>
     <footer class="footer-container">
         <div class="footer-right-container">
-            © EPFL - idevelop, version 1.0.11 (Février 2018)
+            © EPFL - idevelop, version 1.0.12
         </div>
     </footer>
 </div>

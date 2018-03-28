@@ -18,6 +18,7 @@ export class CadiService {
     public getUnitAddress(sigle: string, separator: string) {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
         
         let url: string;
         url = CadiService.SERVICE_PREFIX + 'units/' + sigle + '/addresses?separator=' + separator;

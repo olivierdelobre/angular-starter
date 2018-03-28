@@ -17,11 +17,11 @@ export class SciperService {
     ******************************************************/
     public searchByName(query: string, hasAccreds: boolean) {
         let headers = new Headers();
-        headers.append('Authorization', 'Basic ' + btoa('delobre:secret'));
         headers.append('Accept', 'application/json');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Persons.token'));
 
         let url: string;
-        url = SciperService.SERVICE_PREFIX + 'people?query=' + query;
+        url = SciperService.SERVICE_PREFIX + 'persons?query=' + query;
 
         if (hasAccreds) {
             url += "&hasAccreds";
@@ -38,11 +38,11 @@ export class SciperService {
     ******************************************************/
     public getById(id: number) {
         let headers = new Headers();
-        headers.append('Authorization', 'Basic ' + btoa('delobre:secret'));
         headers.append('Accept', 'application/json');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Persons.token'));
 
         let url: string;
-        url = SciperService.SERVICE_PREFIX + 'people/' + id;
+        url = SciperService.SERVICE_PREFIX + 'persons/' + id;
         
         // console.log("calling " + url);
 

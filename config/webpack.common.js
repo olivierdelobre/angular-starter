@@ -31,7 +31,6 @@ const HMR = helpers.hasProcessFlag('hot');
 const AOT = process.env.BUILD_AOT || helpers.hasNpmFlag('aot');
 const METADATA = {
   title: 'Gestion des unités',
-  //baseUrl: 'units/',
   baseUrl: '/',
   proxyPrefix: '/',
   isDevServer: helpers.isWebpackDevServer(),

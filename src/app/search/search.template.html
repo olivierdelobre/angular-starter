@@ -5,24 +5,22 @@
   </alert>
 </div>
 <div class="search-container" *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasReadRole(loggedUserInfo)">
-  <div style="position: relative;">
-    <div *ngIf="searchResults" class="search-result-count">
-      <b>Trouvés</b> : {{ searchResults.length }}
-    </div>
-  </div>
   <div>
     <div class="grey-container">
       <form (ngSubmit)="searchUnit('search')" [formGroup]="searchForm" (keydown.enter)="$event.preventDefault()">
         <div class="row">
           <div class="col-md-4">
-              <label style="font-weight: normal;">
-                  <input type="checkbox" formControlName="only_permanent" /> Seulement les enreg. permanents
-              </label>
+            <label style="font-weight: normal;">
+              <input type="checkbox" formControlName="onlyPermanent" /> Seulement les enreg. permanents
+            </label>
           </div>
           <div class="col-md-4">
-              <label style="font-weight: normal;">
-                  <input type="checkbox" formControlName="only_valid" /> Seulement les unités valides
-              </label>
+            <label style="font-weight: normal;">
+              <input type="checkbox" formControlName="onlyValid" /> Seulement les unités valides
+            </label>
+          </div>
+          <div class="col-md-4" style="text-align: right;">
+            Etat au <span class="state-date" (click)="changeStateDateModal.show()">{{ stateDateDate | date:"dd.MM.yyyy" }}</span>
           </div>
         </div>
         <div class="row">
@@ -32,10 +30,16 @@
               <input type="text" class="form-control" formControlName="sigle" id="input-sigle" placeholder="" (keydown.enter)="searchUnit('search')" style="text-transform: uppercase;" sigle-input />
             </div>
           </div>
-          <div class="col-md-8">
+          <div class="col-md-4">
             <div class="form-group">
               <label for="input-label">Libellé</label>
               <input type="text" class="form-control" formControlName="label" id="input-label" placeholder="" (keydown.enter)="searchUnit('search')" />
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="form-group">
+              <label for="input-label">Hiérarchie</label>
+              <input type="text" class="form-control" formControlName="hierarchy" id="input-hierarchy" placeholder="ex: EPFL SI" (keydown.enter)="searchUnit('search')" />
             </div>
           </div>
         </div>
@@ -103,28 +107,28 @@
             <div class="form-group">
               <label for="input-createdAtStart">Créé entre le...</label>
               <br />
-              <input class="form-control" formControlName="created_at_start" maxlength="10" (keydown.enter)="searchUnit('search')" date-input />
+              <input class="form-control" formControlName="createdAtStart" maxlength="10" (keydown.enter)="searchUnit('search')" placeholder="dd.mm.yyyy" date-input />
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-group">
               <label for="input-createdAtEnd">...et le</label>
               <br />
-              <input class="form-control" formControlName="created_at_end" maxlength="10" (keydown.enter)="searchUnit('search')" date-input />
+              <input class="form-control" formControlName="createdAtEnd" maxlength="10" (keydown.enter)="searchUnit('search')" placeholder="dd.mm.yyyy" date-input />
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-group">
               <label for="input-updatedAtStart">Modifié entre le...</label>
               <br />
-              <input class="form-control" formControlName="updated_at_start" maxlength="10" (keydown.enter)="searchUnit('search')" date-input />
+              <input class="form-control" formControlName="updatedAtStart" maxlength="10" (keydown.enter)="searchUnit('search')" placeholder="dd.mm.yyyy" date-input />
             </div>
           </div>
           <div class="col-md-3">
             <div class="form-group">
               <label for="input-updatedAtEnd">...et le</label>
               <br />
-              <input class="form-control" formControlName="updated_at_end" maxlength="10" (keydown.enter)="searchUnit('search')" date-input />
+              <input class="form-control" formControlName="updatedAtEnd" maxlength="10" (keydown.enter)="searchUnit('search')" placeholder="dd.mm.yyyy" date-input />
             </div>
           </div>
         </div>
@@ -160,7 +164,10 @@
             </div>
           </div>
         </div>
-        <div style="text-align: right;">
+        <div style="text-align: right; position: relative;">
+          <div *ngIf="searchResults" class="search-result-count">
+            <b>Trouvés</b> : {{ searchResults.length }}
+          </div>
           <img *ngIf="searchIsOngoing" id="spinner-searching" src="/assets/img/spinner.gif" />
           <button type="submit" id="search-button" class="btn btn-primary" [disabled]="searchIsOngoing || !searchForm.valid">Rechercher les unités</button>
         </div>
@@ -241,7 +248,8 @@
 </app-updateunit>
 
 <app-deleteunit #myDeleteUnitComponent
-  (unitDeleted)="unitDeleted($event)">
+  (unitDeleted)="unitDeleted($event)"
+  (messageTriggered)="messageTriggered($event)">
 </app-deleteunit>
 
 <app-changedoc #myChangeDocComponent
@@ -279,3 +287,25 @@
     </div>
   </div>
 </div>
+
+<form (ngSubmit)="changeStateDate()" [formGroup]="stateDateForm">
+    <div bsModal #changeStateDateModal="bs-modal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+        <div class="modal-dialog modal-calendar">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" (click)="changeStateDateModal.hide()" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">Date de référence pour l'affichage</h4>
+                </div>
+                <div class="modal-body">
+                    <input class="form-control" formControlName="stateDate" maxlength="10" date-input />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" (click)="changeStateDateModal.hide()">Fermer</button>
+                    <button type="submit" class="btn btn-primary" (click)="changeStateDate()">Valider</button>
+                </div>
+            </div>
+        </div>
+    </div>
+  </form>

@@ -15,7 +15,7 @@ import { AuthService } from '../services/auth.service';
 import { SciperService } from '../services/sciper.service';
 import { CadiService } from '../services/cadi.service';
 import { PlaceService } from '../services/place.service';
-import { InfrastructureService } from '../services/infrastructure.service';
+import { RealEstateService } from '../services/realestate.service';
 import { SharedAppStateService } from '../services/sharedappstate.service';
 
 import { ChangeDocComponent } from '../changedoc/changedoc.component';
@@ -34,7 +34,7 @@ import { Utils } from '../common/utils';
 
 @Component({
   selector: 'app-updateunit',
-  providers: [ TreeService, AuthService, SciperService, CadiService, PlaceService, InfrastructureService ],
+  providers: [ TreeService, AuthService, SciperService, CadiService, PlaceService, RealEstateService ],
   styleUrls: [ './updateunit.style.css', '../app.style.css' ],
   templateUrl: './updateunit.template.html',
   encapsulation: ViewEncapsulation.None /* required to be able to override primeNG styles */
@@ -85,7 +85,6 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   public endDate: Date = new Date();
   public stateDate: Date = new Date();
   public stateDateTemp: Date = new Date();
-  public openedIds: string;
   public onlyPermanent: boolean;
   public onlyValid: boolean;
   public expandedUnits: number[];
@@ -155,7 +154,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     public sciperService: SciperService,
     public cadiService: CadiService,
     public placeService: PlaceService,
-    public infrastructureService: InfrastructureService,
+    public realEstateService: RealEstateService,
     public sharedAppStateService: SharedAppStateService
   ) {  }
 
@@ -723,7 +722,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     }
 
     this.searchRoomIsOngoing = true;
-    this.infrastructureService.searchRoomsByLabel(this.unitForm.get('roomSearchText').value)
+    this.realEstateService.searchRoomsByLabel(this.unitForm.get('roomSearchText').value)
       .subscribe(
         (rooms) => {
           if (rooms.length == 1) {
@@ -736,7 +735,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           }
         },
         (error) => {
-          console.log('Error retrieving rooms from infrastructure service');
+          console.log('Error retrieving rooms from realestate service');
           this.searchRoomResults = [];
           this.searchRoomShowResults = false;
           this.searchRoomIsOngoing = false;
@@ -1338,7 +1337,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
     if ((unit.roomId == null || unit.roomId == 0) && this.unitForm.get('roomSearchText').value != '') {
       observableRoomIsSet = true;
-      observables.push(this.infrastructureService.searchRoomsByLabel(this.unitForm.get('roomSearchText').value));
+      observables.push(this.realEstateService.searchRoomsByLabel(this.unitForm.get('roomSearchText').value));
     }
     if ((unit.responsibleId == null || unit.responsibleId == 0) && this.unitForm.get('responsibleSearchText').value != '') {
       observableResponsibleIsSet = true;
@@ -1352,10 +1351,10 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       observableParentUnitIsSet = true;
       observables.push(this.treeService.searchUnitsGeneric('%25' + this.unitForm.get('parentUnitSearchText').value + '%25', this.selectedUnit.level - 1));
     }
-    observables.push(this.treeService.searchUnits(unit.sigle, '', '', '', '', '', 0, '', '', '', '', null, null, []));
-    observables.push(this.treeService.searchUnits('', '', '', unit.cf, '', '', 0, '', '', '', '', null, null, []));
-    observables.push(this.treeService.searchUnits('', unit.label, '', '', '', '', 0, '', '', '', '', null, null, []));
-    observables.push(this.treeService.searchUnits('', '', unit.labelShort, '', '', '', 0, '', '', '', '', null, null, []));
+    observables.push(this.treeService.searchUnits(unit.sigle, '', '', '', '', '', 0, '', '', '', '', '', null, null, null, []));
+    observables.push(this.treeService.searchUnits('', '', '', unit.cf, '', '', 0, '', '', '', '', '', null, null, null, []));
+    observables.push(this.treeService.searchUnits('', unit.label, '', '', '', '', 0, '', '', '', '', '', null, null, null, []));
+    observables.push(this.treeService.searchUnits('', '', unit.labelShort, '', '', '', 0, '', '', '', '', '', null, null, null, []));
 
     Observable.forkJoin(observables)
       .subscribe((dataArray) => {
@@ -1956,7 +1955,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         this.selectedUnitPlanned.labels.push(label);
       }
 
-      // console.log('you submitted unit planned: ', JSON.stringify(this.selectedUnitPlanned));
+      console.log('you submitted unit planned: ', JSON.stringify(this.selectedUnitPlanned));
 
       // FIXME: if this.selectedUnitPlanned.id is undefined, no need to do the check request
       if (this.selectedUnitPlanned.id != null) {
@@ -2597,7 +2596,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   Refresh selected room in UI
   ******************************************************/
   private refreshRoomSelected(roomId: number) {
-    this.infrastructureService.getRoomById(roomId)
+    this.realEstateService.getRoomById(roomId)
       .subscribe(
         (room) => {
           this.selectedRoom = room;

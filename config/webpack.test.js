@@ -16,6 +16,7 @@ const ContextReplacementPlugin = require('webpack/lib/ContextReplacementPlugin')
  * Webpack Constants
  */
 const ENV = process.env.ENV = process.env.NODE_ENV = 'test';
+const APP_NAME = process.env.APP_NAME = 'appUnits';
 const UNITS_API_URL = process.env.UNITS_API_URL = 'http://localhost:8080/units-api/v1/';
 const SCIPER_API_URL = process.env.SCIPER_API_URL = 'http://localhost:8083/sciper-api/v1/';
 const CADI_API_URL = process.env.CADI_API_URL = 'http://localhost:8082/cadi-api/v1/';
@@ -24,6 +25,7 @@ const OAUTH2_PROVIDER_URL = process.env.OAUTH2_PROVIDER_URL = 'https://test-tequ
 const OAUTH2_TOKEN_PROXY_URL = process.env.OAUTH2_TOKEN_PROXY_URL = 'https://api-test.epfl.ch/oauth2-proxy/v1/d518e10ce2bfdaee8c5484ba@epfl.ch/tokens';
 const OAUTH2_CLIENT_ID = process.env.OAUTH2_CLIENT_ID = 'd518e10ce2bfdaee8c5484ba@epfl.ch';
 const METADATA = {
+  APP_NAME: APP_NAME,
   UNITS_API_URL: UNITS_API_URL,
   SCIPER_API_URL: SCIPER_API_URL,
   CADI_API_URL: CADI_API_URL,
@@ -208,6 +210,7 @@ module.exports = function (options) {
        */
       new DefinePlugin({
         'ENV': JSON.stringify(ENV),
+        'APP_NAME': JSON.stringify(METADATA.APP_NAME),
         'UNITS_API_URL': JSON.stringify(METADATA.UNITS_API_URL),
         'SCIPER_API_URL': JSON.stringify(METADATA.SCIPER_API_URL),
         'CADI_API_URL': JSON.stringify(METADATA.CADI_API_URL),
@@ -220,6 +223,7 @@ module.exports = function (options) {
           'ENV': JSON.stringify(ENV),
           'NODE_ENV': JSON.stringify(ENV),
           'HMR': false,
+          'APP_NAME': JSON.stringify(APP_NAME),
           'UNITS_API_URL' : JSON.stringify(UNITS_API_URL),
           'SCIPER_API_URL' : JSON.stringify(SCIPER_API_URL),
           'CADI_API_URL' : JSON.stringify(CADI_API_URL),

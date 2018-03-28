@@ -1,6 +1,6 @@
 export class Utils  {
 
-    public static getFormattedDate(dateString: string, dateValidationPattern: string): string {
+    public static getFormattedDate(dateString: string, dateValidationPattern: string, separator= "-", suffix = "T00:00:00.000Z"): string {
         let dateRegex: RegExp = new RegExp(dateValidationPattern);
         let formattedDate: string = '';
         let dateRegexMatches: RegExpExecArray = dateRegex.exec(dateString);
@@ -14,9 +14,9 @@ export class Utils  {
           if (dateRegexMatches[3].length == 2) {
             dateRegexMatches[3] = '20' + dateRegexMatches[3];
           }
-          return dateRegexMatches[3] + "-"
-            + dateRegexMatches[2] + "-"
-            + dateRegexMatches[1] + "T00:00:00.000Z";
+          return dateRegexMatches[3] + separator
+            + dateRegexMatches[2] + separator
+            + dateRegexMatches[1] + suffix;
         }
     
         return null;

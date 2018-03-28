@@ -22,6 +22,8 @@ import { UpdateUnitComponent } from '../unit/updateunit.component';
 import { DeleteUnitComponent } from '../unit/deleteunit.component';
 import { ListUnitPlannedComponent } from '../unit/listunitplanned.component';
 
+import { Utils } from '../common/utils';
+
 @Component({
   selector: 'app-search',
   providers: [ TreeService, AuthService, SciperService, CadiService ],
@@ -32,50 +34,51 @@ export class SearchComponent implements OnInit, OnDestroy {
   @ViewChild('myUpdateUnitComponent') myUpdateUnitComponent: UpdateUnitComponent;
   @ViewChild('myDeleteUnitComponent') myDeleteUnitComponent: DeleteUnitComponent;
   @ViewChild('myListUnitPlannedComponent') myListUnitPlannedComponent: ListUnitPlannedComponent;
-
+  @ViewChild('changeStateDateModal') changeStateDateModal: ModalDirective;
   @ViewChild('selectSearchResponsibleModal') selectSearchResponsibleModal: ModalDirective;
   
-  public searchForm: FormGroup;
-  public searchResults: any[];
-  public selectedUnit: Unit = new Unit({});
-  public selectedUnitLabels: Label[];
-  public selectedUnitPlanned: UnitPlanned = new UnitPlanned({});
-  public selectedUnitModel: UnitModel = new UnitModel({});
-  public matchingResponsible: any;
-  public matchingRoom: any;
-  public unitTypesList: any[];
-  public languagesList: any[];
-  public labelENG: Label;
-  public labelGER: Label;
-  public labelITA: Label;
-  public resultsPerson: any[];
-  public resultsRoom: any[];
-  public alerts: Array<Object> = [];
+  private searchForm: FormGroup;
+  private searchResults: any[];
+  private selectedUnit: Unit = new Unit({});
+  private selectedUnitLabels: Label[];
+  private selectedUnitPlanned: UnitPlanned = new UnitPlanned({});
+  private selectedUnitModel: UnitModel = new UnitModel({});
+  private matchingResponsible: any;
+  private matchingRoom: any;
+  private unitTypesList: any[];
+  private languagesList: any[];
+  private labelENG: Label;
+  private labelGER: Label;
+  private labelITA: Label;
+  private resultsPerson: any[];
+  private resultsRoom: any[];
+  private alerts: Array<Object> = [];
   private attributesList: any[];
   private attributeCriteriaForms: FormGroup[];
   private attributeCriterias: any[];
   private loggedUserInfo: any;
   private loggedUserInfoSubscription: Subscription;
-  private dateValidationPattern: string = '^(0[1-9]|[12][0-9]|3[01])[\\.](0[1-9]|1[012])[\\.]\\d{4}$';
+  private stateDate: string;
+  private stateDateDate: Date = new Date();
+  private dateValidationPattern: string = '^(0?[1-9]|[12][0-9]|3[01])[\\.](0?[1-9]|1[012])[\\.](\\d{2}|\\d{4})$';
+  private stateDateForm: FormGroup;
+  private searchIsTriggered: boolean = false;
+  private searchMode: string = '';
+  private searchIsOngoing: boolean = false;
+  private searchReponsibleResults: any[];
+  private searchReponsibleShowResults: boolean = false;
+  private searchReponsibleErrorMessage: string;
+  private searchResponsibleIsOngoing: boolean = false;
+  private selectedResponsible: any;
 
-  public searchIsTriggered: boolean = false;
-  public searchMode: string = '';
-  public searchIsOngoing: boolean = false;
-  public searchReponsibleResults: any[];
-  public searchReponsibleShowResults: boolean = false;
-  public searchReponsibleErrorMessage: string;
-  public searchResponsibleIsOngoing: boolean = false;
-
-  public selectedResponsible: any;
-
-  constructor(public router: Router,
-    public activatedRoute: ActivatedRoute,
+  constructor(private router: Router,
+    private activatedRoute: ActivatedRoute,
     private treeService: TreeService,
-    public fb: FormBuilder,
-    public authService: AuthService,
-    public sciperService: SciperService,
-    public cadiService: CadiService,
-    public sharedAppStateService: SharedAppStateService
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private sciperService: SciperService,
+    private cadiService: CadiService,
+    private sharedAppStateService: SharedAppStateService
   ) {  }
 
   /******************************************************
@@ -98,12 +101,12 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.searchForm.get('cf').value + ", " +
       this.searchForm.get('type').value + ", " +
       this.searchForm.get('level').value + ", " +
-      this.searchForm.get('created_at_start').value + ", " +
-      this.searchForm.get('created_at_end').value + ", " +
-      this.searchForm.get('updated_at_start').value + ", " +
-      this.searchForm.get('updated_at_end').value + ", " +
-      this.searchForm.get('only_permanent').value + ", " +
-      this.searchForm.get('only_valid').value);
+      this.searchForm.get('createdAtStart').value + ", " +
+      this.searchForm.get('createdAtEnd').value + ", " +
+      this.searchForm.get('updatedAtStart').value + ", " +
+      this.searchForm.get('updatedAtEnd').value + ", " +
+      this.searchForm.get('onlyPermanent').value + ", " +
+      this.searchForm.get('onlyValid').value);
     */
     
     let attributesCriterias: any[] = [];
@@ -121,11 +124,12 @@ export class SearchComponent implements OnInit, OnDestroy {
         && this.searchForm.get('cf').value == ''
         && this.searchForm.get('type').value == ''
         && this.searchForm.get('level').value == ''
+        && this.searchForm.get('hierarchy').value == ''
         && (this.searchForm.get('responsibleId').value == '' || this.searchForm.get('responsibleId').value == '0')
-        && this.searchForm.get('created_at_start').value == ''
-        && this.searchForm.get('created_at_end').value == ''
-        && this.searchForm.get('updated_at_start').value == ''
-        && this.searchForm.get('updated_at_end').value == ''
+        && this.searchForm.get('createdAtStart').value == ''
+        && this.searchForm.get('createdAtEnd').value == ''
+        && this.searchForm.get('updatedAtStart').value == ''
+        && this.searchForm.get('updatedAtEnd').value == ''
         && attributesCriterias.length == 0) {
       this.searchResults = null;
       this.searchIsOngoing = false;
@@ -141,12 +145,14 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.searchForm.get('type').value,
         this.searchForm.get('level').value,
         this.searchForm.get('responsibleId').value,
-        this.searchForm.get('created_at_start').value,
-        this.searchForm.get('created_at_end').value,
-        this.searchForm.get('updated_at_start').value,
-        this.searchForm.get('updated_at_end').value,
-        this.searchForm.get('only_permanent').value,
-        this.searchForm.get('only_valid').value,
+        this.searchForm.get('hierarchy').value + '%25',
+        Utils.getFormattedDate(this.searchForm.get('createdAtStart').value, this.dateValidationPattern, "", ""),
+        Utils.getFormattedDate(this.searchForm.get('createdAtEnd').value, this.dateValidationPattern, "", ""),
+        Utils.getFormattedDate(this.searchForm.get('updatedAtStart').value, this.dateValidationPattern, "", ""),
+        Utils.getFormattedDate(this.searchForm.get('updatedAtEnd').value, this.dateValidationPattern, "", ""),
+        this.searchForm.get('onlyPermanent').value,
+        this.searchForm.get('onlyValid').value,
+        moment(this.stateDate).format("YYYYMMDD"),
         attributesCriterias)
         .subscribe(
           (res) => this.searchResults = res,
@@ -166,60 +172,40 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
     else if (mode == "export") {
       this.searchIsOngoing = false;
-      let url: string;
-      url = this.treeService.getExportUrl();
-      if (this.searchForm.get('sigle').value != null) {
-        url += '&sigle=' + this.searchForm.get('sigle').value;
-      }
-      if (this.searchForm.get('label').value != null) {
-        url += '&label=' + this.searchForm.get('label').value;
-      }
-      if (this.searchForm.get('cf').value != null) {
-        url += '&cf=' + this.searchForm.get('cf').value;
-      }
-      if (this.searchForm.get('type').value != null) {
-        url += '&type=' + this.searchForm.get('type').value;
-      }
-      if (this.searchForm.get('level').value != null) {
-        url += '&level=' + this.searchForm.get('level').value;
-      }
-      if (this.searchForm.get('responsibleId').value != null) {
-        url += '&responsibleId=' + this.searchForm.get('responsibleId').value;
-      }
-      if (this.searchForm.get('created_at_start').value != null) {
-        url += '&createdAtStart=' + this.searchForm.get('created_at_start').value;
-      }
-      if (this.searchForm.get('created_at_end').value != null) {
-        url += '&createdAtEnd=' + this.searchForm.get('created_at_end').value;
-      }
-      if (this.searchForm.get('updated_at_start').value != null) {
-        url += '&updatedAtStart=' + this.searchForm.get('updated_at_start').value;
-      }
-      if (this.searchForm.get('updated_at_end').value != null) {
-        url += '&updatedAtEnd=' + this.searchForm.get('updated_at_end').value;
-      }
-      if (this.searchForm.get('only_valid').value) {
-        url += '&onlyValid=Y';
-      }
-      else {
-        url += '&onlyValid=N';
-      }
-      if (this.searchForm.get('only_permanent').value) {
-        url += '&onlyPermanent=Y';
-      }
-      else {
-        url += '&onlyPermanent=N';
-      }
-      if (attributesCriterias != null && attributesCriterias.length > 0) {
-        let attributesCriteriasString: string = "";
-        for (let criteria of attributesCriterias) {
-          attributesCriteriasString += "|" + criteria.code + ":" + criteria.value;
-        }
-        url += '&attributes=' + attributesCriteriasString.substr(1);
-      }
-      
-      window.location.href = url;
+      this.treeService.downloadExport('%25' + this.searchForm.get('sigle').value + '%25',
+        '%25' + this.searchForm.get('label').value + '%25',
+        null,
+        '%25' + this.searchForm.get('cf').value + '%25',
+        this.searchForm.get('type').value,
+        this.searchForm.get('level').value,
+        this.searchForm.get('responsibleId').value,
+        this.searchForm.get('hierarchy').value + '%25',
+        Utils.getFormattedDate(this.searchForm.get('createdAtStart').value, this.dateValidationPattern, "", ""),
+        Utils.getFormattedDate(this.searchForm.get('createdAtEnd').value, this.dateValidationPattern, "", ""),
+        Utils.getFormattedDate(this.searchForm.get('updatedAtStart').value, this.dateValidationPattern, "", ""),
+        Utils.getFormattedDate(this.searchForm.get('updatedAtEnd').value, this.dateValidationPattern, "", ""),
+        this.searchForm.get('onlyPermanent').value,
+        this.searchForm.get('onlyValid').value,
+        moment(this.stateDate).format("YYYYMMDD"),
+        attributesCriterias);
     }
+  }
+
+  /******************************************************
+  *   change state date
+  ******************************************************/
+  private changeStateDate() {
+    this.stateDate = Utils.getFormattedDate(this.stateDateForm.get('stateDate').value, this.dateValidationPattern);
+    this.stateDateDate = new Date(+this.stateDate.substring(0, 4), +this.stateDate.substring(5, 7) - 1, +this.stateDate.substring(8, 10));
+    // console.log("state date has changed = " + this.stateDate);
+    this.changeStateDateModal.hide();
+  }
+
+  /******************************************************
+  *   message is triggered somewhere in the tree
+  ******************************************************/
+  private messageTriggered(event: any) {
+    this.alerts.push({msg: event.message, type: event.level, closable: true});
   }
 
   /******************************************************
@@ -493,7 +479,19 @@ export class SearchComponent implements OnInit, OnDestroy {
     // console.log('ngOnInit `Tree` component');
     // console.log('auth_token = ' + localStorage.getItem('auth_token'));
     this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "" };
-    this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe((info) => this.loggedUserInfo = info);
+    this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe(
+      (info) => {
+        this.loggedUserInfo = info;
+        if (!this.authService.isLoggedIn()) {
+          localStorage.setItem('targetUrl', this.router.url);
+          this.authService.redirectToLogin();
+        }
+      },
+      (error) => {},
+      () => {}
+    );
+
+    this.stateDate = Utils.getFormattedDate(moment().format('DD.MM.YYYY'), this.dateValidationPattern);
 
     this.selectedUnit = new Unit({});
     this.selectedUnitLabels = [];
@@ -506,6 +504,10 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.languagesList = [];
     this.attributesList = [];
 
+    this.stateDateForm = this.fb.group({
+      stateDate: this.fb.control(moment().format('DD.MM.YYYY'), [Validators.required, Validators.pattern(this.dateValidationPattern)])
+    });
+
     this.searchForm = this.fb.group({
       sigle: this.fb.control(''),
       label: this.fb.control(''),
@@ -515,12 +517,13 @@ export class SearchComponent implements OnInit, OnDestroy {
       responsible: this.fb.control(''),
       responsibleId: this.fb.control(''),
       responsibleSearchText: this.fb.control(''),
-      created_at_start: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
-      created_at_end: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
-      updated_at_start: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
-      updated_at_end: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
-      only_permanent: this.fb.control(''),
-      only_valid: this.fb.control(''),
+      hierarchy: this.fb.control(''),
+      createdAtStart: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
+      createdAtEnd: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
+      updatedAtStart: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
+      updatedAtEnd: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
+      onlyPermanent: this.fb.control(''),
+      onlyValid: this.fb.control(''),
       attribute_criterias: this.fb.array([])
     });
 

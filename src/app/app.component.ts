@@ -15,19 +15,20 @@ import { SharedAppStateService } from './services/sharedappstate.service';
 export class App {
   private viewContainerRef: ViewContainerRef;
 
-  treeFilter: string;
-  loggedUserInfo: any;
-  loggedUserInfoSubscription: Subscription;
+  private treeFilter: string;
+  private loggedUserInfo: any;
+  private loggedUserInfoSubscription: Subscription;
 
-  oauth2ClientId: string;
-  oauth2ProviderUrl: string;
-  oauth2TokenProxyUrl: string;
+  private oauth2ClientId: string;
+  private oauth2ProviderUrl: string;
+  private oauth2TokenProxyUrl: string;
+  private version: string;
 
   constructor(
     viewContainerRef:ViewContainerRef,
-    public appState: AppState,
-    public authService: AuthService,
-    public sharedAppStateService: SharedAppStateService
+    private appState: AppState,
+    private authService: AuthService,
+    private sharedAppStateService: SharedAppStateService
   ) {
     this.viewContainerRef = viewContainerRef;
   }
@@ -42,18 +43,22 @@ export class App {
     this.treeFilter = "";
 
     this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "" };
-    this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe(info => this.loggedUserInfo = info);
+    this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe(
+      (info) => {
+        this.loggedUserInfo = info;
+      },
+      (error) => {},
+      () => {}
+    );
     
-    if (localStorage.getItem('auth_token') != null) {
+    if (localStorage.getItem(process.env.APP_NAME + '.Units.token') != null) {
       this.authService.getUserinfo()
         .subscribe(
           (userinfo) => {
             this.sharedAppStateService.updateLoggedUserInfo(userinfo);
           },
           (error) => console.log('Failed to retrieve user info'),
-          () => {
-            
-          }
+          () => {}
         );
     }
   }

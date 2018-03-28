@@ -62,7 +62,6 @@ export class TreeComponent implements OnInit, OnDestroy {
   private endDate: Date = new Date();
   private stateDate: string;
   private stateDateDate: Date = new Date();
-  private openedIds: string;
   private onlyPermanent: boolean;
   private onlyValid: boolean;
   private expandedUnits: number[];
@@ -397,8 +396,17 @@ export class TreeComponent implements OnInit, OnDestroy {
     // console.log('auth_token = ' + localStorage.getItem('auth_token'));
 
     this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "" };
-    this.loggedUserInfoSubscription =
-      this.sharedAppStateService.loggedUserInfo.subscribe((info) => this.loggedUserInfo = info);
+    this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe(
+      (info) => {
+        this.loggedUserInfo = info;
+        if (!this.authService.isLoggedIn()) {
+          localStorage.setItem('targetUrl', this.router.url);
+          this.authService.redirectToLogin();
+        }
+      },
+      (error) => {},
+      () => {}
+    );
     
     this.stateDateForm = this.fb.group({
       state_date: this.fb.control(moment().format('DD.MM.YYYY'), [Validators.required, Validators.pattern(this.dateValidationPattern)])

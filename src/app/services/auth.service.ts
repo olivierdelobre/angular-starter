@@ -8,11 +8,11 @@ export class AuthService {
     private isSuperAdmin: boolean;
 
     constructor(private http: Http) {
-        this.loggedIn = !!localStorage.getItem('auth_token');
+        this.loggedIn = !!localStorage.getItem(process.env.APP_NAME + '.Units.token');
     }
 
     public isLoggedIn() {
-        return !!localStorage.getItem('auth_token');
+        return !!localStorage.getItem(process.env.APP_NAME + '.Units.token');
     }
 
     public hasSuperAdminRole(loggedUserInfo: any) {
@@ -49,14 +49,20 @@ export class AuthService {
     }
 
     public logout() {
-        localStorage.removeItem('auth_token');
+        localStorage.removeItem(process.env.APP_NAME + '.Units.token');
+        localStorage.removeItem(process.env.APP_NAME + '.Persons.token');
+        localStorage.removeItem(process.env.APP_NAME + '.RealEstate.token');
         this.loggedIn = false;
     }
 
     public getUserinfo() {
         return this.http.get(process.env.OAUTH2_PROVIDER_URL
             + 'userinfo?access_token=Bearer%20'
-            + localStorage.getItem('auth_token'))
+            + localStorage.getItem(process.env.APP_NAME + '.Units.token'))
             .map((res) => res.json());
+    }
+
+    public redirectToLogin() {
+        window.location.href = process.env.OAUTH2_PROVIDER_URL + 'auth?client_id=' + process.env.OAUTH2_CLIENT_ID + '&response_type=code&scope=Units,Tequila.profile,Persons,RealEstate&redirect_uri=' + process.env.OAUTH2_TOKEN_PROXY_URL;
     }
 }

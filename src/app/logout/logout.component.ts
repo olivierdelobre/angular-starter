@@ -30,7 +30,7 @@ export class LogoutComponent implements OnInit, OnDestroy {
   ******************************************************/
   public ngOnInit() {
     this.authService.logout();
-    this.router.navigate(['/arbre']);
+    this.router.navigate(['/unites']);
     this.sharedAppStateService.updateLoggedUserInfo({ "username": "", "uniqueid": 0, "scopes": "" });
   }
 }

@@ -18,8 +18,8 @@
 }
 .search-result-count {
   position: absolute;
-  top: 5px;
-  right: 5px;
+  bottom: 0px;
+  left: 0px;
 }
 .alerts-bar {
   position: fixed;

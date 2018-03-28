@@ -20,8 +20,8 @@ import * as FileSaver from 'file-saver';
 @Injectable()
 export class TreeService {
 
-     private static readonly SERVICE_PREFIX = process.env.UNITS_API_URL;
-    // private static readonly SERVICE_PREFIX = 'http://localhost:8080/units-api/v1/';
+    private static readonly SERVICE_PREFIX = process.env.UNITS_API_URL;
+    //private static readonly SERVICE_PREFIX = 'http://localhost:8082/units-api/v1/';
 
     constructor(private http: Http) { }
 
@@ -32,7 +32,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units?parentId=' + parentId;
@@ -62,14 +62,21 @@ export class TreeService {
     /******************************************************
     *   get a specific unit
     ******************************************************/
-    public getUnitById(id: number) {
+    public getUnitById(id: number, onlyValidAttribute?: boolean) {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
-        url = TreeService.SERVICE_PREFIX + 'units/' + id + '?withlabels&withattributes';
+        url = TreeService.SERVICE_PREFIX + 'units/' + id + '?withlabels';
+
+        if (onlyValidAttribute) {
+            url += "&withvalidattributes";
+        }
+        else {
+            url += "&withattributes";
+        }
 
         // console.log("calling " + url);
         return this.http.get(url, { headers: headers })
@@ -84,7 +91,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitplanneds/' + id + '?withlabels&withattributes';
@@ -102,7 +109,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/' + unitId + '/unitplanneds?withlabels&withattributes';
@@ -120,7 +127,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitsmodel/' + id + '?withlabels&withattributes';
@@ -138,7 +145,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/' + id + '/changelogs';
@@ -154,7 +161,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/' + id + '/hierarchy';
@@ -170,7 +177,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Content-Type', 'application/json');
         headers.append('Accept', 'application/json');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         // console.log('UnitPlanned = ' + JSON.stringify(unit));
         return this.http.put(TreeService.SERVICE_PREFIX + 'units/' + unit.id,
@@ -184,7 +191,7 @@ export class TreeService {
     ******************************************************/
     public updateUnitPlanned(unit: UnitPlanned) {
         let headers = new Headers();
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         return this.http.put(TreeService.SERVICE_PREFIX + 'unitplanneds/' + unit.id,
             unit,
@@ -197,7 +204,7 @@ export class TreeService {
     ******************************************************/
     public updateUnitModel(unit: UnitModel) {
         let headers = new Headers();
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         return this.http.put(TreeService.SERVICE_PREFIX + 'unitsmodel/' + unit.id,
             unit,
@@ -210,7 +217,7 @@ export class TreeService {
     ******************************************************/
     public createUnit(unit: Unit) {
         let headers = new Headers();
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         // console.log('you submitted unit for creation: ', unit);
 
@@ -225,7 +232,7 @@ export class TreeService {
     ******************************************************/
     public createUnitPlanned(unit: UnitPlanned) {
         let headers = new Headers();
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         // console.log('UnitPlanned = ' + JSON.stringify(unit));
         return this.http.post(TreeService.SERVICE_PREFIX + 'unitplanneds/',
@@ -239,7 +246,7 @@ export class TreeService {
     ******************************************************/
     public createUnitModel(unit: UnitModel) {
         let headers = new Headers();
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         return this.http.post(TreeService.SERVICE_PREFIX + 'unitsmodel/',
             unit,
@@ -254,7 +261,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Content-Type', 'multipart/form-data');
         headers.append('Accept', 'application/json');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         return this.http.patch(TreeService.SERVICE_PREFIX+ 'units/' + unit.id + '/changelogs',
             data,
@@ -269,7 +276,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Content-Type', 'multipart/form-data');
         headers.append('Accept', 'application/json');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         return this.http.post(TreeService.SERVICE_PREFIX + 'unitplanneds/' + id + '/unitschangelogattachments',
             data,
@@ -282,7 +289,7 @@ export class TreeService {
     ******************************************************/
     public deleteUnit(unit: Unit) {
         let headers = new Headers();
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/' + unit.id;
@@ -298,7 +305,7 @@ export class TreeService {
     ******************************************************/
     public deleteUnitPlanned(unit: UnitPlanned) {
         let headers = new Headers();
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitplanneds/' + unit.id;
@@ -314,7 +321,7 @@ export class TreeService {
     ******************************************************/
     public deleteUnitModel(unit: UnitModel) {
         let headers = new Headers();
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitsmodel/' + unit.id;
@@ -331,7 +338,7 @@ export class TreeService {
     public searchUnitsGeneric(query: string, level: number) {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/searchgeneric?do=1&query=' + query + "&level=" + level;
@@ -341,29 +348,27 @@ export class TreeService {
     }
 
     /******************************************************
-    *   search for units
+    *   build url for unit search and export
     ******************************************************/
-    public searchUnits(sigle: string,
-            label: string,
-            labelShort: string,
-            cf: string,
-            type: string,
-            level: string,
-            responsibleId: number,
-            createdAtStart: string,
-            createdAtEnd: string,
-            updatedAtStart: string,
-            updatedAtEnd: string,
-            onlyPermanent: string,
-            onlyValid: string,
-            attributesCriterias: any[]) {
-        
-        let headers = new Headers();
-        headers.append('Accept', 'application/json');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
-
-        let url: string;
-        url = TreeService.SERVICE_PREFIX + 'units/search?do=1';
+    private buildSearchUrl(
+        sigle: string,
+        label: string,
+        labelShort: string,
+        cf: string,
+        type: string,
+        level: string,
+        responsibleId: number,
+        hierarchy: string,
+        createdAtStart: string,
+        createdAtEnd: string,
+        updatedAtStart: string,
+        updatedAtEnd: string,
+        onlyPermanent: string,
+        onlyValid: string,
+        stateDate: string,
+        attributesCriterias: any[]) {
+    
+        let url: string = "";
         if (sigle != null && sigle != '%25%25') {
             url += '&sigle=' + sigle;
         }
@@ -376,14 +381,17 @@ export class TreeService {
         if (cf != null && cf != '%25%25') {
             url += '&cf=' + cf;
         }
-        if (type != null) {
+        if (type != null && type != '') {
             url += '&type=' + type;
         }
-        if (level != null) {
+        if (level != null && level != '') {
             url += '&level=' + level;
         }
-        if (responsibleId != null) {
+        if (responsibleId != null && responsibleId != 0) {
             url += '&responsibleId=' + responsibleId;
+        }
+        if (hierarchy != null && hierarchy != '') {
+            url += '&hierarchy=' + hierarchy;
         }
         if (createdAtStart != null) {
             url += '&createdAtStart=' + createdAtStart;
@@ -403,12 +411,14 @@ export class TreeService {
         else {
             url += '&onlyPermanent=N';
         }
-
         if (onlyValid) {
             url += '&onlyValid=Y';
         }
         else {
             url += '&onlyValid=N';
+        }
+        if (stateDate != null) {
+            url += '&stateDate=' + stateDate;
         }
         if (attributesCriterias != null && attributesCriterias.length > 0) {
             let attributesCriteriasString: string = "";
@@ -418,10 +428,80 @@ export class TreeService {
             url += '&attributes=' + attributesCriteriasString.substr(1);
         }
 
+        return url;
+   }
+
+   /******************************************************
+    *   search for units
+    ******************************************************/
+    public searchUnits(
+            sigle: string,
+            label: string,
+            labelShort: string,
+            cf: string,
+            type: string,
+            level: string,
+            responsibleId: number,
+            hierarchy: string,
+            createdAtStart: string,
+            createdAtEnd: string,
+            updatedAtStart: string,
+            updatedAtEnd: string,
+            onlyPermanent: string,
+            onlyValid: string,
+            stateDate: string,
+            attributesCriterias: any[]) {
+        
+        let headers = new Headers();
+        headers.append('Accept', 'application/json');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
+
+        let url: string;
+        url = TreeService.SERVICE_PREFIX + 'units/search?do=1';
+        url += this.buildSearchUrl(sigle, label, labelShort, cf, type, level, responsibleId, hierarchy, createdAtStart, createdAtEnd, updatedAtStart, updatedAtEnd, onlyPermanent, onlyValid, stateDate, attributesCriterias);
+        
         // console.log("calling " + url);
 
         return this.http.get(url, { headers: headers })
             .map((res) => Unit.fromJSONArray(res.json()));
+    }
+
+    /******************************************************
+    *   get the export file
+    ******************************************************/
+    public downloadExport(
+        sigle: string,
+        label: string,
+        labelShort: string,
+        cf: string,
+        type: string,
+        level: string,
+        responsibleId: number,
+        hierarchy: string,
+        createdAtStart: string,
+        createdAtEnd: string,
+        updatedAtStart: string,
+        updatedAtEnd: string,
+        onlyPermanent: string,
+        onlyValid: string,
+        stateDate: string,
+        attributesCriterias: any[]){
+
+        let headers = new Headers();
+        let fileContent: any;
+        headers.append('Accept', 'text/csv; charset=Cp1252');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
+
+        let url = TreeService.SERVICE_PREFIX + 'unitsexports?do=1' + this.buildSearchUrl(sigle, label, labelShort, cf, type, level, responsibleId, hierarchy, createdAtStart, createdAtEnd, updatedAtStart, updatedAtEnd, onlyPermanent, onlyValid, stateDate, attributesCriterias);
+        // console.log('Calling ' + url);
+
+        return this.http.get(url, { responseType: ResponseContentType.Blob, headers: headers })
+            .subscribe(
+                (response: any) => {                   
+                    FileSaver.saveAs(response.blob(), "export.csv");
+                },
+                (error) => console.log('Error retrieving file')
+            );
     }
 
     /******************************************************
@@ -434,7 +514,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitssearchtrees?do=1';
@@ -467,36 +547,13 @@ export class TreeService {
     public searchChangeLogAttachments(name: string) {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitschangelogattachments?name=' + name;
 
         return this.http.get(url, { headers: headers })
             .map((res) => ChangeLogAttachment.fromJSONArray(res.json()));
-    }
-
-    /******************************************************
-    *   get the export endpoint Url
-    ******************************************************/
-    public getExportUrl() {
-        return TreeService.SERVICE_PREFIX + 'unitsexports?do=1';
-    }
-    public downloadExport(id: number){
-        let headers = new Headers();
-        let fileContent: any;
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
-
-        let url = TreeService.SERVICE_PREFIX + 'unitsexports?do=1&' + id;
-        // console.log('Calling ' + url);
-
-        return this.http.get(url, { responseType: ResponseContentType.Blob, headers: headers })
-            .subscribe(
-                (response: any) => {                   
-                    FileSaver.saveAs(response.blob(), "export.csv");
-                },
-                (error) => console.log('Error retrieving file')
-            );
     }
 
     /******************************************************
@@ -508,7 +565,7 @@ export class TreeService {
     public downloadChangeLogAttachment(id: number, filename: string){
         let headers = new Headers();
         let fileContent: any;
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url = TreeService.SERVICE_PREFIX + 'unitschangelogattachments/' + id;
         // console.log('Calling ' + url);
@@ -529,7 +586,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitstypes';
@@ -545,7 +602,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitslangs';
@@ -561,7 +618,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitsattributes?rootUnitSigle=' + rootUnitSigle;
@@ -579,7 +636,7 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Accept', 'application/json');
         headers.append('Cache-Control', 'no-cache');
-        headers.append('Authorization', 'Bearer ' + localStorage.getItem('auth_token'));
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitsattributeenums/' + code;

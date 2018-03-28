@@ -30,18 +30,20 @@ const OptimizeJsPlugin = require('optimize-js-plugin');
  * Webpack Constants
  */
 const ENV = process.env.NODE_ENV = process.env.ENV = 'production';
-const UNITS_API_URL = process.env.UNITS_API_URL = 'https://infowww.epfl.ch/units-api/v1/';
-const SCIPER_API_URL = process.env.SCIPER_API_URL = 'https://infowww.epfl.ch/sciper-api/v1/';
-const CADI_API_URL = process.env.CADI_API_URL = 'https://infowww.epfl.ch/cadi-api/v1/';
-const ARCHIBUS_API_URL = process.env.ARCHIBUS_API_URL = 'http://infowww.epfl.ch/archibus-api/v1/';
+const APP_NAME = process.env.APP_NAME = 'appUnits';
+const UNITS_API_URL = process.env.UNITS_API_URL = 'https://api.epfl.ch/units/v1/';
+const SCIPER_API_URL = process.env.SCIPER_API_URL = 'https://api.epfl.ch/sciper/v1/';
+const CADI_API_URL = process.env.CADI_API_URL = 'https://api.epfl.ch/cadi/v1/';
+const ARCHIBUS_API_URL = process.env.ARCHIBUS_API_URL = 'https://api.epfl.ch/archibus/v1/';
 const OAUTH2_PROVIDER_URL = process.env.OAUTH2_PROVIDER_URL = 'https://tequila.epfl.ch/OAUTH2IdP/';
-const OAUTH2_TOKEN_PROXY_URL = process.env.OAUTH2_TOKEN_PROXY_URL = 'https://infowww.epfl.ch/ng-units-oauth2-proxy/v1/oauth2/getTokens';
+const OAUTH2_TOKEN_PROXY_URL = process.env.OAUTH2_TOKEN_PROXY_URL = 'https://api.epfl.ch/oauth2-proxy/v1/d518e10ce2bfdaee8c5484ba@epfl.ch/tokens';
 const OAUTH2_CLIENT_ID = process.env.OAUTH2_CLIENT_ID = 'd518e10ce2bfdaee8c5484ba@epfl.ch';
 const HOST = process.env.HOST || 'localhost';
 const PORT = process.env.PORT || 8080;
 const AOT = process.env.BUILD_AOT || helpers.hasNpmFlag('aot');
 const METADATA = {
   host: HOST,
+  APP_NAME: APP_NAME,
   UNITS_API_URL: UNITS_API_URL,
   SCIPER_API_URL: SCIPER_API_URL,
   CADI_API_URL: CADI_API_URL,
@@ -179,6 +181,7 @@ module.exports = function (env) {
       // NOTE: when adding more properties make sure you include them in custom-typings.d.ts
       new DefinePlugin({
         'ENV': JSON.stringify(METADATA.ENV),
+        'APP_NAME': JSON.stringify(METADATA.APP_NAME),
         'UNITS_API_URL': JSON.stringify(METADATA.UNITS_API_URL),
         'SCIPER_API_URL': JSON.stringify(METADATA.SCIPER_API_URL),
         'CADI_API_URL': JSON.stringify(METADATA.CADI_API_URL),
@@ -191,6 +194,7 @@ module.exports = function (env) {
         'process.env.ENV': JSON.stringify(METADATA.ENV),
         'process.env.NODE_ENV': JSON.stringify(METADATA.ENV),
         'process.env.HMR': METADATA.HMR,
+        'process.env.APP_NAME': JSON.stringify(METADATA.APP_NAME),
         'process.env.UNITS_API_URL' : JSON.stringify(METADATA.UNITS_API_URL),
         'process.env.SCIPER_API_URL' : JSON.stringify(METADATA.SCIPER_API_URL),
         'process.env.CADI_API_URL' : JSON.stringify(METADATA.CADI_API_URL),

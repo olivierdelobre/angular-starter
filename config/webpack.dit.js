@@ -20,6 +20,7 @@ const HotModuleReplacementPlugin = require('webpack/lib/HotModuleReplacementPlug
  * Webpack Constants
  */
 const ENV = process.env.ENV = process.env.NODE_ENV = 'dit';
+const APP_NAME = process.env.APP_NAME = 'appUnits';
 const UNITS_API_URL = process.env.UNITS_API_URL = 'http://localhost:8080/units-api/v1/';
 const SCIPER_API_URL = process.env.SCIPER_API_URL = 'http://localhost:8083/sciper-api/v1/';
 const CADI_API_URL = process.env.CADI_API_URL = 'http://localhost:8082/cadi-api/v1/';
@@ -34,6 +35,7 @@ const AOT = process.env.BUILD_AOT || helpers.hasNpmFlag('aot');
 const HMR = helpers.hasProcessFlag('hot');
 const METADATA = {
   host: HOST,
+  APP_NAME: APP_NAME,
   UNITS_API_URL: UNITS_API_URL,
   SCIPER_API_URL: SCIPER_API_URL,
   CADI_API_URL: CADI_API_URL,
@@ -153,6 +155,7 @@ module.exports = function (options) {
        */
       new DefinePlugin({
         'ENV': JSON.stringify(METADATA.ENV),
+        'APP_NAME': JSON.stringify(METADATA.APP_NAME),
         'UNITS_API_URL': JSON.stringify(METADATA.UNITS_API_URL),
         'SCIPER_API_URL': JSON.stringify(METADATA.SCIPER_API_URL),
         'CADI_API_URL': JSON.stringify(METADATA.CADI_API_URL),
@@ -164,6 +167,7 @@ module.exports = function (options) {
         'process.env.ENV': JSON.stringify(METADATA.ENV),
         'process.env.NODE_ENV': JSON.stringify(METADATA.ENV),
         'process.env.HMR': METADATA.HMR,
+        'process.env.APP_NAME': JSON.stringify(METADATA.APP_NAME),
         'process.env.UNITS_API_URL' : JSON.stringify(METADATA.UNITS_API_URL),
         'process.env.SCIPER_API_URL' : JSON.stringify(METADATA.SCIPER_API_URL),
         'process.env.CADI_API_URL' : JSON.stringify(METADATA.CADI_API_URL),

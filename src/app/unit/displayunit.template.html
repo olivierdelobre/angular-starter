@@ -1,0 +1,292 @@
+<app-unauthorized *ngIf="!authService.isLoggedIn() || (!authService.hasSuperAdminRole(loggedUserInfo) && !authService.hasLimitedWriteRole(loggedUserInfo) && !authService.hasReadRole(loggedUserInfo))"></app-unauthorized>
+<div *ngIf="selectedUnit.id != null && (authService.hasSuperAdminRole(loggedUserInfo) || authService.hasLimitedWriteRole(loggedUserInfo) || authService.hasReadRole(loggedUserInfo))">
+  <h1>{{ selectedUnit.sigle }} {{ selectedUnit.label }}</h1>
+    <tabset>
+      <tab heading="Données de base">
+        <div class="form-horizontal" style="margin-top: 10px;">
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Libellé</label>
+            <div class="col-sm-10">
+              <p class="form-text">
+                {{ selectedUnit.label }}
+              </p>
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Sigle</label>
+            <div class="col-sm-4">
+              <p class="form-text">
+                {{ selectedUnit.sigle }}
+              </p>
+            </div>
+            <label for="" class="col-sm-2 control-label">Abrégé</label>
+            <div class="col-sm-4">
+              <p class="form-text">
+                {{ selectedUnit.labelShort }}
+              </p>
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Type</label>
+            <div class="col-sm-4">
+              <p class="form-text">
+                {{ getUnitTypeLabel(selectedUnit) }}
+              </p>
+            </div>
+            <label for="" class="col-sm-2 control-label">Langue</label>
+            <div class="col-sm-4">
+              <p class="form-text">
+                {{ getUnitLangLabel(selectedUnit) }}
+              </p>
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Numéro</label>
+            <div class="col-sm-4">
+              <p class="form-text">
+                {{ selectedUnit.cfNumber }}
+              </p>
+            </div>
+            <label for="" class="col-sm-2 control-label">CF</label>
+            <div class="col-sm-4">
+              <p class="form-text">
+                  {{ selectedUnit.cf }}
+              </p>
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated" style="position: relative;">
+            <label for="" class="col-sm-2 control-label">Existe du</label>
+            <div class="col-sm-4">
+              <p class="form-text">
+                  {{ selectedUnit.from | date:"dd.MM.yyyy" }}
+              </p>
+            </div>
+            <label for="" class="col-sm-2 control-label">au</label>
+            <div class="col-sm-4">
+              <p class="form-text">
+                  {{ selectedUnit.to | date:"dd.MM.yyyy" }}
+              </p>
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Unité mère</label>
+            <div class="col-sm-10">
+              <p *ngIf="selectedParentUnit != null && selectedParentUnit.sigle != ''" class="form-text">
+                {{ selectedParentUnit.sigle }} ({{ selectedParentUnit.label }})
+              </p>
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Hiérarchie</label>
+            <div class="col-sm-10 hierarchy-container">
+              <app-hierarchy [unit]="unitHierarchy" [isRoot]="true"></app-hierarchy>
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Responsable</label>
+            <div class="col-sm-10">
+              <p *ngIf="selectedResponsible != null" class="form-text">
+                {{ selectedResponsible.displaynameLong }} ({{ selectedResponsible.id }})
+                <a target="_blank" href="http://people.epfl.ch/{{ selectedResponsible.id }}">
+                  <span class="glyphicon glyphicon-new-window" style="font-size: 65%;" title="Ouvrir sur people"></span>
+                </a>
+              </p>
+            </div>
+          </div>
+          <div *ngIf="getRootSigle(selectedUnit.sigleLong) != 'ENTREPRISES' && (selectedUnitModel == null || (selectedUnitModel != null && getRootSigle(selectedUnitModel.sigleLong) != 'ENTREPRISES')) && getRootSigle(selectedUnit.sigleLong) != 'TECHNIQUE' && (selectedUnitModel == null || (selectedUnitModel != null && getRootSigle(selectedUnitModel.sigleLong) != 'TECHNIQUE'))" class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Bureau</label>
+            <div class="col-sm-10">
+              <p *ngIf="selectedRoom != null" class="form-text">
+                {{ selectedRoom.label }}
+              </p>
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Adresse</label>
+            <div class="col-sm-10 text-cell" style="margin-top: 10px;">
+              <p [innerHTML]="selectedUnitAddress"></p>
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">N° ordre</label>
+            <div class="col-sm-2">
+              <p class="form-text">
+                {{ selectedUnit.position }}
+              </p>
+            </div>
+            <label for="" class="col-sm-2 control-label">Dans EPFL</label>
+            <div class="col-sm-2 text-cell">
+              <span *ngIf="selectedUnit.isEpfl == 1" class="glyphicon glyphicon-ok icon-green"></span>
+              <span *ngIf="selectedUnit.isEpfl == 0" class="glyphicon glyphicon-remove icon-red"></span>
+            </div>
+            <label for="" class="col-sm-2 control-label">Temporaire</label>
+            <div class="col-sm-2 text-cell">
+              <p>
+                {{ selectedUnit.isTemporary ? 'Oui' : 'Non' }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </tab>
+      <tab heading="Libellés multilingues">
+        <table class="table table-striped table-unit-labels">
+          <thead>
+            <tr>
+              <th style="width: 80px;">Langue</th>
+              <th>Sigle</th>
+              <th>Libellé</th>
+              <th>Abrégé</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><img src="assets/img/flag_FRA.png" style="width: 40px;" alt="Français" title="Français" /></td>
+              <td>{{ selectedUnit.sigle }}</td>
+              <td>{{ selectedUnit.label }}</td>
+              <td>{{ selectedUnit.labelShort }}</td>
+            </tr>
+            <tr>
+              <td><img src="assets/img/flag_ENG.png" style="width: 40px;" alt="Anglais" title="Anglais" /></td>
+              <td>
+                <p class="form-text">
+                  {{ labelENG.sigle }}
+                </p>
+              </td>
+              <td>
+                <p class="form-text">
+                  {{ labelENG.label }}
+                </p>
+              </td>
+              <td>
+                <p class="form-text">
+                  {{ labelENG.labelShort }}
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td><img src="assets/img/flag_GER.png" style="width: 40px;" alt="Allemand" title="Allemand" /></td>
+              <td>
+                <p class="form-text">
+                  {{ labelDEU.sigle }}
+                </p>
+              </td>
+              <td>
+                <p class="form-text">
+                  {{ labelDEU.label }}
+                </p>
+              </td>
+              <td>
+                <p class="form-text">
+                  {{ labelDEU.label }}
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td><img src="assets/img/flag_ITA.png" style="width: 40px;" alt="Italien" title="Italien" /></td>
+              <td>
+                <p class="form-text">
+                  {{ labelITA.sigle }}
+                </p>
+              </td>
+              <td>
+                <p class="form-text">
+                  {{ labelITA.label }}
+                </p>
+              </td>
+              <td>
+                <p class="form-text">
+                  {{ labelITA.label }}
+                </p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </tab>
+      <tab heading="Compléments">
+        <div class="attributes-panel">
+          <div class="attributes-table-panel">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Libellé</th>
+                  <th>Valeur</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let attributeType of attributesList">
+                  <tr *ngIf="(selectedUnit.attributes | attributefilter:attributeType.code).length > 0">
+                    <td>
+                      {{ attributeType.label }}
+                    </td>
+                    <td style="text-align: left;">
+                      <div *ngFor="let attributeValue of (selectedUnit.attributes | attributefilter:attributeType.code)" class="box-attribute-value">
+                        {{ attributeValue.text }}
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </tab>
+      <tab *ngIf="showAddressTab" heading="Adresse">
+        <div class="form-horizontal" style="margin-top: 10px;">
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Adresse 1</label>
+            <div class="col-sm-10">
+              <p class="form-text">
+                {{ selectedUnit.address.address1 }}
+              </p>
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Adresse 2</label>
+            <div class="col-sm-10">
+              <p class="form-text">
+                {{ selectedUnit.address.address2 }}
+              </p>
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Adresse 3</label>
+            <div class="col-sm-10">
+              <p class="form-text">
+                {{ selectedUnit.address.address3 }}
+              </p>
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Adresse 4</label>
+            <div class="col-sm-10">
+              <p class="form-text">
+                {{ selectedUnit.address.address4 }}
+              </p>
+            </div>
+          </div>
+          <div class="form-group" *ngIf="mode != 'EDIT_UNIT_MODEL'">
+            <label for="" class="col-sm-2 control-label">Adresse 5</label>
+            <div class="col-sm-10 form-text" *ngIf="selectedUnit.address && selectedUnit.address.address5 != null">
+              {{ selectedUnit.address.address5 }}
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Localité</label>
+            <div class="col-sm-10">
+              <div *ngIf="selectedLocation != null && selectedLocation.zipcode != null" class="selected-element-box" id="box-selected-location">
+                {{ selectedLocation.zipcode }} {{ selectedLocation.labelFrench }}
+              </div>
+            </div>
+          </div>
+          <div class="form-group form-group-unauthenticated">
+            <label for="" class="col-sm-2 control-label">Pays</label>
+            <div class="col-sm-10">
+              <div *ngIf="selectedCountry != null && selectedCountry.codeISO != null" class="selected-element-box" id="box-selected-country">
+                {{ selectedCountry.zipcode }} {{ selectedCountry.labelFrench }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </tab>
+    </tabset>
+  <div>

@@ -16,7 +16,7 @@ describe('Tree', () => {
    * 
    ************************************************************************************************************/
   it('should create and delete root unit',  async () => {
-    await browser.get('/#/arbre');
+    await browser.get('/#/unites');
     await browser.sleep(1000).then(function(){ });
     await element(by.id('create-root-unit-button')).click();
     await browser.sleep(1000).then(function(){ });
@@ -69,7 +69,7 @@ describe('Tree', () => {
    * 
    ************************************************************************************************************/
   it('should clone unit',  async () => {
-    await browser.get('/#/arbre');
+    await browser.get('/#/unites');
     await browser.sleep(1000).then(function(){ });
 
     // Open EPFL / SI / SI-IDEV
@@ -136,7 +136,7 @@ describe('Tree', () => {
 
 
   it('should filter tree for CF',  async () => {
-    await browser.get('/#/arbre');
+    await browser.get('/#/unites');
     await browser.sleep(500).then(function(){ });
 
     let filterInput = await element(by.id('input-filter'));
@@ -154,7 +154,7 @@ describe('Tree', () => {
 
 
   it('should filter tree for sigle',  async () => {
-    await browser.get('/#/arbre');
+    await browser.get('/#/unites');
     await browser.sleep(500).then(function(){ });
 
     let filterInput = await element(by.id('input-filter'));
@@ -178,7 +178,7 @@ describe('Tree', () => {
    * 
    ************************************************************************************************************/
   it('should create child unit',  async () => {
-    await browser.get('/#/arbre');
+    await browser.get('/#/unites');
     await browser.sleep(1000).then(function(){ });
 
     // Open EPFL / SI / SI-IDEV
@@ -298,7 +298,7 @@ describe('Tree', () => {
    * 
    ************************************************************************************************************/
   it('should update unit',  async () => {
-    await browser.get('/#/arbre');
+    await browser.get('/#/unites');
     await browser.sleep(500).then(function(){ });
 
     // Open EPFL / SI / SI-IDEV
@@ -636,7 +636,7 @@ describe('Tree', () => {
    * 
    ************************************************************************************************************/
   it('should create model unit',  async () => {
-    await browser.get('/#/arbre');
+    await browser.get('/#/unites');
     await browser.sleep(500).then(function(){ });
 
     // Open EPFL / SI / SI-IDEV
@@ -731,7 +731,7 @@ describe('Tree', () => {
    * 
    ************************************************************************************************************/
   it('should create planned unit',  async () => {
-    await browser.get('/#/arbre');
+    await browser.get('/#/unites');
     await browser.sleep(500).then(function(){ });
 
     // Open EPFL / SI / SI-IDEV

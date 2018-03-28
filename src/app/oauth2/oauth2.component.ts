@@ -31,13 +31,13 @@ export class OAuth2Component implements OnInit, OnDestroy {
 
     sub = this.route.params.subscribe((params) => {
       let tokensParam: string = params['token'];
-      let tokensArray: string[] = tokensParam.split('|');
+      let tokensArray: string[] = tokensParam.split('+');
       for (let tokensArrayItem of tokensArray) {
         let token: string[] = tokensArrayItem.split('.');
-        if (token[0] == 'Units') {
-          console.log('url params changed, new token = ' + token[1]);
-          localStorage.setItem('auth_token', token[1]);
+        console.log('url params changed, new token = ' + token[0] + '.' + token[1]);
+        localStorage.setItem(process.env.APP_NAME + '.' + token[0] + '.token', token[1]);
 
+        if (token[0] == 'Units') {
           // retrieve token info and push update
           this.authService.getUserinfo()
             .subscribe(
@@ -46,7 +46,14 @@ export class OAuth2Component implements OnInit, OnDestroy {
               },
               (error) => console.log('Failed to retrieve user info'),
               () => {
-                this.router.navigateByUrl('/arbre');
+                if (localStorage.getItem('targetUrl') == null) {
+                  this.router.navigateByUrl('/unites');
+                }
+                else {
+                  this.router.navigateByUrl(localStorage.getItem('targetUrl'));
+                  localStorage.setItem('targetUrl', null);
+                }
+                
               }
             );
         }        

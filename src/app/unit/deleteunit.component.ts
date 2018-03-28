@@ -53,6 +53,7 @@ export class DeleteUnitComponent implements OnInit, OnDestroy {
         (error) => {
           this.deleteConfirmationModal.hide();
           let errorBody = JSON.parse(error._body);
+          // console.log("Error message = " + errorBody.reasons[0].message);
           this.showView = false;
           this.messageTriggered.emit({ message: errorBody.reasons[0].message, level: 'danger' });
         },

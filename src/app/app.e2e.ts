@@ -4,7 +4,7 @@ import 'tslib';
 describe('App', () => {
 
   beforeEach(async () => {
-    await browser.get('/#/arbre');
+    await browser.get('/#/unites');
   });
 
   it('should have a title', async () => {
