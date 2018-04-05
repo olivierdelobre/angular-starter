@@ -180,7 +180,7 @@
     </div>
     <div *ngIf="searchResults && searchResults.length > 0" class="results-block">
       <div style="text-align: right; margin-bottom: 10px;">
-        <button class="btn btn-excel" (click)="searchUnit('export')">Exporter au format CSV&nbsp;&nbsp;<img src="assets/img/excel-icon.png" /></button>
+        <button class="btn btn-excel" (click)="searchUnit('export')" [disabled]="searchIsOngoing || !searchForm.valid">Exporter au format CSV&nbsp;&nbsp;<img src="assets/img/excel-icon.png" /></button>
       </div>
       <table class="table table-striped" id="results-table">
         <thead>

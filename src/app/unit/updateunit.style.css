@@ -86,6 +86,10 @@ div.hierarchy-container {
 .changelogattachment-cell {
   cursor: pointer;
   color: blue;
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .accumulated-changes-box {
   float: left;

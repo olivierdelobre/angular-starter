@@ -419,8 +419,8 @@
             <tab heading="Historique" *ngIf="mode == 'UPDATE' && authService.isLoggedIn()" id="tab-history">
               <form>
                 <div style="text-align: right; margin-top: 10px;" *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && changeLogs != null && changeLogs.length > 0">
-                  <button type="button" id="btn-set-changeLogAttachment" class="btn btn-danger" (click)="undocumentSelectedChangeLogs()">Supprimer le document</button>
-                  <button type="button" id="btn-set-changeLogAttachment" class="btn btn-primary" (click)="documentSelectedChangeLogs()">Associer un document</button>
+                  <button type="button" id="btn-set-changeLogAttachment" class="btn btn-danger" (click)="undocumentSelectedChangeLogs()" [disabled]="!isSomeChangeLogsSelected">Supprimer le document</button>
+                  <button type="button" id="btn-set-changeLogAttachment" class="btn btn-primary" (click)="documentSelectedChangeLogs()" [disabled]="!isSomeChangeLogsSelected">Associer un document</button>
                 </div>
                 <table class="table table-striped" style="font-size: 85%;">
                   <thead>
@@ -440,15 +440,15 @@
                     <ng-container *ngFor="let changeLog of changeLogs">
                     <tr class="tr-history-row">
                       <td *ngIf="authService.hasSuperAdminRole(loggedUserInfo)">
-                        <input type="checkbox" value="1" id="changeLogSelect_{{ changeLog.id }}" />
+                        <input type="checkbox" value="1" id="changeLogSelect_{{ changeLog.id }}" (click)="selectChangeLog(changeLog.id, false)" />
                       </td>
-                      <td (click)="selectChangeLog(changeLog.id)">
+                      <td (click)="selectChangeLog(changeLog.id, true)">
                         {{ changeLog.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}
                       </td>
-                      <td (click)="selectChangeLog(changeLog.id)">
+                      <td (click)="selectChangeLog(changeLog.id, true)">
                         {{ changeLog.createdBy }}
                       </td>
-                      <td (click)="selectChangeLog(changeLog.id)">
+                      <td (click)="selectChangeLog(changeLog.id, true)">
                         <template [ngIf]="changeLog.operationType == 'INIT'">
                           Initialisation
                         </template>
@@ -462,7 +462,7 @@
                           Suppression
                         </template>
                       </td>
-                      <td (click)="selectChangeLog(changeLog.id)">
+                      <td (click)="selectChangeLog(changeLog.id, true)">
                         <template [ngIf]="changeLog.fieldType == 'BASE'">
                           Base
                         </template>
@@ -476,7 +476,7 @@
                           Adresse
                         </template>
                       </td>
-                      <td (click)="selectChangeLog(changeLog.id)">
+                      <td (click)="selectChangeLog(changeLog.id, true)">
                         <template [ngIf]="changeLog.fieldName == 'SIGLE'">
                           Sigle
                         </template>
@@ -564,13 +564,13 @@
                           Adresse 5
                         </template>
                       </td>
-                      <td (click)="selectChangeLog(changeLog.id)">
+                      <td (click)="selectChangeLog(changeLog.id, true)">
                         {{ changeLog.fromValue }}
                       </td>
-                      <td (click)="selectChangeLog(changeLog.id)">
+                      <td (click)="selectChangeLog(changeLog.id, true)">
                         {{ changeLog.toValue }}
                       </td>
-                      <td *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && changeLog.attachment != null && changeLog.attachment.filename != null" (click)="getAttachment(changeLog.attachment.id, changeLog.attachment.filename)" class="changelogattachment-cell" title="{{ changeLog.attachment.description }}">
+                      <td *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && changeLog.attachment != null && changeLog.attachment.filename != null" (click)="getAttachment(changeLog.attachment.id, changeLog.attachment.filename)" class="changelogattachment-cell" title="{{ changeLog.attachment.description != null ? changeLog.attachment.description : changeLog.attachment.filename }}">
                         {{ changeLog.attachment.filename }}
                       </td>
                       <td *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && changeLog.attachment != null && changeLog.attachment.filename == null">
@@ -585,8 +585,8 @@
                 </table>
               </form>
               <div style="text-align: right; margin-top: 10px;" *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && changeLogs != null && changeLogs.length > 0">
-                <button type="button" id="btn-set-changeLogAttachment" class="btn btn-danger" (click)="undocumentSelectedChangeLogs()">Supprimer le document</button>
-                <button type="button" id="btn-set-changeLogAttachment" class="btn btn-primary" (click)="documentSelectedChangeLogs()">Associer un document</button>
+                <button type="button" id="btn-set-changeLogAttachment" class="btn btn-danger" (click)="undocumentSelectedChangeLogs()" [disabled]="!isSomeChangeLogsSelected">Supprimer le document</button>
+                <button type="button" id="btn-set-changeLogAttachment" class="btn btn-primary" (click)="documentSelectedChangeLogs()" [disabled]="!isSomeChangeLogsSelected">Associer un document</button>
               </div>
             </tab>
           </tabset>

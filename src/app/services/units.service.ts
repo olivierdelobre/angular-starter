@@ -495,13 +495,14 @@ export class TreeService {
         let url = TreeService.SERVICE_PREFIX + 'unitsexports?do=1' + this.buildSearchUrl(sigle, label, labelShort, cf, type, level, responsibleId, hierarchy, createdAtStart, createdAtEnd, updatedAtStart, updatedAtEnd, onlyPermanent, onlyValid, stateDate, attributesCriterias);
         // console.log('Calling ' + url);
 
-        return this.http.get(url, { responseType: ResponseContentType.Blob, headers: headers })
-            .subscribe(
-                (response: any) => {                   
-                    FileSaver.saveAs(response.blob(), "export.csv");
-                },
-                (error) => console.log('Error retrieving file')
-            );
+        // return this.http.get(url, { responseType: ResponseContentType.Blob, headers: headers })
+        //     .subscribe(
+        //         (response: any) => {                   
+        //             FileSaver.saveAs(response.blob(), "export.csv");
+        //         },
+        //         (error) => console.log('Error retrieving file')
+        //     );
+        return this.http.get(url, { responseType: ResponseContentType.Blob, headers: headers });
     }
 
     /******************************************************

@@ -13,6 +13,8 @@ import { SharedAppStateService } from '../services/sharedappstate.service';
 
 import { Utils } from '../common/utils';
 
+import * as FileSaver from 'file-saver';
+
 @Component({
   selector: 'list-export',
   providers: [ TreeService, AuthService ],
@@ -28,6 +30,7 @@ export class ListExportComponent implements OnInit, OnDestroy {
   private dateValidationPattern: string = '^(0?[1-9]|[12][0-9]|3[01])[\\.](0?[1-9]|1[012])[\\.](\\d{2}|\\d{4})$';
   private loggedUserInfo: any;
   private loggedUserInfoSubscription: Subscription;
+  private exportIsOngoing: boolean = false;
 
   constructor(private route: ActivatedRoute,
     private router: Router,
@@ -50,25 +53,51 @@ export class ListExportComponent implements OnInit, OnDestroy {
   *   search for a unit
   ******************************************************/
   private export(hierarchy: string) {
-    this.treeService.downloadExport(
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      hierarchy,
-      null,
-      null,
-      null,
-      null,
-      'Y',
-      'Y',
-      moment(this.stateDate).format("YYYYMMDD"),
-      []);
+    if (!this.exportIsOngoing) {
+      this.exportIsOngoing = true;
+
+      this.treeService.downloadExport(
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        hierarchy,
+        null,
+        null,
+        null,
+        null,
+        'Y',
+        'Y',
+        moment(this.stateDate).format("YYYYMMDD"),
+        []
+      ).subscribe(
+          (response: any) => {                   
+            FileSaver.saveAs(response.blob(), "export.csv");
+          },
+          (error) => console.log('Error retrieving file'),
+          () => {
+            this.exportIsOngoing = false;
+          }
+        );
+      ;
+    }
   }
 
+  /******************************************************
+  *   destroy component
+  ******************************************************/
+  public ngOnDestroy() {
+    if (this.loggedUserInfoSubscription != null) {
+      this.loggedUserInfoSubscription.unsubscribe();
+    }
+  }
+
+  /******************************************************
+  *   init component
+  ******************************************************/
   public ngOnInit() {
     this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "" };
     this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe(
@@ -89,11 +118,4 @@ export class ListExportComponent implements OnInit, OnDestroy {
 
     this.stateDate = Utils.getFormattedDate(moment().format('DD.MM.YYYY'), this.dateValidationPattern);
   }
-
-  public ngOnDestroy() {
-    if (this.loggedUserInfoSubscription != null) {
-      this.loggedUserInfoSubscription.unsubscribe();
-    }
-  }
-
 }

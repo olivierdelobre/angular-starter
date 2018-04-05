@@ -141,7 +141,9 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   public fromUnit: Unit;
   public showAddressTab: boolean = false;
   public unitAddress: Address;
-  public labelValidationPattern: string = '^[a-zA-Zà-öù-ÿÀ-ÖØ-ß,\'\\+\\-=\\s\\d\\.]{0,80}$';
+  private isSomeChangeLogsSelected : boolean = false;
+
+  public labelValidationPattern: string = '^[a-zA-Zà-öù-ÿÀ-ÖØ-ß,\'\\+\\-=\\s\\d\\.\\(\\)]{0,80}$';
   public sigleValidationPattern: string = '^[a-zA-Z\\-\\d]{0,12}$';
   public cfValidationPattern: string = '^[0-9]{4,5}$';
   public dateValidationPattern: string = '^(0?[1-9]|[12][0-9]|3[01])[\\.](0?[1-9]|1[012])[\\.](\\d{2}|\\d{4})$';
@@ -424,7 +426,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   delete a unit's attribute
   ******************************************************/
   private deleteAttribute(unit: Unit, attribute: Attribute) {
-    console.log('Delete attribute ' + attribute.id);
+    // console.log('Delete attribute ' + attribute.id);
     //this.selectedUnit.attributes = this.selectedUnit.attributes.filter((attributeTemp) => attributeTemp.id != attribute.id);
     this.selectedUnitAttributes = this.selectedUnitAttributes.filter((attributeTemp) => attributeTemp.id != attribute.id);
     this.hideAttributeFormPanel();
@@ -633,11 +635,11 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   ******************************************************/
   private personSelected(event) {
     this.unitForm.get('responsibleId').setValue(event.id);
-    console.log("person selected " + event.id);
+    // console.log("person selected " + event.id);
   }
 
   private responsibleSelected(responsible) {
-    console.log("responsible selected " + responsible.id);
+    // console.log("responsible selected " + responsible.id);
     this.selectedResponsible = responsible;
     this.searchReponsibleResults = [];
     this.unitForm.get('responsibleSearchText').setValue('');
@@ -691,7 +693,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   *   a parent is selected in the autocomplete select
   ******************************************************/
   private parentUnitSelected(unit) {
-    console.log("Parent Unit selected " + unit.id);
+    // console.log("Parent Unit selected " + unit.id);
     this.selectedParentUnit = unit;
     this.searchParentUnitResults = [];
     this.unitForm.get('parentUnitSearchText').setValue('');
@@ -767,7 +769,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.searchRoomShowResults = false;
     this.unitForm.get('roomSearchText').setValue('');
     this.unitForm.get('roomId').setValue(room.id);
-    console.log("room selected " + room.id);
+    // console.log("room selected " + room.id);
     this.showAddressTab = false;
     this.selectRoomModal.hide();
   }
@@ -1078,7 +1080,6 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           this.treeService.getUnitById(hierarchy.id)
             .subscribe(
               (unit) => {
-                console.log('refreshAddressForm');
                 this.refreshAddressForm(unit);
               },
               (error) => { },
@@ -1679,7 +1680,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
       // Handle address
       // If no room selected, then take info from the Address tab form
-      console.log('Update mode...');
+      // console.log('Update mode...');
       if ((this.selectedUnit.roomId == 0 || this.selectedUnit.roomId == null)
         && (this.unitForm.get('address1').value != null 
               || this.unitForm.get('address2').value != null
@@ -1774,7 +1775,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             // console.log('this.accumulatedChangeLogs = ' + JSON.stringify(this.accumulatedChangeLogs));
           },
           (error) => {
-            console.log("error updating unit");
+            console.log("Error updating unit");
             this.saveIsOngoing = false;
             let errorBody = JSON.parse(error._body);
             // this.messageTriggered.emit({ message: errorBody.reasons[0].message, level: 'danger' });
@@ -1782,7 +1783,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           },
           () => {
             if (this.errors.length == 0) {
-              console.log("updating unit finished");
+              // console.log("updating unit finished");
               this.saveIsOngoing = false;
 
               let mode = "SAVE";
@@ -1960,7 +1961,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           .subscribe(
             (res) => res,
             (error) => {
-              console.log("error updating unit");
+              console.log("Error updating unit");
               this.saveIsOngoing = false;
               let errorBody = JSON.parse(error._body);
               this.handleBackendErrors(errorBody);
@@ -1991,7 +1992,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               this.selectedUnitPlanned.id = +location.substring(location.lastIndexOf('/') + 1);
             },
             (error) => {
-              console.log("error creating unit planned");
+              console.log("Error creating unit planned");
               this.saveIsOngoing = false;
               // this.closeModal();
               // this.messageTriggered.emit({ message: 'Erreur lors de la création de l\'unité planifiée', level: 'danger' });
@@ -2118,7 +2119,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         this.selectedUnitModel.labels.push(label);
       }
 
-       console.log('you submitted unit: ', this.selectedUnitModel);
+      // console.log('you submitted unit: ', this.selectedUnitModel);
 
       // test if the unit Model already exist
       this.treeService.getUnitModelById(this.selectedUnitModel.id)
@@ -2129,14 +2130,14 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               .subscribe(
                 (res) => res,
                 (error) => {
-                  console.log("error updating unit model");
+                  console.log("Error updating unit model");
                   this.saveIsOngoing = false;
                   let errorBody = JSON.parse(error._body);
                   this.handleBackendErrors(errorBody);
                 },
                 () => {
                   if (this.errors.length == 0) {
-                    console.log("updating unit model finished");
+                    // console.log("Updating unit model finished");
                     this.saveIsOngoing = false;
                     let mode = "SAVE";
                     if (this.closeModalFlag) {
@@ -2166,7 +2167,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
                   this.handleBackendErrors(errorBody);
                 },
                 () => {
-                  console.log("creating unit model finished");
+                  // console.log("Creating unit model finished");
                   this.saveIsOngoing = false;
                   let mode = "SAVE";
                   if (this.closeModalFlag) {
@@ -2276,7 +2277,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           },
           () => {
             if (this.errors.length == 0) {
-              console.log("creating unit finished");
+              // console.log("Creating unit finished");
               this.saveIsOngoing = false;
               this.selectedUnit = unit;
               this.selectedUnit.id = this.generatedId;
@@ -2307,12 +2308,12 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       .subscribe(
         (res) => res,
         (error) => {
-          console.log("error deleting unit planned");
+          console.log("Error deleting unit planned");
           this.modal.hide();
           this.messageTriggered.emit({ message: "Erreur lors de la suppression de l'unité planifiée", level: "danger" });
         },
         () => {
-          console.log("deleting unit planned finished");
+          // console.log("Deleting unit planned finished");
           this.modal.hide();
           this.unitPlannedDone.emit({mode: '', unitPlanned: this.selectedUnitPlanned});
           this.messageTriggered
@@ -2330,12 +2331,12 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       .subscribe(
         (res) => res,
         (error) => {
-          console.log("error deleting unit Model");
+          console.log("Error deleting unit Model");
           this.modal.hide();
           this.messageTriggered.emit({ message: "Erreur lors de la suppression de l'unité modèle", level: "danger" });
         },
         () => {
-          console.log("deleting unit Model finished");
+          // console.log("Deleting unit Model finished");
           this.modal.hide();
           this.unitModelDone.emit(this.selectedUnitModel);
           this.messageTriggered.emit({ message: "Unité modèle supprimée avec succès", level: "success" });
@@ -2465,8 +2466,19 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   /******************************************************
   *   to check the checkbox for selected changelog
   ******************************************************/
-  private selectChangeLog(id: string) {
-    (<HTMLInputElement>document.getElementById('changeLogSelect_' + id)).checked = !(<HTMLInputElement>document.getElementById('changeLogSelect_' + id)).checked;
+  private selectChangeLog(id: string, invertCheckbox: boolean) {
+    if (invertCheckbox) {
+      (<HTMLInputElement>document.getElementById('changeLogSelect_' + id)).checked = !(<HTMLInputElement>document.getElementById('changeLogSelect_' + id)).checked;
+    }
+    // Check if something is selected
+    this.isSomeChangeLogsSelected = false;
+    for (let changeLog of this.changeLogs) {
+      // If element is checked, then add it to the changeLogs list to pass to the changedoc component
+      if ((<HTMLInputElement>document.getElementById('changeLogSelect_' + changeLog.id)).checked) {
+        this.isSomeChangeLogsSelected = true;
+        break;
+      }
+    }
   }
 
   /******************************************************
@@ -2513,7 +2525,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     // console.log("jsonArrayOuput = " + jsonArrayOuput);
     this.treeService.patchChangeLogs(this.selectedUnit, this.changeAttachmentData).subscribe(
       (res) => {
-        console.log("ChangeLogs updated successfully");
+        // console.log("ChangeLogs updated successfully");
         this.changeDocCreated();
       },
       (error) => {

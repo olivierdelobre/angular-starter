@@ -24,6 +24,8 @@ import { ListUnitPlannedComponent } from '../unit/listunitplanned.component';
 
 import { Utils } from '../common/utils';
 
+import * as FileSaver from 'file-saver';
+
 @Component({
   selector: 'app-search',
   providers: [ TreeService, AuthService, SciperService, CadiService ],
@@ -171,7 +173,6 @@ export class SearchComponent implements OnInit, OnDestroy {
         );
     }
     else if (mode == "export") {
-      this.searchIsOngoing = false;
       this.treeService.downloadExport('%25' + this.searchForm.get('sigle').value + '%25',
         '%25' + this.searchForm.get('label').value + '%25',
         null,
@@ -187,7 +188,16 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.searchForm.get('onlyPermanent').value,
         this.searchForm.get('onlyValid').value,
         moment(this.stateDate).format("YYYYMMDD"),
-        attributesCriterias);
+        attributesCriterias
+      ).subscribe(
+        (response: any) => {                   
+          FileSaver.saveAs(response.blob(), "export.csv");
+        },
+        (error) => console.log('Error retrieving file'),
+        () => {
+          this.searchIsOngoing = false;
+        }
+      );
     }
   }
 
@@ -527,9 +537,9 @@ export class SearchComponent implements OnInit, OnDestroy {
       attribute_criterias: this.fb.array([])
     });
 
-    console.log('loggedUserInfo = ' + JSON.stringify(this.loggedUserInfo));
-    console.log('authService.hasSuperAdminRole = ' + this.authService.hasSuperAdminRole(this.loggedUserInfo));
-    console.log('authService.hasReadRole = ' + this.authService.hasReadRole(this.loggedUserInfo));
+    // console.log('loggedUserInfo = ' + JSON.stringify(this.loggedUserInfo));
+    // console.log('authService.hasSuperAdminRole = ' + this.authService.hasSuperAdminRole(this.loggedUserInfo));
+    // console.log('authService.hasReadRole = ' + this.authService.hasReadRole(this.loggedUserInfo));
 
     if (!this.authService.isLoggedIn()) {
       return;

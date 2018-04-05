@@ -11,12 +11,12 @@
         </div>
     </div>
     <div class="list-export-box">
-        <span class="cursor-pointer" (click)="export('EPFL%25')">
+        <span class="cursor-pointer" (click)="export('EPFL%25')" [ngStyle]="{cursor: exportIsOngoing ? 'not-allowed' : 'pointer'}">
             Extraction de la liste csv (Excel) de toutes les unités <b>EPFL</b> au {{ stateDateDate | date:"dd.MM.yyyy" }}
         </span>
         <br />
         <br />
-        <span class="cursor-pointer" (click)="export('EHE%25')">
+        <span class="cursor-pointer" (click)="export('EHE%25')" [ngStyle]="{cursor: exportIsOngoing ? 'not-allowed' : 'pointer'}">
             Extraction de la liste csv (Excel) de toutes les unités <b>hors EPFL</b>
             <br />
             (y compris les unités <b>Entreprises</b> et <b>Technique</b>) au {{ stateDateDate | date:"dd.MM.yyyy" }}
