@@ -52,6 +52,7 @@ export class TreeService {
 
         url += '&stateDate=' + stateDate.slice(0,10).replace(/-/g,'');
 
+        this.checkToken(url);
         // console.log("calling " + url);
 
         return this.http.get(url, { headers: headers })
@@ -78,6 +79,7 @@ export class TreeService {
             url += "&withattributes";
         }
 
+        this.checkToken(url);
         // console.log("calling " + url);
         return this.http.get(url, { headers: headers })
             .map((res) => new Unit(res.json()));
@@ -96,6 +98,7 @@ export class TreeService {
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitplanneds/' + id + '?withlabels&withattributes';
 
+        this.checkToken(url);
         // console.log("calling " + url);
         return this.http.get(url, { headers: headers })
             .map((res) => new UnitPlanned(res.json()));
@@ -114,6 +117,7 @@ export class TreeService {
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/' + unitId + '/unitplanneds?withlabels&withattributes';
 
+        this.checkToken(url);
         // console.log("calling " + url);
         return this.http.get(url, { headers: headers })
             .map((res) => UnitPlanned.fromJSONArray(res.json()));
@@ -132,6 +136,7 @@ export class TreeService {
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitsmodel/' + id + '?withlabels&withattributes';
 
+        this.checkToken(url);
         // console.log("calling " + url);
         return this.http.get(url, { headers: headers })
             .map((res) => new UnitModel(res.json()));
@@ -150,6 +155,8 @@ export class TreeService {
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/' + id + '/changelogs';
 
+        this.checkToken(url);
+
         return this.http.get(url, { headers: headers })
             .map((res) => ChangeLog.fromJSONArray(res.json()));
     }
@@ -166,6 +173,8 @@ export class TreeService {
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/' + id + '/hierarchy';
 
+        this.checkToken(url);
+
         return this.http.get(url, { headers: headers })
             .map((res) => res.json());
     }
@@ -179,8 +188,12 @@ export class TreeService {
         headers.append('Accept', 'application/json');
         headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
+        let url: string;
+        url = TreeService.SERVICE_PREFIX + 'units/' + unit.id;
+
+        this.checkToken(url);
         // console.log('UnitPlanned = ' + JSON.stringify(unit));
-        return this.http.put(TreeService.SERVICE_PREFIX + 'units/' + unit.id,
+        return this.http.put(url,
             unit,
             { headers: headers })
             .map((res: Response) => res.text());
@@ -193,7 +206,12 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
-        return this.http.put(TreeService.SERVICE_PREFIX + 'unitplanneds/' + unit.id,
+        let url: string;
+        url = TreeService.SERVICE_PREFIX + 'unitplanneds/' + unit.id;
+
+        this.checkToken(url);
+
+        return this.http.put(url,
             unit,
             { headers: headers })
             .map((res) => res);
@@ -206,7 +224,12 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
-        return this.http.put(TreeService.SERVICE_PREFIX + 'unitsmodel/' + unit.id,
+        let url: string;
+        url = TreeService.SERVICE_PREFIX + 'unitsmodel/' + unit.id;
+
+        this.checkToken(url);
+
+        return this.http.put(url,
             unit,
             { headers: headers })
             .map((res) => res);
@@ -220,8 +243,12 @@ export class TreeService {
         headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         // console.log('you submitted unit for creation: ', unit);
+        let url: string;
+        url = TreeService.SERVICE_PREFIX + 'units/';
 
-        return this.http.post(TreeService.SERVICE_PREFIX + 'units/',
+        this.checkToken(url);
+
+        return this.http.post(url,
             unit,
             { headers: headers })
             .map((res: Response) => res);
@@ -235,7 +262,13 @@ export class TreeService {
         headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
         // console.log('UnitPlanned = ' + JSON.stringify(unit));
-        return this.http.post(TreeService.SERVICE_PREFIX + 'unitplanneds/',
+        // console.log('you submitted unit for creation: ', unit);
+        let url: string;
+        url = TreeService.SERVICE_PREFIX + 'unitplanneds/';
+
+        this.checkToken(url);
+
+        return this.http.post(url,
             unit,
             { headers: headers })
             .map((res) => res);
@@ -248,7 +281,12 @@ export class TreeService {
         let headers = new Headers();
         headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
-        return this.http.post(TreeService.SERVICE_PREFIX + 'unitsmodel/',
+        let url: string;
+        url = TreeService.SERVICE_PREFIX + 'unitsmodel/';
+
+        this.checkToken(url);
+        
+        return this.http.post(url,
             unit,
             { headers: headers })
             .map((res) => res);
@@ -263,7 +301,12 @@ export class TreeService {
         headers.append('Accept', 'application/json');
         headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
-        return this.http.patch(TreeService.SERVICE_PREFIX+ 'units/' + unit.id + '/changelogs',
+        let url: string;
+        url = TreeService.SERVICE_PREFIX+ 'units/' + unit.id + '/changelogs';
+
+        this.checkToken(url);
+
+        return this.http.patch(url,
             data,
             { headers: headers })
             .map((res) => res);
@@ -278,7 +321,12 @@ export class TreeService {
         headers.append('Accept', 'application/json');
         headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
 
-        return this.http.post(TreeService.SERVICE_PREFIX + 'unitplanneds/' + id + '/unitschangelogattachments',
+        let url: string;
+        url = TreeService.SERVICE_PREFIX + 'unitplanneds/' + id + '/unitschangelogattachments';
+
+        this.checkToken(url);
+
+        return this.http.post(url,
             data,
             { headers: headers })
             .map((res) => res);
@@ -295,6 +343,7 @@ export class TreeService {
         url = TreeService.SERVICE_PREFIX + 'units/' + unit.id;
 
         // console.log("calling " + url);
+        this.checkToken(url);
 
         return this.http.delete(url, { headers: headers })
             .map((res) => res);
@@ -311,6 +360,7 @@ export class TreeService {
         url = TreeService.SERVICE_PREFIX + 'unitplanneds/' + unit.id;
 
         // console.log("calling " + url);
+        this.checkToken(url);
 
         return this.http.delete(url, { headers: headers })
             .map((res) => res);
@@ -327,6 +377,7 @@ export class TreeService {
         url = TreeService.SERVICE_PREFIX + 'unitsmodel/' + unit.id;
 
         // console.log("calling " + url);
+        this.checkToken(url);
 
         return this.http.delete(url, { headers: headers })
             .map((res) => res);
@@ -342,6 +393,8 @@ export class TreeService {
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'units/searchgeneric?do=1&query=' + query + "&level=" + level;
+
+        this.checkToken(url);
 
         return this.http.get(url, { headers: headers })
             .map((res) => Unit.fromJSONArray(res.json()));
@@ -461,6 +514,7 @@ export class TreeService {
         url += this.buildSearchUrl(sigle, label, labelShort, cf, type, level, responsibleId, hierarchy, createdAtStart, createdAtEnd, updatedAtStart, updatedAtEnd, onlyPermanent, onlyValid, stateDate, attributesCriterias);
         
         // console.log("calling " + url);
+        this.checkToken(url);
 
         return this.http.get(url, { headers: headers })
             .map((res) => Unit.fromJSONArray(res.json()));
@@ -494,6 +548,7 @@ export class TreeService {
 
         let url = TreeService.SERVICE_PREFIX + 'unitsexports?do=1' + this.buildSearchUrl(sigle, label, labelShort, cf, type, level, responsibleId, hierarchy, createdAtStart, createdAtEnd, updatedAtStart, updatedAtEnd, onlyPermanent, onlyValid, stateDate, attributesCriterias);
         // console.log('Calling ' + url);
+        this.checkToken(url);
 
         // return this.http.get(url, { responseType: ResponseContentType.Blob, headers: headers })
         //     .subscribe(
@@ -537,6 +592,7 @@ export class TreeService {
         }
 
         // console.log("calling " + url);
+        this.checkToken(url);
 
         return this.http.get(url, { headers: headers })
             .map((res) => Unit.fromJSONArray(res.json()));
@@ -552,6 +608,8 @@ export class TreeService {
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitschangelogattachments?name=' + name;
+
+        this.checkToken(url);
 
         return this.http.get(url, { headers: headers })
             .map((res) => ChangeLogAttachment.fromJSONArray(res.json()));
@@ -570,6 +628,7 @@ export class TreeService {
 
         let url = TreeService.SERVICE_PREFIX + 'unitschangelogattachments/' + id;
         // console.log('Calling ' + url);
+        this.checkToken(url);
 
         return this.http.get(url, { responseType: ResponseContentType.Blob, headers: headers })
             .subscribe(
@@ -592,6 +651,8 @@ export class TreeService {
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitstypes';
 
+        this.checkToken(url);
+
         return this.http.get(url, { headers: headers })
             .map((res) => UnitType.fromJSONArray(res.json()));
     }
@@ -607,6 +668,8 @@ export class TreeService {
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitslangs';
+
+        this.checkToken(url);
 
         return this.http.get(url, { headers: headers })
             .map((res) => UnitLang.fromJSONArray(res.json()));
@@ -625,6 +688,7 @@ export class TreeService {
         url = TreeService.SERVICE_PREFIX + 'unitsattributes?rootUnitSigle=' + rootUnitSigle;
 
         // console.log("calling " + url);
+        this.checkToken(url);
 
         return this.http.get(url, { headers: headers })
             .map((res) => UnitAttribute.fromJSONArray(res.json()));
@@ -641,8 +705,19 @@ export class TreeService {
 
         let url: string;
         url = TreeService.SERVICE_PREFIX + 'unitsattributeenums/' + code;
+        this.checkToken(url);
 
         return this.http.get(url, { headers: headers })
             .map((res) => UnitAttributeEnum.fromJSONArray(res.json()));
+    }
+
+
+    /******************************************************
+    *   Debug purpose...print token is empty if token is empty
+    ******************************************************/
+    private checkToken(url: string) {
+        if (localStorage.getItem(process.env.APP_NAME + '.Units.token') == null || localStorage.getItem(process.env.APP_NAME + '.Units.token') == '') {
+            console.log("Token is empty when calling " + url);
+        }
     }
 }
