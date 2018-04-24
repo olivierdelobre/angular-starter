@@ -486,16 +486,22 @@ export class SearchComponent implements OnInit, OnDestroy {
   *   on init
   ******************************************************/
   public ngOnInit() {
+    if (!this.authService.isLoggedIn()) {
+      localStorage.setItem('targetUrl', this.router.url);
+      this.authService.redirectToLogin();
+      return;
+    }
+
     // console.log('ngOnInit `Tree` component');
     // console.log('auth_token = ' + localStorage.getItem('auth_token'));
     this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "" };
     this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe(
       (info) => {
         this.loggedUserInfo = info;
-        if (!this.authService.isLoggedIn()) {
-          localStorage.setItem('targetUrl', this.router.url);
-          this.authService.redirectToLogin();
-        }
+        // if (!this.authService.isLoggedIn()) {
+        //   localStorage.setItem('targetUrl', this.router.url);
+        //   this.authService.redirectToLogin();
+        // }
       },
       (error) => {},
       () => {}

@@ -99,14 +99,20 @@ export class ListExportComponent implements OnInit, OnDestroy {
   *   init component
   ******************************************************/
   public ngOnInit() {
+    if (!this.authService.isLoggedIn()) {
+      localStorage.setItem('targetUrl', this.router.url);
+      this.authService.redirectToLogin();
+      return;
+    }
+
     this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "" };
     this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe(
       (info) => {
         this.loggedUserInfo = info;
-        if (!this.authService.isLoggedIn()) {
-          localStorage.setItem('targetUrl', this.router.url);
-          this.authService.redirectToLogin();
-        }
+        // if (!this.authService.isLoggedIn()) {
+        //   localStorage.setItem('targetUrl', this.router.url);
+        //   this.authService.redirectToLogin();
+        // }
       },
       (error) => {},
       () => {}

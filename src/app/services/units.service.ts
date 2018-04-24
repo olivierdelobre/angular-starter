@@ -713,6 +713,24 @@ export class TreeService {
 
 
     /******************************************************
+    *   get next available FC
+    ******************************************************/
+    public getNextAvailableFC(pattern: string) {
+        let headers = new Headers();
+        headers.append('Accept', 'application/json');
+        headers.append('Cache-Control', 'no-cache');
+        headers.append('Authorization', 'Bearer ' + localStorage.getItem(process.env.APP_NAME + '.Units.token'));
+
+        let url: string;
+        url = TreeService.SERVICE_PREFIX + 'fcs/' + pattern;
+        this.checkToken(url);
+
+        return this.http.get(url, { headers: headers })
+            .map((res) => res.json());
+    }
+
+
+    /******************************************************
     *   Debug purpose...print token is empty if token is empty
     ******************************************************/
     private checkToken(url: string) {

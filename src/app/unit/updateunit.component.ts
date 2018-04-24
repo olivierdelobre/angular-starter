@@ -146,6 +146,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   public labelValidationPattern: string = '^[a-zA-Zà-öù-ÿÀ-ÖØ-ß,\'\\+\\-=\\s\\d\\.\\(\\)]{0,80}$';
   public sigleValidationPattern: string = '^[a-zA-Z\\-\\d]{0,12}$';
   public cfValidationPattern: string = '^[0-9]{4,5}$';
+  public cfModelValidationPattern: string = '^[0-9\*]{4,5}$';
   public dateValidationPattern: string = '^(0?[1-9]|[12][0-9]|3[01])[\\.](0?[1-9]|1[012])[\\.](\\d{2}|\\d{4})$';
 
   constructor(public router: Router,
@@ -1023,7 +1024,6 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       if (unitModel.parentId != null && unitModel.parentId != 0) {
         this.refreshParentUnitSelected(unitModel.parentId);
       }
-
       //retrieve attributes from unit service
       this.selectedUnitAttributes = unitModel.attributes;
     }
@@ -1074,22 +1074,29 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
       // If no model existed, then init the address form with address from level 1 unit
       this.treeService.getUnitHierarchy(this.parentUnit.id)
-      .subscribe(
-        (hierarchy) => {
-          // get Unit data for the level 1 unit in hierarchy
-          this.treeService.getUnitById(hierarchy.id)
-            .subscribe(
-              (unit) => {
-                this.refreshAddressForm(unit);
-              },
-              (error) => { },
-              () => { }
-            );
-        },
-        (error) => { },
-        () => { }
-      );
+        .subscribe(
+          (hierarchy) => {
+            // get Unit data for the level 1 unit in hierarchy
+            this.treeService.getUnitById(hierarchy.id)
+              .subscribe(
+                (unit) => {
+                  this.refreshAddressForm(unit);
+                },
+                (error) => { },
+                () => { }
+              );
+          },
+          (error) => { },
+          () => { }
+        );
     }
+
+    //retrieve next available FC
+    this.unitForm.get('cf').setValue('1***');
+    if (unitModel != null && unitModel.cf != null && unitModel.cf != '') {
+      this.unitForm.get('cf').setValue(unitModel.cf);
+    }
+    this.refreshFC();
 
     // // If "EPFL", room is mandatory
     // if (this.getRootSigle(this.parentUnit.sigleLong) == 'EPFL') {
@@ -1259,7 +1266,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       type: this.fb.control(unit.type),
       lang: this.fb.control(unit.lang),
       cfNumber: this.fb.control({ value: unit.cfNumber, disabled: true }),
-      cf: this.fb.control(unit.cf, [Validators.pattern(this.cfValidationPattern)]),
+      cf: this.fb.control(unit.cf, [Validators.pattern(this.cfModelValidationPattern)]),
       from: this.fb.control(unit.from == null ? '':moment(unit.from).format('DD.MM.YYYY'), [Validators.pattern(this.dateValidationPattern)]),
       to: this.fb.control(unit.to == null ? '':moment(unit.to).format('DD.MM.YYYY'), [Validators.pattern(this.dateValidationPattern)]),
       responsible: this.fb.control(''),
@@ -1616,6 +1623,9 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         this.makeUnitFieldInvalid('from');
       if (reason.code == 'E2002')
         this.makeUnitFieldInvalid('to');
+      
+      if (reason.code == 'E9003')
+        this.makeUnitFieldInvalid('cf');
     }
     this.alertsModal.show();
   }
@@ -1848,7 +1858,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       // handle other base form values
       //this.selectedUnitPlanned.unitId = unit.id;
       this.selectedUnitPlanned.isTemporary = unit.isTemporary;
-      this.selectedUnitPlanned.sigle = unit.sigle;
+      this.selectedUnitPlanned.sigle = unit.sigle.toUpperCase();
       this.selectedUnitPlanned.label = unit.label;
       this.selectedUnitPlanned.labelShort = unit.labelShort;
       this.selectedUnitPlanned.type = unit.type;
@@ -2027,7 +2037,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
 
       // handle other base form values
       this.selectedUnitModel.isTemporary = unit.isTemporary;
-      this.selectedUnitModel.sigle = unit.sigle;
+      this.selectedUnitModel.sigle = unit.sigle != null ? unit.sigle.toUpperCase() : '';
       this.selectedUnitModel.label = unit.label;
       this.selectedUnitModel.labelShort = unit.labelShort;
       this.selectedUnitModel.type = unit.type;
@@ -2680,6 +2690,29 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   }
 
   /******************************************************
+  *   Refresh FC in UI
+  ******************************************************/
+  private refreshFC() {
+    if (this.mode != 'EDIT_UNIT_MODEL') {
+      console.log("Refresh FC from " + this.unitForm.get('cf').value);
+      this.treeService.getNextAvailableFC(this.unitForm.get('cf').value)
+        .subscribe(
+          (res) => {
+            this.unitForm.get('cf').setValue(res.fc);
+            this.setCfNumber();
+          },
+          (error) => {
+            console.log("Error retrieving next FC");
+            this.saveIsOngoing = false;
+            let errorBody = JSON.parse(error._body);
+            this.handleBackendErrors(errorBody);
+          },
+          () => { }
+        );
+      }
+  }
+
+  /******************************************************
   *   Get root unit sigle
   ******************************************************/
   private getRootSigle(hierarchy: string) {
@@ -2704,8 +2737,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   ******************************************************/
   public ngOnInit() {
     this.loggedUserInfo = { "username": "", "uniqueid": 0, "scopes": "" };
-    this.loggedUserInfoSubscription =
-      this.sharedAppStateService.loggedUserInfo.subscribe((info) => this.loggedUserInfo = info);
+    this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe((info) => this.loggedUserInfo = info);
 
     this.root = null;
     this.selectedUnit = new Unit({});

@@ -376,6 +376,12 @@ export class TreeComponent implements OnInit, OnDestroy {
   *   on init
   ******************************************************/
   public ngOnInit() {
+    if (!this.authService.isLoggedIn()) {
+      localStorage.setItem('targetUrl', this.router.url);
+      this.authService.redirectToLogin();
+      return;
+    }
+
     // console.log('ngOnInit `Tree` component');
     this.stateDate = moment().format('YYYYMMDD');
 
@@ -399,10 +405,10 @@ export class TreeComponent implements OnInit, OnDestroy {
     this.loggedUserInfoSubscription = this.sharedAppStateService.loggedUserInfo.subscribe(
       (info) => {
         this.loggedUserInfo = info;
-        if (!this.authService.isLoggedIn()) {
-          localStorage.setItem('targetUrl', this.router.url);
-          this.authService.redirectToLogin();
-        }
+        // if (!this.authService.isLoggedIn()) {
+        //   localStorage.setItem('targetUrl', this.router.url);
+        //   this.authService.redirectToLogin();
+        // }
       },
       (error) => {},
       () => {}

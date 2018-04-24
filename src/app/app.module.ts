@@ -46,6 +46,7 @@ import { CapitalizePipe } from './common/capitalize.pipe';
 import { SigleInputDirective } from './directives/sigleInput.directive';
 import { DateInputDirective } from './directives/dateInput.directive';
 import { NumberInputDirective } from './directives/numberInput.directive';
+import { FcInputDirective } from './directives/fcInput.directive';
 import { UnitLabelInputDirective } from './directives/unitLabelInput.directive';
 
 // Application wide providers
@@ -87,7 +88,7 @@ type StoreType = {
     NoContentComponent,
     UnauthorizedComponent,
     AttributeFilterPipe, CapitalizePipe, ContainsPipe,
-    SigleInputDirective, NumberInputDirective, UnitLabelInputDirective, DateInputDirective
+    SigleInputDirective, NumberInputDirective, UnitLabelInputDirective, DateInputDirective, FcInputDirective
   ],
   imports: [ // import Angular's modules
     BrowserModule,

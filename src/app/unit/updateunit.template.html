@@ -80,10 +80,15 @@
                   </div>
                   <label for="" class="col-sm-2 control-label">CF</label>
                   <div class="col-sm-4">
-                    <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && mode != 'UPDATE' && mode != 'EDIT_UNIT_PLANNED'" type="text" class="form-control" formControlName="cf" (keyup)="setCfNumber()" id="input-cf" number-input />
-                    <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) || mode == 'UPDATE' || mode == 'EDIT_UNIT_PLANNED'" class="form-text">
-                        {{ selectedUnit.cf }}
-                    </p>
+                    <div style="position: relative;">
+                      <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && mode != 'UPDATE' && mode != 'EDIT_UNIT_PLANNED'" type="text" class="form-control" formControlName="cf" (keyup.enter)="refreshFC()" (keyup)="setCfNumber()" id="input-cf" fc-input />
+                      <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) || mode == 'UPDATE' || mode == 'EDIT_UNIT_PLANNED'" class="form-text">
+                          {{ selectedUnit.cf }}
+                      </p>
+                      <div *ngIf="mode != 'EDIT_UNIT_MODEL'" style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="refreshFC()">
+                        <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="form-group" style="position: relative;" [ngClass]='{ "form-group-unauthenticated": !authService.hasSuperAdminRole(loggedUserInfo) }'>
@@ -108,7 +113,7 @@
                     <div *ngIf="selectedParentUnit != null && selectedParentUnit.sigle != ''" class="selected-element-box" id="box-selected-parent">
                       {{ selectedParentUnit.sigle }} ({{ selectedParentUnit.label }})
                     </div>
-                    <div  style="position: relative;">
+                    <div style="position: relative;">
                       <input *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" type="text" class="form-control" formControlName="parentUnitSearchText" placeholder="Rechercher par sigle, libellé, CF..." (keyup.enter)="searchParentUnit()" id="input-parent-search" />
                       <div *ngIf="searchParentUnitIsOngoing" style="position: absolute; top: 6px; right: 30px;">
                         <img src="/assets/img/spinner.gif" />
@@ -597,8 +602,8 @@
           </div>
           <img *ngIf="saveIsOngoing" src="/assets/img/spinner.gif" />&nbsp;&nbsp;
           <button type="button" id="btn-close-unit-update" class="btn btn-default" data-dismiss="modal" (click)="closeModal()" [disabled]="saveIsOngoing">Fermer</button>
-          <button type="button" id="btn-delete-unit-planned" class="btn btn-danger" *ngIf="mode == 'EDIT_UNIT_PLANNED' && unitPlannedExists" data-dismiss="modal" (click)="deleteUnitPlanned()">Supprimer</button>
-          <button type="button" id="btn-delete-unit-model" class="btn btn-danger" *ngIf="mode == 'EDIT_UNIT_MODEL' && unitModelExists" data-dismiss="modal" (click)="deleteUnitModel()">Supprimer le modèle</button>
+          <button type="button" id="btn-delete-unit-planned" class="btn btn-danger" *ngIf="mode == 'EDIT_UNIT_PLANNED' && unitPlannedExists" data-dismiss="modal" (click)="deleteUnitPlanned()" [disabled]="saveIsOngoing || !unitForm.valid">Supprimer</button>
+          <button type="button" id="btn-delete-unit-model" class="btn btn-danger" *ngIf="mode == 'EDIT_UNIT_MODEL' && unitModelExists" data-dismiss="modal" (click)="deleteUnitModel()" [disabled]="saveIsOngoing || !unitForm.valid">Supprimer le modèle</button>
           <button type="submit" id="btn-save-unit" class="btn btn-primary" *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasLimitedWriteRole(loggedUserInfo)" [disabled]="saveIsOngoing || !unitForm.valid">Enregistrer</button>
           <button type="submit" id="btn-save-unit-and-close" class="btn btn-primary" *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasLimitedWriteRole(loggedUserInfo)" [disabled]="saveIsOngoing || !unitForm.valid" (click)="setCloseFlag()">Enregistrer puis fermer</button>
         </div>
