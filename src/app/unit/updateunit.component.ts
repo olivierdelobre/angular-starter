@@ -1545,6 +1545,21 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   /******************************************************
   *   Handle errors raised by backend API
   ******************************************************/
+  private parseError(error: any) {
+    try {
+      let errorBody = JSON.parse(error._body);
+      return errorBody;
+    }
+    catch (e) {
+      console.log(error);
+      console.log(e);
+      return "{\"status\":\"error\",\"reasons\":[{\"code\": \"F0000\", \"message\":\"Unknown frontend error\"}]}";
+    }
+  }
+
+  /******************************************************
+  *   Handle errors raised by backend API
+  ******************************************************/
   private handleBackendErrors(body: any) {
     this.errors = [];
     this.alerts = [];
@@ -1644,6 +1659,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     // console.log('saving unit: ', JSON.stringify(unit));
 
     this.saveIsOngoing = true;
+    this.errors = [];
+    this.alerts = [];
 
     // If no location selected, then take the string that is in the search input
     if (this.selectedLocation.zipcode == null) {
@@ -1785,17 +1802,16 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             // console.log('this.accumulatedChangeLogs = ' + JSON.stringify(this.accumulatedChangeLogs));
           },
           (error) => {
-            console.log("Error updating unit");
+            console.log("Error updating unit " + error);
             this.saveIsOngoing = false;
-            let errorBody = JSON.parse(error._body);
+            let errorBody = this.parseError(error);
             // this.messageTriggered.emit({ message: errorBody.reasons[0].message, level: 'danger' });
             this.handleBackendErrors(errorBody);
           },
           () => {
+            this.saveIsOngoing = false;
             if (this.errors.length == 0) {
               // console.log("updating unit finished");
-              this.saveIsOngoing = false;
-
               let mode = "SAVE";
               if (this.closeModalFlag) {
                 mode = "SAVE_AND_CLOSE";
@@ -1973,14 +1989,13 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
             (error) => {
               console.log("Error updating unit");
               this.saveIsOngoing = false;
-              let errorBody = JSON.parse(error._body);
+              let errorBody = this.parseError(error);
               this.handleBackendErrors(errorBody);
             },
             () => {
+              this.saveIsOngoing = false;
               if (this.errors.length == 0) {
                 // console.log("updating unit finished");
-                this.saveIsOngoing = false;
-
                 let mode = "SAVE";
                 if (this.closeModalFlag) {
                   mode = "SAVE_AND_CLOSE";
@@ -2006,7 +2021,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               this.saveIsOngoing = false;
               // this.closeModal();
               // this.messageTriggered.emit({ message: 'Erreur lors de la création de l\'unité planifiée', level: 'danger' });
-              let errorBody = JSON.parse(error._body);
+              let errorBody = this.parseError(error);
               this.handleBackendErrors(errorBody);
             },
             () => {
@@ -2140,15 +2155,15 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
               .subscribe(
                 (res) => res,
                 (error) => {
-                  console.log("Error updating unit model");
+                  // console.log("Error updating unit model");
                   this.saveIsOngoing = false;
-                  let errorBody = JSON.parse(error._body);
+                  let errorBody = this.parseError(error);
                   this.handleBackendErrors(errorBody);
                 },
                 () => {
+                  this.saveIsOngoing = false;
                   if (this.errors.length == 0) {
                     // console.log("Updating unit model finished");
-                    this.saveIsOngoing = false;
                     let mode = "SAVE";
                     if (this.closeModalFlag) {
                       mode = "SAVE_AND_CLOSE";
@@ -2170,10 +2185,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
                 (error) => {
                   console.log("error creating unit model");
                   this.saveIsOngoing = false;
-                  // this.closeModal();
-                  // let errorBody = JSON.parse(error._body);
-                  // this.messageTriggered.emit({ message: 'Erreur lors de la création de l\'unité modèle', level: 'danger' });
-                  let errorBody = JSON.parse(error._body);
+                  let errorBody = this.parseError(error);
                   this.handleBackendErrors(errorBody);
                 },
                 () => {
@@ -2282,13 +2294,13 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           (error) => {
             console.log("error creating unit");
             this.saveIsOngoing = false;
-            let errorBody = JSON.parse(error._body);
+            let errorBody = this.parseError(error);
             this.handleBackendErrors(errorBody);
           },
           () => {
+            this.saveIsOngoing = false;
             if (this.errors.length == 0) {
               // console.log("Creating unit finished");
-              this.saveIsOngoing = false;
               this.selectedUnit = unit;
               this.selectedUnit.id = this.generatedId;
               this.generatedChangeLogs = [];
@@ -2704,7 +2716,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
           (error) => {
             console.log("Error retrieving next FC");
             this.saveIsOngoing = false;
-            let errorBody = JSON.parse(error._body);
+            let errorBody = this.parseError(error);
             this.handleBackendErrors(errorBody);
           },
           () => { }

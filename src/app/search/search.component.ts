@@ -320,15 +320,15 @@ export class SearchComponent implements OnInit, OnDestroy {
   private createOrUpdateUnitModel(unit: Unit) {
     this.treeService.getUnitModelById(unit.id)
       .subscribe(
-        unitModel => {
+        (unitModel) => {
           this.selectedUnitModel = unitModel;
         },
         (error) => {
           // console.log('error getting unit model, getting unit details to build unit model');
           this.treeService.getUnitById(unit.id)
           .subscribe(
-            unitToBuildFrom => {
-              //initiate a new unit planned from selected unit
+            (unitToBuildFrom) => {
+              //initiate a new unit model from selected unit
               this.selectedUnitModel = UnitModel.fromUnit(unitToBuildFrom);
             },
             (error) => console.log('error getting unit'),

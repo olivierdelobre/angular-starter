@@ -10,31 +10,30 @@ export class UnitModel {
 
     public static fromUnit(unit: Unit) {
         let unitModel = new UnitModel({});
-        unitModel.cf = unit.cf;
-        unitModel.cfNumber = unit.cfNumber;
+        unitModel.cf = '';//unit.cf;
+        unitModel.cfNumber = null;//unit.cfNumber;
         unitModel.id = unit.id;
         unitModel.isEpfl = unit.isEpfl;
-        unitModel.isTemporary = unit.isTemporary;
+        unitModel.isTemporary = true;//unit.isTemporary;
         unitModel.isValid = unit.isValid;
-        unitModel.from = unit.from;
-        unitModel.to = unit.to;
-        unitModel.label = unit.label;
-        unitModel.labelShort = unit.labelShort;
+        unitModel.from = null;//unit.from;
+        unitModel.to = null;//unit.to;
+        unitModel.label = '';//unit.label;
+        unitModel.labelShort = '';//unit.labelShort;
         unitModel.lang = unit.lang;
         unitModel.level = unit.level;
-        unitModel.sigleLong = unit.sigleLong;
+        unitModel.sigleLong = '';//unit.sigleLong;
         unitModel.parentId = unit.parentId;
-        unitModel.position = unit.position;
-        unitModel.responsibleId = unit.responsibleId;
-        unitModel.roomId = unit.roomId;
-        unitModel.sigle = unit.sigle;
-        unitModel.station = unit.station;
+        unitModel.position = null;//unit.position;
+        unitModel.responsibleId = null;//unit.responsibleId;
+        unitModel.roomId = null;//unit.roomId;
+        unitModel.sigle = '';//unit.sigle;
+        unitModel.station = '';//unit.station;
         unitModel.type = unit.type;
-        unitModel.zipcode = unit.zipcode;
-        unitModel.labels = unit.labels;
-        unitModel.attributes = unit.attributes;
-        unitModel.address = unit.address;
-
+        unitModel.zipcode = null;//unit.zipcode;
+        unitModel.labels = [];//unit.labels;
+        unitModel.attributes = [];//unit.attributes;
+        unitModel.address = new Address({});//unit.address;
         return unitModel;
     }
 
