@@ -85,7 +85,7 @@
                       <p *ngIf="!authService.hasSuperAdminRole(loggedUserInfo) || mode == 'UPDATE' || mode == 'EDIT_UNIT_PLANNED'" class="form-text">
                           {{ selectedUnit.cf }}
                       </p>
-                      <div *ngIf="mode != 'EDIT_UNIT_MODEL'" style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="refreshFC()">
+                      <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo) && mode != 'EDIT_UNIT_MODEL'" style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="refreshFC()">
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
                     </div>
@@ -118,7 +118,7 @@
                       <div *ngIf="searchParentUnitIsOngoing" style="position: absolute; top: 6px; right: 30px;">
                         <img src="/assets/img/spinner.gif" />
                       </div>
-                      <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchParentUnit()">
+                      <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchParentUnit()">
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
                     </div>
@@ -150,7 +150,7 @@
                       <div *ngIf="searchResponsibleIsOngoing" style="position: absolute; top: 6px; right: 30px;">
                         <img src="/assets/img/spinner.gif" />
                       </div>
-                      <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchResponsible()">
+                      <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchResponsible()">
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
                     </div>
@@ -173,7 +173,7 @@
                       <div *ngIf="searchRoomIsOngoing" style="position: absolute; top: 6px; right: 30px;">
                         <img src="/assets/img/spinner.gif" />   
                       </div>
-                      <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchRoom()">
+                      <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchRoom()">
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
                       <div *ngIf="searchRoomErrorMessage != null" class="search-result-box-error">
@@ -387,7 +387,7 @@
                       <div *ngIf="searchLocationIsOngoing" style="position: absolute; top: 6px; right: 30px;">
                         <img src="/assets/img/spinner.gif" />   
                       </div>
-                      <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchLocation()">
+                      <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchLocation()">
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
                     </div>
@@ -410,7 +410,7 @@
                       <div *ngIf="searchCountrIsOngoing" style="position: absolute; top: 6px; right: 30px;">
                         <img src="/assets/img/spinner.gif" />   
                       </div>
-                      <div style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchCountry()">
+                      <div *ngIf="authService.hasSuperAdminRole(loggedUserInfo)" style="position: absolute; top: 6px; right: 10px;" class="cursor-pointer" (click)="searchCountry()">
                         <img src="/assets/icon/ic_search_black_18dp_1x.png" />   
                       </div>
                     </div>
