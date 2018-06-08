@@ -143,7 +143,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   public unitAddress: Address;
   private isSomeChangeLogsSelected : boolean = false;
 
-  public labelValidationPattern: string = '^[a-zA-Zà-öù-ÿÀ-ÖØ-ß,\'\\+\\-=\\s\\d\\.\\(\\)]{0,80}$';
+  public labelValidationPattern: string = '^[a-zA-Zà-öù-ÿÀ-ÖØ-ß,\'\\+\\-=\\s\\d\\.\\(\\)&]{0,80}$';
   public sigleValidationPattern: string = '^[a-zA-Z\\-\\d]{0,12}$';
   public cfValidationPattern: string = '^[0-9]{4,5}$';
   public cfModelValidationPattern: string = '^[0-9\*]{4,5}$';
