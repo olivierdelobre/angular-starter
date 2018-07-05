@@ -143,7 +143,8 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
   public unitAddress: Address;
   private isSomeChangeLogsSelected : boolean = false;
 
-  public labelValidationPattern: string = '^[a-zA-Zà-öù-ÿÀ-ÖØ-ß,\'\\+\\-=\\s\\d\\.\\(\\)&]{0,80}$';
+  public labelValidationPattern: string = '^[a-zA-Zà-öù-ÿÀ-ÖØ-ß,\'\\+\\-=\\s\\d\\.\\(\\)&@\\*/]{0,80}$';
+  public labelShortValidationPattern: string = '^[a-zA-Zà-öù-ÿÀ-ÖØ-ß,\'\\+\\-=\\s\\d\\.\\(\\)&@\\*/]{0,40}$';
   public sigleValidationPattern: string = '^[a-zA-Z\\-\\d]{0,12}$';
   public cfValidationPattern: string = '^[0-9]{4,5}$';
   public cfModelValidationPattern: string = '^[0-9\*]{4,5}$';
@@ -811,7 +812,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.unitForm = this.fb.group({
       label: this.fb.control(unit.label, [Validators.required, Validators.pattern(this.labelValidationPattern)]),
       sigle: this.fb.control(unit.sigle, [Validators.required, Validators.pattern(this.sigleValidationPattern)]),
-      labelShort: this.fb.control(unit.labelShort, [Validators.required, Validators.maxLength(40)]),
+      labelShort: this.fb.control(unit.labelShort, [Validators.required, Validators.pattern(this.labelShortValidationPattern)]),
       type: this.fb.control(unit.type),
       lang: this.fb.control(unit.lang),
       cfNumber: this.fb.control({ value: unit.cfNumber, disabled: true }, Validators.required),
@@ -960,7 +961,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       this.unitForm = this.fb.group({
         label: this.fb.control(unitModel.label, [Validators.required, Validators.pattern(this.labelValidationPattern)]),
         sigle: this.fb.control(unitModel.sigle, [Validators.required, Validators.pattern(this.sigleValidationPattern)]),
-        labelShort: this.fb.control(unitModel.labelShort, [Validators.required, Validators.maxLength(40)]),
+        labelShort: this.fb.control(unitModel.labelShort, [Validators.required, Validators.pattern(this.labelShortValidationPattern)]),
         type: this.fb.control(unitModel.type),
         lang: this.fb.control(unitModel.lang),
         cfNumber: this.fb.control({ value: unitModel.cfNumber, disabled: true }, Validators.required),
@@ -1031,7 +1032,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
       this.unitForm = this.fb.group({
         label: this.fb.control('', [Validators.required, Validators.pattern(this.labelValidationPattern)]),
         sigle: this.fb.control('', [Validators.required, Validators.pattern(this.sigleValidationPattern)]),
-        labelShort: this.fb.control('', [Validators.required, Validators.maxLength(40)]),
+        labelShort: this.fb.control('', [Validators.required, Validators.pattern(this.labelShortValidationPattern)]),
         type: this.fb.control(''),
         lang: this.fb.control('FRA'),
         cfNumber: this.fb.control({ value: '', disabled: true }, Validators.required),
@@ -1153,7 +1154,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.unitForm = this.fb.group({
       label: this.fb.control(unit.label, [Validators.required, Validators.pattern(this.labelValidationPattern)]),
       sigle: this.fb.control(unit.sigle, [Validators.required, Validators.pattern(this.sigleValidationPattern)]),
-      labelShort: this.fb.control(unit.labelShort, [Validators.required, Validators.maxLength(40)]),
+      labelShort: this.fb.control(unit.labelShort, [Validators.required, Validators.pattern(this.labelShortValidationPattern)]),
       type: this.fb.control(unit.type),
       lang: this.fb.control(unit.lang),
       cfNumber: this.fb.control({ value: unit.cfNumber, disabled: true }, Validators.required),
@@ -1262,7 +1263,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
     this.unitForm = this.fb.group({
       label: this.fb.control(unit.label, [Validators.pattern(this.labelValidationPattern)]),
       sigle: this.fb.control(unit.sigle, [Validators.pattern(this.sigleValidationPattern)]),
-      labelShort: this.fb.control(unit.labelShort, [Validators.maxLength(40)]),
+      labelShort: this.fb.control(unit.labelShort, [Validators.pattern(this.labelShortValidationPattern)]),
       type: this.fb.control(unit.type),
       lang: this.fb.control(unit.lang),
       cfNumber: this.fb.control({ value: unit.cfNumber, disabled: true }),
