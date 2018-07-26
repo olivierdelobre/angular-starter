@@ -918,6 +918,7 @@ export class UpdateUnitComponent implements OnInit, OnDestroy {
         + this.selectedUnit.from.substr(5, 2) + '/'
         + this.selectedUnit.from.substr(0, 4);
     }
+    this.selectedUnitToString = '';
     if (this.selectedUnit.to != null) {
       this.selectedUnitToString = this.selectedUnit.to.substr(8, 2) + '/'
         + this.selectedUnit.to.substr(5, 2) + '/'
