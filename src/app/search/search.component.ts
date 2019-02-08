@@ -396,6 +396,30 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   /******************************************************
+  *   reset search form
+  ******************************************************/
+ public resetForm(): void {
+  this.searchForm = this.fb.group({
+      sigle: this.fb.control(''),
+      label: this.fb.control(''),
+      cf: this.fb.control(''),
+      type: this.fb.control(''),
+      level: this.fb.control(''),
+      responsible: this.fb.control(''),
+      responsibleId: this.fb.control(''),
+      responsibleSearchText: this.fb.control(''),
+      hierarchy: this.fb.control(''),
+      createdAtStart: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
+      createdAtEnd: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
+      updatedAtStart: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
+      updatedAtEnd: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
+      onlyPermanent: this.fb.control(''),
+      onlyValid: this.fb.control(''),
+      attribute_criterias: this.fb.array([])
+    });
+  }
+
+  /******************************************************
   *   autocomplete result for unit responsible search
   ******************************************************/
   private searchResponsible() {
@@ -524,24 +548,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       stateDate: this.fb.control(moment().format('DD.MM.YYYY'), [Validators.required, Validators.pattern(this.dateValidationPattern)])
     });
 
-    this.searchForm = this.fb.group({
-      sigle: this.fb.control(''),
-      label: this.fb.control(''),
-      cf: this.fb.control(''),
-      type: this.fb.control(''),
-      level: this.fb.control(''),
-      responsible: this.fb.control(''),
-      responsibleId: this.fb.control(''),
-      responsibleSearchText: this.fb.control(''),
-      hierarchy: this.fb.control(''),
-      createdAtStart: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
-      createdAtEnd: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
-      updatedAtStart: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
-      updatedAtEnd: this.fb.control('', [Validators.pattern(this.dateValidationPattern)]),
-      onlyPermanent: this.fb.control(''),
-      onlyValid: this.fb.control(''),
-      attribute_criterias: this.fb.array([])
-    });
+    this.resetForm();
 
     // console.log('loggedUserInfo = ' + JSON.stringify(this.loggedUserInfo));
     // console.log('authService.hasSuperAdminRole = ' + this.authService.hasSuperAdminRole(this.loggedUserInfo));

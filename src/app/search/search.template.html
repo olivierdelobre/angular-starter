@@ -7,7 +7,7 @@
 <div class="search-container" *ngIf="authService.hasSuperAdminRole(loggedUserInfo) || authService.hasReadRole(loggedUserInfo)">
   <div>
     <div class="grey-container">
-      <form (ngSubmit)="searchUnit('search')" [formGroup]="searchForm" (keydown.enter)="$event.preventDefault()">
+      <form [formGroup]="searchForm" (keydown.enter)="$event.preventDefault()">
         <div class="row">
           <div class="col-md-4">
             <label style="font-weight: normal;">
@@ -169,7 +169,8 @@
             <b>Trouvés</b> : {{ searchResults.length }}
           </div>
           <img *ngIf="searchIsOngoing" id="spinner-searching" src="/assets/img/spinner.gif" />
-          <button type="submit" id="search-button" class="btn btn-primary" [disabled]="searchIsOngoing || !searchForm.valid">Rechercher les unités</button>
+          <button id="reset-button" class="btn btn-default" (click)="resetForm()">Réinitialiser</button>
+          <button type="submit" id="search-button" class="btn btn-primary" [disabled]="searchIsOngoing || !searchForm.valid" (click)="searchUnit('search')">Rechercher les unités</button>
         </div>
       </form>
     </div>
